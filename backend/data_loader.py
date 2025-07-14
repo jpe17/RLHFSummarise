@@ -15,14 +15,13 @@ class SummarizationDataset(Dataset):
     def __getitem__(self, idx):
         example = self.data[idx]
         
-        # Format for summarization: input is the prompt, target is the summary
+        # Format for summarization: direct prompt -> summary mapping
         input_text = example['prompt'].strip()
         target_text = example['ideal_summary'].strip()
         
-        # For training, we need to create input->output pairs
-        # Input: just the prompt
-        # Target: the full sequence (prompt + summary) for teacher forcing
-        full_text = f"{input_text}\n\nSummary: {target_text}"
+        # Simple concatenation: the model learns that after seeing a post, it should generate a summary
+        # No preprompting or labels - just post followed by summary
+        full_text = f"{input_text}\n\n{target_text}"
         
         # Tokenize the full sequence
         tokens = self.tokenizer(

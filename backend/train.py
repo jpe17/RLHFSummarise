@@ -14,12 +14,14 @@ import math
 MODEL_ID = "Qwen/Qwen2-0.5B"
 DEVICE = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
 
-# Training config - More conservative settings for stability
-BATCH_SIZE = 4  # Reduced for stability
-GRADIENT_ACCUMULATION_STEPS = 8  # Increased to maintain effective batch size
-LEARNING_RATE = 1e-5  # Reduced learning rate for better stability
-NUM_EPOCHS = 3
-MAX_GRAD_NORM = 1.0  # Gradient clipping to prevent instability
+# Fast iteration config
+BATCH_SIZE = 2  # Smaller batches for speed
+GRADIENT_ACCUMULATION_STEPS = 2  # Less accumulation
+LEARNING_RATE = 5e-5  # Higher learning rate for faster convergence
+NUM_EPOCHS = 1  # Just 1 epoch for testing
+MAX_GRAD_NORM = 1.0
+MAX_TRAIN_SAMPLES = 100  # Limit training data for fast iteration
+MAX_VAL_SAMPLES = 20   # Limit validation data
 
 def train_epoch(model, dataloader, optimizer, scaler):
     """Train one epoch with mixed precision and improved error handling."""

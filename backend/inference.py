@@ -132,16 +132,16 @@ class SummarizationInference:
     
     def create_prompt(self, post: str) -> str:
         """
-        Create input for summarization that matches training format
+        Create input for summarization - just the raw post text
         
         Args:
             post: The post text to summarize
             
         Returns:
-            The prompt formatted to match training (post + "Summary:")
+            The post text with newlines (model should continue with summary)
         """
-        # Match the training format: post + "Summary:" (model should complete with the summary)
-        return f"{post.strip()}\n\nSummary:"
+        # No preprompting - just the post followed by newlines, model should generate summary
+        return f"{post.strip()}\n\n"
     
     def summarize(self, post: str, temperature: float = 0.7, top_p: float = 0.9, 
                   do_sample: bool = True) -> Dict[str, Any]:
@@ -192,13 +192,9 @@ class SummarizationInference:
             # Decode output
             full_output = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
             
-            # Extract just the summary part (everything after "Summary:")
-            if "Summary:" in full_output:
-                # Split on "Summary:" and take the last part (the generated summary)
-                summary = full_output.split("Summary:")[-1].strip()
-            else:
-                # Fallback: everything after the original prompt
-                summary = full_output[len(prompt):].strip()
+            # Extract just the generated part (everything after the original prompt)
+            # The prompt ends with "\n\n", so everything after that is the generated summary
+            summary = full_output[len(prompt):].strip()
             
             return {
                 "summary": summary,
