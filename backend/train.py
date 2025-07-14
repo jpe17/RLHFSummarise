@@ -16,13 +16,13 @@ MODEL_ID = "Qwen/Qwen2-0.5B"
 DEVICE = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
 
 # Fast iteration config - CPU/GPU friendly
-BATCH_SIZE = 1  # Tiny batches for stability
+BATCH_SIZE = 4  # Tiny batches for stability
 GRADIENT_ACCUMULATION_STEPS = 4  # Accumulate to effective batch size of 4
-LEARNING_RATE = 2e-5  # Conservative learning rate
-NUM_EPOCHS = 1  # Just 1 epoch for testing
+LEARNING_RATE = 1e-5  # Conservative learning rate
+NUM_EPOCHS = 5  # Just 1 epoch for testing
 MAX_GRAD_NORM = 1.0
-MAX_TRAIN_SAMPLES = 50  # Even smaller for testing
-MAX_VAL_SAMPLES = 10   # Minimal validation data
+MAX_TRAIN_SAMPLES = 5000  # Even smaller for testing
+MAX_VAL_SAMPLES = 1000   # Minimal validation data
 USE_MIXED_PRECISION = False  # Disable mixed precision to avoid FP16 issues
 
 def train_epoch(model, dataloader, optimizer, scaler):
