@@ -2,3 +2,4 @@
 venv/
 data/axis_evals
 data/comparisons
+backend/__pycache__/

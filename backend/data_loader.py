@@ -15,74 +15,65 @@ class SummarizationDataset(Dataset):
     def __getitem__(self, idx):
         example = self.data[idx]
         
-        # Format for summarization: direct prompt -> summary mapping
         input_text = example['prompt'].strip()
         target_text = example['ideal_summary'].strip()
         
-        # Simple concatenation: the model learns that after seeing a post, it should generate a summary
-        # No preprompting or labels - just post followed by summary
-        full_text = f"{input_text}\n\n{target_text}"
+        # Tokenize the separator WITHOUT truncation to get true length
+        separator = f"Please summarize:\n\n{input_text}\n\nSummary:"
+        sep_tokens = self.tokenizer(separator, return_tensors="pt")["input_ids"].squeeze()
         
-        # Tokenize the full sequence
-        tokens = self.tokenizer(
-            full_text, 
-            truncation=True, 
-            padding="max_length", 
-            max_length=self.max_length, 
-            return_tensors="pt"
-        )
+        # Now tokenize the full text WITH truncation
+        full_text = f"Please summarize:\n\n{input_text}\n\nSummary: {target_text}"
+        encoding = self.tokenizer(full_text, truncation=True, max_length=self.max_length, return_tensors="pt")
+        input_ids = encoding["input_ids"].squeeze()
         
-        # For causal LM, labels are the same as input_ids (shifted internally by the model)
-        return {
-            "input_ids": tokens["input_ids"].squeeze(),
-            "attention_mask": tokens["attention_mask"].squeeze(),
-            "labels": tokens["input_ids"].squeeze()
-        }
+        # Calculate mask length properly
+        mask_length = min(len(sep_tokens), len(input_ids))
+        
+        labels = input_ids.clone()
+        labels[:mask_length] = -100
+        
+        return {"input_ids": input_ids, "labels": labels}
 
 def load_data():
-    """Load dataset."""
-    dataset = load_dataset("json", data_files={
-        "train": "data/train.jsonl",
-        "validation": "data/valid.jsonl"
-    })
-    return dataset
+    return load_dataset("json", data_files={"train": "data/train.jsonl", "validation": "data/valid.jsonl"})
 
 def setup_tokenizer(model_id):
-    """Setup tokenizer for base QWEN models."""
     tokenizer = AutoTokenizer.from_pretrained(model_id, trust_remote_code=True)
-    
-    # Set pad token - base models typically use eos_token as pad_token
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
-        tokenizer.pad_token_id = tokenizer.eos_token_id
-    
-    print(f"Tokenizer vocab size: {tokenizer.vocab_size}")
-    print(f"Pad token: {tokenizer.pad_token} (ID: {tokenizer.pad_token_id})")
-    
     return tokenizer
 
-def create_dataloaders(dataset, tokenizer, batch_size=4, max_length=512, max_train_samples=None, max_val_samples=None):
-    """Create train and validation dataloaders."""
-    
-    # Limit dataset size for fast iteration if specified
+def create_dataloaders(dataset, tokenizer, batch_size=4, max_length=512, max_train_samples=None):
     train_data = dataset["train"]
     val_data = dataset["validation"]
     
     if max_train_samples:
         train_data = train_data.select(range(min(max_train_samples, len(train_data))))
-        print(f"🚀 Limited training data to {len(train_data)} samples for fast iteration")
-        
-    if max_val_samples:
-        val_data = val_data.select(range(min(max_val_samples, len(val_data))))
-        print(f"🚀 Limited validation data to {len(val_data)} samples for fast iteration")
+        val_data = val_data.select(range(min(max_train_samples//5, len(val_data))))
     
     train_dataset = SummarizationDataset(train_data, tokenizer, max_length)
     val_dataset = SummarizationDataset(val_data, tokenizer, max_length)
     
-    # Reduce num_workers to avoid tokenizer parallelism issues
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=0)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size, num_workers=0)
+    # Simple padding function
+    def pad_batch(batch):
+        max_len = max(len(item["input_ids"]) for item in batch)
+        padded = []
+        for item in batch:
+            input_ids = item["input_ids"]
+            labels = item["labels"]
+            pad_len = max_len - len(input_ids)
+            if pad_len > 0:
+                input_ids = torch.cat([input_ids, torch.zeros(pad_len, dtype=input_ids.dtype)])
+                labels = torch.cat([labels, torch.full((pad_len,), -100, dtype=labels.dtype)])
+            padded.append({"input_ids": input_ids, "labels": labels})
+        
+        return {
+            "input_ids": torch.stack([item["input_ids"] for item in padded]),
+            "labels": torch.stack([item["labels"] for item in padded])
+        }
     
-    print(f"Created dataloaders - Train: {len(train_dataset)} samples, Val: {len(val_dataset)} samples")
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=pad_batch)
+    val_loader = DataLoader(val_dataset, batch_size=batch_size, collate_fn=pad_batch)
     
-    return train_loader, val_loader 
+    return train_loader, val_loader
