@@ -12,25 +12,25 @@ import math
 import argparse
 
 # Config - Using base QWEN model (no instruct training)
-MODEL_ID = "Qwen/Qwen3-0.6B-Base"
+MODEL_ID = "Qwen/Qwen2-0.5B"
 DEVICE = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
 
-# Fast iteration config
-BATCH_SIZE = 2  # Smaller batches for speed
-GRADIENT_ACCUMULATION_STEPS = 2  # Less accumulation
-LEARNING_RATE = 5e-5  # Higher learning rate for faster convergence
+# Fast iteration config - CPU/GPU friendly
+BATCH_SIZE = 1  # Tiny batches for stability
+GRADIENT_ACCUMULATION_STEPS = 4  # Accumulate to effective batch size of 4
+LEARNING_RATE = 2e-5  # Conservative learning rate
 NUM_EPOCHS = 1  # Just 1 epoch for testing
 MAX_GRAD_NORM = 1.0
-MAX_TRAIN_SAMPLES = 100  # Limit training data for fast iteration
-MAX_VAL_SAMPLES = 20   # Limit validation data
+MAX_TRAIN_SAMPLES = 50  # Even smaller for testing
+MAX_VAL_SAMPLES = 10   # Minimal validation data
+USE_MIXED_PRECISION = False  # Disable mixed precision to avoid FP16 issues
 
 def train_epoch(model, dataloader, optimizer, scaler):
-    """Train one epoch with mixed precision and improved error handling."""
+    """Train one epoch with simplified training (no mixed precision)."""
     model.train()
     total_loss = 0
     valid_steps = 0
     optimizer.zero_grad()
-    unscaled = False  # Track if gradients have been unscaled in this accumulation step
     
     for i, batch in enumerate(tqdm(dataloader, desc="Training")):
         input_ids = batch["input_ids"].to(DEVICE)
@@ -38,14 +38,9 @@ def train_epoch(model, dataloader, optimizer, scaler):
         labels = batch["labels"].to(DEVICE)
         
         try:
-            # Mixed precision forward pass
-            if DEVICE == "cuda" and scaler is not None:
-                with torch.cuda.amp.autocast():
-                    outputs = model(input_ids=input_ids, attention_mask=attention_mask, labels=labels)
-                    loss = outputs.loss
-            else:
-                outputs = model(input_ids=input_ids, attention_mask=attention_mask, labels=labels)
-                loss = outputs.loss
+            # Simple forward pass (no mixed precision)
+            outputs = model(input_ids=input_ids, attention_mask=attention_mask, labels=labels)
+            loss = outputs.loss
             
             # Check for NaN or infinite loss
             if not torch.isfinite(loss):
@@ -59,11 +54,8 @@ def train_epoch(model, dataloader, optimizer, scaler):
             # Scale loss for gradient accumulation
             loss = loss / GRADIENT_ACCUMULATION_STEPS
             
-            # Backward pass with proper error handling
-            if DEVICE == "cuda" and scaler is not None:
-                scaler.scale(loss).backward()
-            else:
-                loss.backward()
+            # Simple backward pass
+            loss.backward()
             
             total_loss += loss.item() * GRADIENT_ACCUMULATION_STEPS
             valid_steps += 1
@@ -71,43 +63,21 @@ def train_epoch(model, dataloader, optimizer, scaler):
             # Gradient accumulation and optimization step
             if (i + 1) % GRADIENT_ACCUMULATION_STEPS == 0:
                 try:
-                    if DEVICE == "cuda" and scaler is not None:
-                        # Only unscale if we haven't already
-                        if not unscaled:
-                            scaler.unscale_(optimizer)
-                            unscaled = True
-                        
-                        # Clip gradients to prevent explosion
-                        torch.nn.utils.clip_grad_norm_(model.parameters(), MAX_GRAD_NORM)
-                        
-                        # Check if gradients are finite before stepping
-                        if any(not torch.isfinite(p.grad).all() for p in model.parameters() if p.grad is not None):
-                            print(f"⚠️  Warning: Non-finite gradients detected at step {i}, skipping optimizer step")
-                            scaler.update()  # Update scaler but skip step
-                        else:
-                            scaler.step(optimizer)
-                            scaler.update()
+                    # Clip gradients to prevent explosion
+                    torch.nn.utils.clip_grad_norm_(model.parameters(), MAX_GRAD_NORM)
+                    
+                    # Check if gradients are finite before stepping
+                    if any(not torch.isfinite(p.grad).all() for p in model.parameters() if p.grad is not None):
+                        print(f"⚠️  Warning: Non-finite gradients detected at step {i}, skipping optimizer step")
                     else:
-                        # Clip gradients for non-CUDA devices
-                        torch.nn.utils.clip_grad_norm_(model.parameters(), MAX_GRAD_NORM)
                         optimizer.step()
                         
                     optimizer.zero_grad()
-                    unscaled = False  # Reset unscaled flag for next accumulation
                     
-                except RuntimeError as e:
-                    if "Attempting to unscale FP16 gradients" in str(e):
-                        print(f"⚠️  FP16 gradient scaling error at step {i}: {e}")
-                        print("🔄 Resetting gradient scaler and continuing...")
-                        
-                        # Reset the scaler and skip this step
-                        if scaler is not None:
-                            scaler.update()
-                        optimizer.zero_grad()
-                        unscaled = False  # Reset unscaled flag
-                        continue
-                    else:
-                        raise e
+                except Exception as e:
+                    print(f"⚠️  Optimizer step error at step {i}: {e}")
+                    optimizer.zero_grad()
+                    continue
                 
         except Exception as e:
             print(f"❌ Error at step {i}: {e}")
@@ -115,7 +85,6 @@ def train_epoch(model, dataloader, optimizer, scaler):
             
             # Reset gradients and continue
             optimizer.zero_grad()
-            unscaled = False  # Reset unscaled flag
             continue
     
     # Return average loss over valid steps
@@ -126,7 +95,7 @@ def train_epoch(model, dataloader, optimizer, scaler):
         return float('inf')
 
 def validate(model, dataloader):
-    """Validate model with proper error handling."""
+    """Validate model with simple forward pass."""
     model.eval()
     total_loss = 0
     valid_steps = 0
@@ -138,13 +107,9 @@ def validate(model, dataloader):
                 attention_mask = batch["attention_mask"].to(DEVICE)
                 labels = batch["labels"].to(DEVICE)
                 
-                if DEVICE == "cuda":
-                    with torch.cuda.amp.autocast():
-                        outputs = model(input_ids=input_ids, attention_mask=attention_mask, labels=labels)
-                        loss = outputs.loss
-                else:
-                    outputs = model(input_ids=input_ids, attention_mask=attention_mask, labels=labels)
-                    loss = outputs.loss
+                # Simple forward pass (no mixed precision)
+                outputs = model(input_ids=input_ids, attention_mask=attention_mask, labels=labels)
+                loss = outputs.loss
                 
                 # Check for finite loss
                 if torch.isfinite(loss):
@@ -195,16 +160,9 @@ def main():
     print(f"Setting up optimizer with {len(trainable_params)} parameter groups")
     optimizer = torch.optim.AdamW(trainable_params, lr=LEARNING_RATE, weight_decay=0.01)
     
-    # Mixed precision scaler with more conservative settings
+    # No mixed precision - keep it simple for debugging
     scaler = None
-    if DEVICE == "cuda":
-        scaler = torch.cuda.amp.GradScaler(
-            init_scale=2**10,  # Lower initial scale for stability
-            growth_factor=2.0,
-            backoff_factor=0.5,
-            growth_interval=1000  # Less aggressive growth
-        )
-        print("✅ Using mixed precision training with conservative scaler settings")
+    print("✅ Using simple float32 training (no mixed precision)")
     
     # Training loop
     best_val_loss = float('inf')
@@ -228,10 +186,6 @@ def main():
             best_val_loss = val_loss
             print("💾 Saving best model...")
             lora_model.save_lora_weights("best_lora_weights.pt")
-        
-        # Display scaler state if using mixed precision
-        if scaler is not None:
-            print(f"   Scaler scale: {scaler.get_scale()}")
     
     # Save final LoRA weights
     print("\n💾 Saving final LoRA weights...")
@@ -250,10 +204,10 @@ if __name__ == "__main__":
     # Ultra-fast test mode
     if args.test:
         print("🚀 ULTRA-FAST TEST MODE")
-        MAX_TRAIN_SAMPLES = 10
-        MAX_VAL_SAMPLES = 5
-        NUM_EPOCHS = 1
-        BATCH_SIZE = 1
+        MAX_TRAIN_SAMPLES = 1000
+        MAX_VAL_SAMPLES = 200
+        NUM_EPOCHS = 10
+        BATCH_SIZE = 4
         GRADIENT_ACCUMULATION_STEPS = 1
     
     # Override with command line args
