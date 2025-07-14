@@ -69,25 +69,66 @@ class SummarizationInference:
         print("✅ Model loaded and ready for inference")
     
     def _load_lora_weights(self):
-        """Load pre-trained LoRA weights"""
+        """Load pre-trained LoRA weights with dtype compatibility handling"""
         print(f"🔄 Loading LoRA weights from: {self.lora_weights_path}")
         
         try:
             # Load the weights
             lora_weights = torch.load(self.lora_weights_path, map_location=self.device)
             
+            # Get the target dtype from the model
+            target_dtype = next(self.model.parameters()).dtype
+            print(f"🔍 Target model dtype: {target_dtype}")
+            
+            # Convert weights to the correct dtype if needed
+            converted_weights = {}
+            dtype_conversions = 0
+            
+            for key, weight in lora_weights.items():
+                if isinstance(weight, torch.Tensor) and weight.dtype != target_dtype:
+                    converted_weights[key] = weight.to(target_dtype)
+                    dtype_conversions += 1
+                else:
+                    converted_weights[key] = weight
+            
+            if dtype_conversions > 0:
+                print(f"🔄 Converted {dtype_conversions} weights to {target_dtype}")
+            
             # Load weights into model
-            missing_keys, unexpected_keys = self.model.load_state_dict(lora_weights, strict=False)
+            missing_keys, unexpected_keys = self.model.load_state_dict(converted_weights, strict=False)
             
             print(f"✅ LoRA weights loaded successfully")
             if missing_keys:
                 print(f"⚠️  Missing keys: {len(missing_keys)}")
+                # Only show first few missing keys to avoid spam
+                if len(missing_keys) > 5:
+                    print(f"   First few: {missing_keys[:5]}")
+                else:
+                    print(f"   Missing: {missing_keys}")
             if unexpected_keys:
                 print(f"⚠️  Unexpected keys: {len(unexpected_keys)}")
+                # Only show first few unexpected keys to avoid spam
+                if len(unexpected_keys) > 5:
+                    print(f"   First few: {unexpected_keys[:5]}")
+                else:
+                    print(f"   Unexpected: {unexpected_keys}")
                 
         except Exception as e:
             print(f"❌ Error loading LoRA weights: {e}")
             print("🔄 Continuing with base LoRA initialization...")
+            
+            # Try to provide helpful debugging info
+            try:
+                checkpoint = torch.load(self.lora_weights_path, map_location='cpu')
+                print(f"🔍 Checkpoint contains {len(checkpoint)} keys")
+                print(f"🔍 Sample keys: {list(checkpoint.keys())[:3]}...")
+                
+                # Check if this looks like a LoRA checkpoint
+                lora_keys = [k for k in checkpoint.keys() if 'lora' in k.lower()]
+                print(f"🔍 Found {len(lora_keys)} LoRA-related keys")
+                
+            except Exception as debug_e:
+                print(f"🔍 Could not inspect checkpoint: {debug_e}")
     
     def create_prompt(self, post: str) -> str:
         """

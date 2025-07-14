@@ -35,13 +35,24 @@ class LoRALinear(nn.Module):
         self.original_layer = original_layer
         self.lora = LoRALayer(original_layer.in_features, original_layer.out_features, r, alpha)
         
+        # Ensure LoRA layers have the same dtype as the original layer
+        if hasattr(original_layer, 'weight') and original_layer.weight is not None:
+            self.lora = self.lora.to(dtype=original_layer.weight.dtype)
+        
         # Freeze original weights - we only train LoRA parameters
         for param in self.original_layer.parameters():
             param.requires_grad = False
     
     def forward(self, x):
         # Combine original output with LoRA adaptation
-        return self.original_layer(x) + self.lora(x)
+        original_output = self.original_layer(x)
+        lora_output = self.lora(x)
+        
+        # Ensure dtype consistency
+        if original_output.dtype != lora_output.dtype:
+            lora_output = lora_output.to(original_output.dtype)
+            
+        return original_output + lora_output
 
 class LoRAModel:
     """
