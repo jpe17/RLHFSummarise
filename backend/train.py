@@ -26,52 +26,6 @@ MAX_VAL_SAMPLES = 6000   # Small validation set
 USE_MIXED_PRECISION = False  # Disable mixed precision to avoid FP16 issues
 
 
-# Add this method to the LoRAModel class (around line 196)
-def load_lora_weights(self, path="lora_weights.pt"):
-    """Load LoRA adapter weights for resuming training"""
-    if self.model is None:
-        raise ValueError("Model not loaded! Call load_and_setup() first.")
-    
-    print(f"🔄 Loading LoRA weights from: {path}")
-    
-    try:
-        # Load the weights
-        lora_weights = torch.load(path, map_location=self.device)
-        
-        # Get the target dtype from the model
-        target_dtype = next(self.model.parameters()).dtype
-        print(f"🔍 Target model dtype: {target_dtype}")
-        
-        # Convert weights to the correct dtype if needed
-        converted_weights = {}
-        dtype_conversions = 0
-        
-        for key, weight in lora_weights.items():
-            if isinstance(weight, torch.Tensor) and weight.dtype != target_dtype:
-                converted_weights[key] = weight.to(target_dtype)
-                dtype_conversions += 1
-            else:
-                converted_weights[key] = weight
-        
-        if dtype_conversions > 0:
-            print(f"🔄 Converted {dtype_conversions} weights to {target_dtype}")
-        
-        # Load weights into model
-        missing_keys, unexpected_keys = self.model.load_state_dict(converted_weights, strict=False)
-        
-        print(f"✅ LoRA weights loaded successfully")
-        if missing_keys:
-            print(f"⚠️  Missing keys: {len(missing_keys)}")
-        if unexpected_keys:
-            print(f"⚠️  Unexpected keys: {len(unexpected_keys)}")
-            
-        return True
-        
-    except Exception as e:
-        print(f"❌ Error loading LoRA weights: {e}")
-        return False
-    
-    
 def train_epoch(model, dataloader, optimizer, scaler):
     """Train one epoch with simplified training (no mixed precision)."""
     model.train()
