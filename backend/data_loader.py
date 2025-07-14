@@ -15,19 +15,25 @@ class SummarizationDataset(Dataset):
     def __getitem__(self, idx):
         example = self.data[idx]
         
-        # Simple format: post text directly followed by summary
-        # This teaches the model to generate summaries without preprompting
-        text = f"{example['prompt']}\n\n{example['ideal_summary']}"
+        # Format for summarization: input is the prompt, target is the summary
+        input_text = example['prompt'].strip()
+        target_text = example['ideal_summary'].strip()
         
-        # Tokenize
+        # For training, we need to create input->output pairs
+        # Input: just the prompt
+        # Target: the full sequence (prompt + summary) for teacher forcing
+        full_text = f"{input_text}\n\nSummary: {target_text}"
+        
+        # Tokenize the full sequence
         tokens = self.tokenizer(
-            text, 
+            full_text, 
             truncation=True, 
             padding="max_length", 
             max_length=self.max_length, 
             return_tensors="pt"
         )
         
+        # For causal LM, labels are the same as input_ids (shifted internally by the model)
         return {
             "input_ids": tokens["input_ids"].squeeze(),
             "attention_mask": tokens["attention_mask"].squeeze(),

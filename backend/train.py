@@ -11,7 +11,7 @@ from data_loader import load_data, setup_tokenizer, create_dataloaders
 import math
 
 # Config - Using base QWEN model (no instruct training)
-MODEL_ID = "Qwen/Qwen3-0.6B-Base"
+MODEL_ID = "Qwen/Qwen2-0.5B"
 DEVICE = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
 
 # Training config - More conservative settings for stability
