@@ -9,9 +9,10 @@ from tqdm import tqdm
 from model import setup_lora_model
 from data_loader import load_data, setup_tokenizer, create_dataloaders
 import math
+import argparse
 
 # Config - Using base QWEN model (no instruct training)
-MODEL_ID = "Qwen/Qwen2-0.5B"
+MODEL_ID = "Qwen/Qwen3-0.6B-Base"
 DEVICE = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
 
 # Fast iteration config
@@ -162,12 +163,14 @@ def validate(model, dataloader):
         return float('inf')
 
 def main():
-    print("🚀 Starting LoRA Training with Base QWEN (No Preprompting)...")
+    print("🚀 Starting FAST LoRA Training for Iteration...")
     print(f"Using device: {DEVICE}")
     print(f"Model: {MODEL_ID}")
-    print(f"Batch size: {BATCH_SIZE}, Gradient accumulation: {GRADIENT_ACCUMULATION_STEPS}")
-    print(f"Learning rate: {LEARNING_RATE}, Max grad norm: {MAX_GRAD_NORM}")
-    print("📝 Training format: post_text → summary (no instructions)")
+    print(f"Fast iteration settings:")
+    print(f"  - Batch size: {BATCH_SIZE}, Gradient accumulation: {GRADIENT_ACCUMULATION_STEPS}")
+    print(f"  - Learning rate: {LEARNING_RATE}, Epochs: {NUM_EPOCHS}")
+    print(f"  - Max train samples: {MAX_TRAIN_SAMPLES}, Max val samples: {MAX_VAL_SAMPLES}")
+    print("📝 Training format: post_text → summary (no preprompting)")
     
     # Load data and setup tokenizer
     dataset = load_data()
@@ -176,8 +179,13 @@ def main():
     # Setup model with LoRA
     model, lora_model = setup_lora_model(MODEL_ID, DEVICE)
     
-    # Create dataloaders
-    train_loader, val_loader = create_dataloaders(dataset, tokenizer, batch_size=BATCH_SIZE)
+    # Create dataloaders with limited data for fast iteration
+    train_loader, val_loader = create_dataloaders(
+        dataset, tokenizer, 
+        batch_size=BATCH_SIZE, 
+        max_train_samples=MAX_TRAIN_SAMPLES,
+        max_val_samples=MAX_VAL_SAMPLES
+    )
     
     # Optimizer - only train LoRA parameters
     trainable_params = [p for p in model.parameters() if p.requires_grad]
@@ -232,4 +240,28 @@ def main():
     print(f"📈 Best validation loss: {best_val_loss:.4f}")
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Fast LoRA training for summarization")
+    parser.add_argument("--test", action="store_true", help="Ultra-fast test mode (10 samples, 1 epoch)")
+    parser.add_argument("--samples", type=int, help="Max training samples")
+    parser.add_argument("--epochs", type=int, help="Number of epochs")
+    
+    args = parser.parse_args()
+    
+    # Ultra-fast test mode
+    if args.test:
+        print("🚀 ULTRA-FAST TEST MODE")
+        MAX_TRAIN_SAMPLES = 10
+        MAX_VAL_SAMPLES = 5
+        NUM_EPOCHS = 1
+        BATCH_SIZE = 1
+        GRADIENT_ACCUMULATION_STEPS = 1
+    
+    # Override with command line args
+    if args.samples:
+        MAX_TRAIN_SAMPLES = args.samples
+        MAX_VAL_SAMPLES = max(5, args.samples // 5)
+    
+    if args.epochs:
+        NUM_EPOCHS = args.epochs
+    
     main() 

@@ -61,10 +61,23 @@ def setup_tokenizer(model_id):
     
     return tokenizer
 
-def create_dataloaders(dataset, tokenizer, batch_size=4, max_length=512):
+def create_dataloaders(dataset, tokenizer, batch_size=4, max_length=512, max_train_samples=None, max_val_samples=None):
     """Create train and validation dataloaders."""
-    train_dataset = SummarizationDataset(dataset["train"], tokenizer, max_length)
-    val_dataset = SummarizationDataset(dataset["validation"], tokenizer, max_length)
+    
+    # Limit dataset size for fast iteration if specified
+    train_data = dataset["train"]
+    val_data = dataset["validation"]
+    
+    if max_train_samples:
+        train_data = train_data.select(range(min(max_train_samples, len(train_data))))
+        print(f"🚀 Limited training data to {len(train_data)} samples for fast iteration")
+        
+    if max_val_samples:
+        val_data = val_data.select(range(min(max_val_samples, len(val_data))))
+        print(f"🚀 Limited validation data to {len(val_data)} samples for fast iteration")
+    
+    train_dataset = SummarizationDataset(train_data, tokenizer, max_length)
+    val_dataset = SummarizationDataset(val_data, tokenizer, max_length)
     
     # Reduce num_workers to avoid tokenizer parallelism issues
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=0)
