@@ -232,15 +232,15 @@ class SummarizationInference:
         
         return results
 
-# Simple usage example - can be run directly without command line args
-def simple_example():
-    """Simple standalone example using base model without preprompting"""
-    print("🤖 Base Model Summarization (No Preprompting)")
+# Default usage example - runs when no specific arguments provided
+def demo_inference():
+    """Demonstration of base model inference without preprompting"""
+    print("🤖 LoRA Summarization Inference")
     print("=" * 50)
     print()
-    print("💡 Using base Qwen2-0.5B model (not instruct)")
-    print("   - No preprompting - model learns to generate summaries directly")
-    print("   - Fair evaluation of LoRA training effectiveness")
+    print("💡 Using base Qwen2-0.5B model")
+    print("   - No preprompting - pure LoRA-trained summarization")
+    print("   - Direct post text → summary generation")
     print()
     
     # Sample post to summarize
@@ -273,7 +273,7 @@ def simple_example():
             max_length=100
         )
         
-        print("📝 Generating summary (no preprompting)...")
+        print("📝 Generating summary...")
         result = inferencer.summarize(sample_post, temperature=0.7)
         
         if "error" in result:
@@ -282,18 +282,18 @@ def simple_example():
             print(f"\n📄 Original Post ({len(sample_post.strip())} chars):")
             print(f"   {sample_post.strip()[:150]}...")
             
-            print(f"\n📋 Generated Output ({len(result['summary'])} chars):")
+            print(f"\n📋 Generated Summary ({len(result['summary'])} chars):")
             print(f"   {result['summary']}")
             
             compression = len(result['summary']) / len(sample_post.strip())
             print(f"\n📊 Compression Ratio: {compression:.1%}")
             
             if weights_path:
-                print(f"\n✅ LoRA weights loaded from: {weights_path}")
+                print(f"\n✅ Using LoRA weights: {weights_path}")
             else:
-                print(f"\n⚠️  No LoRA weights - this is the base model output")
+                print(f"\n⚠️  No LoRA weights - using base model only")
         
-        print("\n✅ Example complete!")
+        print("\n✅ Demo complete!")
         
     except Exception as e:
         print(f"❌ Error: {e}")
@@ -314,13 +314,12 @@ def main():
     parser.add_argument("--max_length", type=int, default=150, help="Max summary length")
     parser.add_argument("--temperature", type=float, default=0.7, help="Sampling temperature")
     parser.add_argument("--top_p", type=float, default=0.9, help="Top-p sampling")
-    parser.add_argument("--simple", action="store_true", help="Run simple example")
     
     args = parser.parse_args()
     
-    # If no arguments provided or --simple flag, run simple example
-    if args.simple or (not args.post and not args.input_file):
-        simple_example()
+    # If no arguments provided, run demo
+    if not args.post and not args.input_file:
+        demo_inference()
         return
     
     # Handle weights path
