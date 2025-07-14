@@ -16,13 +16,13 @@ MODEL_ID = "Qwen/Qwen2-0.5B"
 DEVICE = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
 
 # Fast iteration config - CPU/GPU friendly
-BATCH_SIZE = 4  # Tiny batches for stability
-GRADIENT_ACCUMULATION_STEPS = 4  # Accumulate to effective batch size of 4
-LEARNING_RATE = 1e-5  # Conservative learning rate
-NUM_EPOCHS = 5  # Just 1 epoch for testing
-MAX_GRAD_NORM = 1.0
-MAX_TRAIN_SAMPLES = 5000  # Even smaller for testing
-MAX_VAL_SAMPLES = 1000   # Minimal validation data
+BATCH_SIZE = 1  # Single sample per batch to prevent instability
+GRADIENT_ACCUMULATION_STEPS = 8  # Accumulate to effective batch size of 8
+LEARNING_RATE = 5e-6  # Very conservative learning rate to prevent NaN
+NUM_EPOCHS = 2  # Just 2 epochs for testing
+MAX_GRAD_NORM = 0.5  # Aggressive gradient clipping
+MAX_TRAIN_SAMPLES = 100  # Small dataset for testing
+MAX_VAL_SAMPLES = 20   # Small validation set
 USE_MIXED_PRECISION = False  # Disable mixed precision to avoid FP16 issues
 
 def train_epoch(model, dataloader, optimizer, scaler):
@@ -44,8 +44,11 @@ def train_epoch(model, dataloader, optimizer, scaler):
             
             # Check for NaN or infinite loss
             if not torch.isfinite(loss):
-                print(f"⚠️  Warning: Non-finite loss at step {i}: {loss}")
-                continue
+                print(f"❌ NaN/Inf loss detected at step {i}: {loss}")
+                print(f"   Input shape: {input_ids.shape}")
+                print(f"   Learning rate: {optimizer.param_groups[0]['lr']}")
+                print("🛑 Stopping training to prevent further instability")
+                return float('inf')  # Return early to stop training
                 
             if not loss.requires_grad:
                 print(f"⚠️  Warning: Loss doesn't require grad at step {i}")
@@ -180,6 +183,11 @@ def main():
         print(f"\n📊 Epoch {epoch + 1} Results:")
         print(f"   Train Loss: {train_loss:.4f}")
         print(f"   Val Loss: {val_loss:.4f}")
+        
+        # Stop early if training went bad
+        if not math.isfinite(train_loss) or not math.isfinite(val_loss):
+            print("🛑 Training instability detected - stopping early")
+            break
         
         # Save best model
         if val_loss < best_val_loss and math.isfinite(val_loss):
