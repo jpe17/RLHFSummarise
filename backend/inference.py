@@ -3,6 +3,7 @@ from transformers import AutoTokenizer
 from model import setup_lora_model
 import argparse
 import json
+import os
 from typing import Optional, Dict, Any
 
 class SummarizationInference:
@@ -196,10 +197,70 @@ Summary:"""
         
         return results
 
+# Simple usage example - can be run directly without command line args
+def simple_example():
+    """Simple standalone example - no external files needed"""
+    print("🤖 Simple Summarization Example")
+    print("=" * 50)
+    
+    # Sample post to summarize
+    sample_post = """
+    Just had the most incredible weekend trip to the mountains! The weather was perfect 
+    for hiking - sunny but not too hot. We started early Saturday morning and hiked 
+    about 8 miles to this amazing viewpoint overlooking the valley. The trail was 
+    challenging in some parts, especially the steep rocky section near the summit, 
+    but totally worth it for the panoramic views. We packed a picnic lunch and ate 
+    it while watching eagles soar below us. Sunday we did a more relaxed nature walk 
+    and spotted several deer and even a fox. Already planning our next adventure!
+    """
+    
+    try:
+        # Initialize with the same model as training
+        print("🔄 Loading model (this may take a moment)...")
+        
+        # Check for weights file in parent directory
+        weights_path = "../lora_weights.pt"
+        if not os.path.exists(weights_path):
+            weights_path = "lora_weights.pt"  # Try current directory
+            if not os.path.exists(weights_path):
+                weights_path = None  # No weights file found
+                print("⚠️  No LoRA weights found, using base model")
+        
+        inferencer = SummarizationInference(
+            model_id="Qwen/Qwen2-0.5B-Instruct",  # Same as training
+            lora_weights_path=weights_path,  # Will use if exists
+            device="auto",
+            max_length=100
+        )
+        
+        print("📝 Summarizing sample post...")
+        result = inferencer.summarize(sample_post, temperature=0.7)
+        
+        if "error" in result:
+            print(f"❌ Error: {result['error']}")
+        else:
+            print(f"\n📄 Original Post ({len(sample_post.strip())} chars):")
+            print(f"   {sample_post.strip()[:100]}...")
+            
+            print(f"\n📋 Generated Summary ({len(result['summary'])} chars):")
+            print(f"   {result['summary']}")
+            
+            compression = len(result['summary']) / len(sample_post.strip())
+            print(f"\n📊 Compression Ratio: {compression:.1%}")
+        
+        print("\n✅ Example complete!")
+        
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        print("\n💡 Tips:")
+        print("   - Make sure you have internet connection (for model download)")
+        print("   - Try running with --device cpu if GPU memory is limited")
+        print("   - Check that all dependencies are installed")
+
 def main():
     """Command line interface for the summarization tool"""
     parser = argparse.ArgumentParser(description="Summarize posts using LoRA fine-tuned model")
-    parser.add_argument("--model_id", type=str, required=True, help="HuggingFace model ID")
+    parser.add_argument("--model_id", type=str, default="Qwen/Qwen2-0.5B-Instruct", help="HuggingFace model ID")
     parser.add_argument("--lora_weights", type=str, help="Path to LoRA weights file")
     parser.add_argument("--post", type=str, help="Post text to summarize")
     parser.add_argument("--input_file", type=str, help="JSON file with posts to summarize")
@@ -208,13 +269,28 @@ def main():
     parser.add_argument("--max_length", type=int, default=150, help="Max summary length")
     parser.add_argument("--temperature", type=float, default=0.7, help="Sampling temperature")
     parser.add_argument("--top_p", type=float, default=0.9, help="Top-p sampling")
+    parser.add_argument("--simple", action="store_true", help="Run simple example")
     
     args = parser.parse_args()
+    
+    # If no arguments provided or --simple flag, run simple example
+    if args.simple or (not args.post and not args.input_file):
+        simple_example()
+        return
+    
+    # Handle weights path
+    weights_path = args.lora_weights
+    if weights_path is None:
+        # Check for weights file in parent directory then current directory
+        if os.path.exists("../lora_weights.pt"):
+            weights_path = "../lora_weights.pt"
+        elif os.path.exists("lora_weights.pt"):
+            weights_path = "lora_weights.pt"
     
     # Initialize inference system
     inferencer = SummarizationInference(
         model_id=args.model_id,
-        lora_weights_path=args.lora_weights,
+        lora_weights_path=weights_path,
         device=args.device,
         max_length=args.max_length
     )
