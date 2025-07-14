@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-Optimized LoRA Training for Summarization with QWEN
+LoRA Training for Summarization with Base QWEN (No Preprompting)
+Trains the model to generate summaries directly from post text without instructions.
 """
 
 import torch
@@ -8,8 +9,8 @@ from tqdm import tqdm
 from model import setup_lora_model
 from data_loader import load_data, setup_tokenizer, create_dataloaders
 
-# Config - Using smaller QWEN model for faster training
-MODEL_ID = "Qwen/Qwen2-0.5B-Instruct"  # Small QWEN model: 0.5B params
+# Config - Using base QWEN model (no instruct training)
+MODEL_ID = "Qwen/Qwen2-0.5B"  # Base QWEN model: 0.5B params (no instruct)
 DEVICE = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
 
 # Training config
@@ -99,10 +100,11 @@ def validate(model, dataloader):
     return total_loss / len(dataloader)
 
 def main():
-    print("🚀 Starting Optimized LoRA Training with QWEN...")
+    print("🚀 Starting LoRA Training with Base QWEN (No Preprompting)...")
     print(f"Using device: {DEVICE}")
     print(f"Model: {MODEL_ID}")
     print(f"Batch size: {BATCH_SIZE}, Gradient accumulation: {GRADIENT_ACCUMULATION_STEPS}")
+    print("📝 Training format: post_text → summary (no instructions)")
     
     # Load data and setup tokenizer
     dataset = load_data()

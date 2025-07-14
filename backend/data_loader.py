@@ -15,18 +15,9 @@ class SummarizationDataset(Dataset):
     def __getitem__(self, idx):
         example = self.data[idx]
         
-        # Format for QWEN with instruction following
-        messages = [
-            {"role": "system", "content": "You are a helpful assistant that provides concise summaries."},
-            {"role": "user", "content": f"Please summarize the following text:\n\n{example['prompt']}"},
-            {"role": "assistant", "content": example['ideal_summary']}
-        ]
-        
-        # Use chat template if available, otherwise fallback to simple format
-        if hasattr(self.tokenizer, 'apply_chat_template'):
-            text = self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=False)
-        else:
-            text = f"<|im_start|>system\nYou are a helpful assistant that provides concise summaries.<|im_end|>\n<|im_start|>user\nPlease summarize the following text:\n\n{example['prompt']}<|im_end|>\n<|im_start|>assistant\n{example['ideal_summary']}<|im_end|>"
+        # Simple format: post text directly followed by summary
+        # This teaches the model to generate summaries without preprompting
+        text = f"{example['prompt']}\n\n{example['ideal_summary']}"
         
         # Tokenize
         tokens = self.tokenizer(
@@ -52,10 +43,10 @@ def load_data():
     return dataset
 
 def setup_tokenizer(model_id):
-    """Setup tokenizer for QWEN models."""
+    """Setup tokenizer for base QWEN models."""
     tokenizer = AutoTokenizer.from_pretrained(model_id, trust_remote_code=True)
     
-    # Set pad token - QWEN models typically use eos_token as pad_token
+    # Set pad token - base models typically use eos_token as pad_token
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
         tokenizer.pad_token_id = tokenizer.eos_token_id

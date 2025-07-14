@@ -11,13 +11,13 @@ class SummarizationInference:
     Simple inference class for post summarization using LoRA fine-tuned models
     """
     
-    def __init__(self, model_id: str, lora_weights_path: Optional[str] = None, 
+    def __init__(self, model_id: str = "Qwen/Qwen2-0.5B", lora_weights_path: Optional[str] = None, 
                  device: str = "auto", max_length: int = 150, r: int = 16, alpha: int = 32):
         """
         Initialize the summarization inference system
         
         Args:
-            model_id: HuggingFace model identifier
+            model_id: HuggingFace model identifier (default: base Qwen2-0.5B)
             lora_weights_path: Path to saved LoRA weights (optional)
             device: Device to run inference on
             max_length: Maximum length of generated summary
@@ -132,22 +132,16 @@ class SummarizationInference:
     
     def create_prompt(self, post: str) -> str:
         """
-        Create a proper prompt for summarization
+        Create input for summarization - just the raw post text
         
         Args:
             post: The post text to summarize
             
         Returns:
-            Formatted prompt string
+            The post text (no preprompting)
         """
-        # Simple prompt template - you can customize this based on your training data format
-        prompt = f"""Summarize the following post in a concise and clear way:
-
-Post: {post.strip()}
-
-Summary:"""
-        
-        return prompt
+        # No preprompting - the model should learn to generate summaries directly
+        return post.strip()
     
     def summarize(self, post: str, temperature: float = 0.7, top_p: float = 0.9, 
                   do_sample: bool = True) -> Dict[str, Any]:
@@ -240,9 +234,14 @@ Summary:"""
 
 # Simple usage example - can be run directly without command line args
 def simple_example():
-    """Simple standalone example - no external files needed"""
-    print("🤖 Simple Summarization Example")
+    """Simple standalone example using base model without preprompting"""
+    print("🤖 Base Model Summarization (No Preprompting)")
     print("=" * 50)
+    print()
+    print("💡 Using base Qwen2-0.5B model (not instruct)")
+    print("   - No preprompting - model learns to generate summaries directly")
+    print("   - Fair evaluation of LoRA training effectiveness")
+    print()
     
     # Sample post to summarize
     sample_post = """
@@ -256,9 +255,6 @@ def simple_example():
     """
     
     try:
-        # Initialize with the same model as training
-        print("🔄 Loading model (this may take a moment)...")
-        
         # Check for weights file in parent directory
         weights_path = "../lora_weights.pt"
         if not os.path.exists(weights_path):
@@ -267,27 +263,35 @@ def simple_example():
                 weights_path = None  # No weights file found
                 print("⚠️  No LoRA weights found, using base model")
         
+        # Initialize inference with base model
+        print("🔄 Loading base model...")
+        
         inferencer = SummarizationInference(
-            model_id="Qwen/Qwen2-0.5B-Instruct",  # Same as training
+            model_id="Qwen/Qwen2-0.5B",  # Base model (not instruct)
             lora_weights_path=weights_path,  # Will use if exists
             device="auto",
             max_length=100
         )
         
-        print("📝 Summarizing sample post...")
+        print("📝 Generating summary (no preprompting)...")
         result = inferencer.summarize(sample_post, temperature=0.7)
         
         if "error" in result:
             print(f"❌ Error: {result['error']}")
         else:
             print(f"\n📄 Original Post ({len(sample_post.strip())} chars):")
-            print(f"   {sample_post.strip()[:100]}...")
+            print(f"   {sample_post.strip()[:150]}...")
             
-            print(f"\n📋 Generated Summary ({len(result['summary'])} chars):")
+            print(f"\n📋 Generated Output ({len(result['summary'])} chars):")
             print(f"   {result['summary']}")
             
             compression = len(result['summary']) / len(sample_post.strip())
             print(f"\n📊 Compression Ratio: {compression:.1%}")
+            
+            if weights_path:
+                print(f"\n✅ LoRA weights loaded from: {weights_path}")
+            else:
+                print(f"\n⚠️  No LoRA weights - this is the base model output")
         
         print("\n✅ Example complete!")
         
@@ -301,7 +305,7 @@ def simple_example():
 def main():
     """Command line interface for the summarization tool"""
     parser = argparse.ArgumentParser(description="Summarize posts using LoRA fine-tuned model")
-    parser.add_argument("--model_id", type=str, default="Qwen/Qwen2-0.5B-Instruct", help="HuggingFace model ID")
+    parser.add_argument("--model_id", type=str, default="Qwen/Qwen2-0.5B", help="HuggingFace model ID (base model)")
     parser.add_argument("--lora_weights", type=str, help="Path to LoRA weights file")
     parser.add_argument("--post", type=str, help="Post text to summarize")
     parser.add_argument("--input_file", type=str, help="JSON file with posts to summarize")
