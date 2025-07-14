@@ -46,8 +46,8 @@ class SummarizationDataset(Dataset):
 def load_data():
     """Load dataset."""
     dataset = load_dataset("json", data_files={
-        "train": "../data/train.jsonl",
-        "validation": "../data/valid.jsonl"
+        "train": "data/train.jsonl",
+        "validation": "data/valid.jsonl"
     })
     return dataset
 
