@@ -16,7 +16,7 @@ MODEL_ID = "Qwen/Qwen2-0.5B"
 DEVICE = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
 
 # Fast iteration config - CPU/GPU friendly
-BATCH_SIZE = 1  # Single sample per batch to prevent instability
+BATCH_SIZE = 2  # Single sample per batch to prevent instability
 GRADIENT_ACCUMULATION_STEPS = 8  # Accumulate to effective batch size of 8
 LEARNING_RATE = 1e-6  # Very conservative learning rate to prevent NaN
 NUM_EPOCHS = 5  # Just 2 epochs for testing
@@ -25,6 +25,53 @@ MAX_TRAIN_SAMPLES = 10000  # Small dataset for testing
 MAX_VAL_SAMPLES = 6000   # Small validation set
 USE_MIXED_PRECISION = False  # Disable mixed precision to avoid FP16 issues
 
+
+# Add this method to the LoRAModel class (around line 196)
+def load_lora_weights(self, path="lora_weights.pt"):
+    """Load LoRA adapter weights for resuming training"""
+    if self.model is None:
+        raise ValueError("Model not loaded! Call load_and_setup() first.")
+    
+    print(f"🔄 Loading LoRA weights from: {path}")
+    
+    try:
+        # Load the weights
+        lora_weights = torch.load(path, map_location=self.device)
+        
+        # Get the target dtype from the model
+        target_dtype = next(self.model.parameters()).dtype
+        print(f"🔍 Target model dtype: {target_dtype}")
+        
+        # Convert weights to the correct dtype if needed
+        converted_weights = {}
+        dtype_conversions = 0
+        
+        for key, weight in lora_weights.items():
+            if isinstance(weight, torch.Tensor) and weight.dtype != target_dtype:
+                converted_weights[key] = weight.to(target_dtype)
+                dtype_conversions += 1
+            else:
+                converted_weights[key] = weight
+        
+        if dtype_conversions > 0:
+            print(f"🔄 Converted {dtype_conversions} weights to {target_dtype}")
+        
+        # Load weights into model
+        missing_keys, unexpected_keys = self.model.load_state_dict(converted_weights, strict=False)
+        
+        print(f"✅ LoRA weights loaded successfully")
+        if missing_keys:
+            print(f"⚠️  Missing keys: {len(missing_keys)}")
+        if unexpected_keys:
+            print(f"⚠️  Unexpected keys: {len(unexpected_keys)}")
+            
+        return True
+        
+    except Exception as e:
+        print(f"❌ Error loading LoRA weights: {e}")
+        return False
+    
+    
 def train_epoch(model, dataloader, optimizer, scaler):
     """Train one epoch with simplified training (no mixed precision)."""
     model.train()
@@ -147,6 +194,14 @@ def main():
     # Setup model with LoRA
     model, lora_model = setup_lora_model(MODEL_ID, DEVICE)
     
+    # Resume from checkpoint if provided
+    if args.resume:
+        print(f"🔄 Resuming training from: {args.resume}")
+        if lora_model.load_lora_weights(args.resume):
+            print("✅ Successfully resumed from checkpoint")
+        else:
+            print("❌ Failed to load checkpoint, starting from scratch")
+    
     # Create dataloaders with limited data for fast iteration
     train_loader, val_loader = create_dataloaders(
         dataset, tokenizer, 
@@ -206,6 +261,7 @@ if __name__ == "__main__":
     parser.add_argument("--test", action="store_true", help="Ultra-fast test mode (10 samples, 1 epoch)")
     parser.add_argument("--samples", type=int, help="Max training samples")
     parser.add_argument("--epochs", type=int, help="Number of epochs")
+    parser.add_argument("--resume", type=str, help="Path to LoRA weights to resume from")
     
     args = parser.parse_args()
     
