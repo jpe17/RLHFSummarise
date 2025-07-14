@@ -303,7 +303,7 @@ def demo_inference():
 def main():
     """Command line interface for the summarization tool"""
     parser = argparse.ArgumentParser(description="Summarize posts using LoRA fine-tuned model")
-    parser.add_argument("--model_id", type=str, default="Qwen/Qwen3-0.6B-Base", help="HuggingFace model ID (base model)")
+    parser.add_argument("--model_id", type=str, default="Qwen/Qwen2-0.5B", help="HuggingFace model ID (base model)")
     parser.add_argument("--lora_weights", type=str, help="Path to LoRA weights file")
     parser.add_argument("--post", type=str, help="Post text to summarize")
     parser.add_argument("--input_file", type=str, help="JSON file with posts to summarize")
