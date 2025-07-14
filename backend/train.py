@@ -18,11 +18,11 @@ DEVICE = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is
 # Fast iteration config - CPU/GPU friendly
 BATCH_SIZE = 1  # Single sample per batch to prevent instability
 GRADIENT_ACCUMULATION_STEPS = 8  # Accumulate to effective batch size of 8
-LEARNING_RATE = 5e-6  # Very conservative learning rate to prevent NaN
-NUM_EPOCHS = 2  # Just 2 epochs for testing
+LEARNING_RATE = 1e-6  # Very conservative learning rate to prevent NaN
+NUM_EPOCHS = 5  # Just 2 epochs for testing
 MAX_GRAD_NORM = 0.5  # Aggressive gradient clipping
-MAX_TRAIN_SAMPLES = 100  # Small dataset for testing
-MAX_VAL_SAMPLES = 20   # Small validation set
+MAX_TRAIN_SAMPLES = 10000  # Small dataset for testing
+MAX_VAL_SAMPLES = 6000   # Small validation set
 USE_MIXED_PRECISION = False  # Disable mixed precision to avoid FP16 issues
 
 def train_epoch(model, dataloader, optimizer, scaler):
