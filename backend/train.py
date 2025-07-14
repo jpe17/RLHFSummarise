@@ -27,6 +27,7 @@ def train_epoch(model, dataloader, optimizer, scaler):
     total_loss = 0
     valid_steps = 0
     optimizer.zero_grad()
+    unscaled = False  # Track if gradients have been unscaled in this accumulation step
     
     for i, batch in enumerate(tqdm(dataloader, desc="Training")):
         input_ids = batch["input_ids"].to(DEVICE)
@@ -68,8 +69,10 @@ def train_epoch(model, dataloader, optimizer, scaler):
             if (i + 1) % GRADIENT_ACCUMULATION_STEPS == 0:
                 try:
                     if DEVICE == "cuda" and scaler is not None:
-                        # Unscale gradients for clipping
-                        scaler.unscale_(optimizer)
+                        # Only unscale if we haven't already
+                        if not unscaled:
+                            scaler.unscale_(optimizer)
+                            unscaled = True
                         
                         # Clip gradients to prevent explosion
                         torch.nn.utils.clip_grad_norm_(model.parameters(), MAX_GRAD_NORM)
@@ -87,6 +90,7 @@ def train_epoch(model, dataloader, optimizer, scaler):
                         optimizer.step()
                         
                     optimizer.zero_grad()
+                    unscaled = False  # Reset unscaled flag for next accumulation
                     
                 except RuntimeError as e:
                     if "Attempting to unscale FP16 gradients" in str(e):
@@ -97,6 +101,7 @@ def train_epoch(model, dataloader, optimizer, scaler):
                         if scaler is not None:
                             scaler.update()
                         optimizer.zero_grad()
+                        unscaled = False  # Reset unscaled flag
                         continue
                     else:
                         raise e
@@ -107,6 +112,7 @@ def train_epoch(model, dataloader, optimizer, scaler):
             
             # Reset gradients and continue
             optimizer.zero_grad()
+            unscaled = False  # Reset unscaled flag
             continue
     
     # Return average loss over valid steps
