@@ -7,6 +7,7 @@ import torch
 from tqdm import tqdm
 from model import setup_lora_model, save_lora_weights
 from data_loader import load_data, setup_tokenizer, create_dataloaders
+from datetime import datetime
 
 def main():
     # Config
@@ -62,10 +63,17 @@ def main():
         
         print(f"Train Loss: {train_loss/len(train_loader):.4f}")
         print(f"Val Loss: {val_loss/len(val_loader):.4f}")
-    
-    # Save
-    save_lora_weights(model, "lora_weights.pt")
-    print("Done!")
+        
+        # Save after each epoch with timestamp
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        epoch_path = f"lora_weights_epoch{epoch+1}_{timestamp}.pt"
+        save_lora_weights(model, epoch_path)
+        print(f"Saved epoch {epoch+1} weights to {epoch_path}")
+
+    # Final save (keep this too)
+    final_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    save_lora_weights(model, f"lora_weights_final_{final_timestamp}.pt")
+    print("Training complete!")
 
 if __name__ == "__main__":
     main() 
