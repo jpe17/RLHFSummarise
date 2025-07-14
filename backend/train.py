@@ -5,7 +5,7 @@ Optimized LoRA Training for Summarization with QWEN
 
 import torch
 from tqdm import tqdm
-from model import setup_model, save_lora_weights
+from model import setup_lora_model
 from data_loader import load_data, setup_tokenizer, create_dataloaders
 
 # Config - Using smaller QWEN model for faster training
@@ -109,7 +109,7 @@ def main():
     tokenizer = setup_tokenizer(MODEL_ID)
     
     # Setup model with LoRA
-    model = setup_model(MODEL_ID, DEVICE)
+    model, lora_model = setup_lora_model(MODEL_ID, DEVICE)
     
     # Create dataloaders
     train_loader, val_loader = create_dataloaders(dataset, tokenizer, batch_size=BATCH_SIZE)
@@ -138,7 +138,7 @@ def main():
         print(f"Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}")
     
     # Save LoRA weights
-    save_lora_weights(model)
+    lora_model.save_lora_weights()
     print("✅ Training complete!")
 
 if __name__ == "__main__":
