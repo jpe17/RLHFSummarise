@@ -60,10 +60,8 @@ def main():
                 
                 loss = model(input_ids=input_ids, labels=labels).loss
                 print(f"Individual val loss: {loss.item()}")
-                if loss.item() == float('nan'):
-                    print("WARNING: NaN detected in individual validation loss!")
-                    continue
-                else:
+
+                if not torch.isnan(loss.item()):
                     val_loss += loss.item()
         
         print(f"Train Loss: {train_loss/len(train_loader):.4f}")
