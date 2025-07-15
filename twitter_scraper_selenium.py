@@ -248,8 +248,8 @@ def main():
     scraper = TwitterSeleniumScraper(headless=True)
     
     try:
-        # Test with different usernames
-        usernames = ["elonmusk", "OpenAI", "Google"]
+        # Test with funny/comical usernames
+        usernames = ["elonmusk", "dril", "horse_ebooks", "shitmydadsays", "fart"]
         
         for username in usernames:
             print(f"\n{'='*60}")
