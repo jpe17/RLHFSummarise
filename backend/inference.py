@@ -17,7 +17,7 @@ model = setup_lora_model(model_id, device=device, r=16, alpha=32)
 model.eval()
 
 # Load LoRA weights if available
-weights_path = "../lora_weights.pt" if os.path.exists("../lora_weights.pt") else "lora_weights.pt" if os.path.exists("lora_weights.pt") else None
+weights_path = "../lora_weights_epoch3_20250715_074741.pt" if os.path.exists("../lora_weightslora_weights_epoch3_20250715_074741.pt") else "lora_weights_epoch3_20250715_074741.pt" if os.path.exists("lora_weights_epoch3_20250715_074741.pt") else None
 
 if weights_path:
     lora_weights = torch.load(weights_path, map_location=device)

@@ -13,7 +13,7 @@ def main():
     # Config
     MODEL_ID = "Qwen/Qwen1.5-0.5B"
     DEVICE = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
-    BATCH_SIZE = 4
+    BATCH_SIZE = 2
     LEARNING_RATE = 1e-5
     NUM_EPOCHS = 5
     MAX_SAMPLES = 10000
@@ -41,6 +41,7 @@ def main():
             optimizer.zero_grad()
             loss = model(input_ids=input_ids, labels=labels).loss
             loss.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0) # clip gradients
             optimizer.step()
             train_loss += loss.item()
         
