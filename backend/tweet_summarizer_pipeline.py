@@ -3,6 +3,14 @@ import sys
 import os
 from datetime import datetime
 import json
+import re
+
+try:
+    from dateutil import parser as date_parser
+    HAS_DATEUTIL = True
+except ImportError:
+    HAS_DATEUTIL = False
+    print("⚠️ Warning: python-dateutil not installed. Date filtering may be limited.")
 
 # Add current directory to path for imports
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -93,13 +101,15 @@ class TweetSummarizerPipeline:
             print("🐦 Initializing Twitter scraper...")
             self.scraper = TwitterSeleniumScraper(headless=True)
     
-    def get_tweets(self, username, count=10):
+    def get_tweets(self, username, count=10, since_date=None, until_date=None):
         """
         Get tweets from a Twitter user.
         
         Args:
             username (str): Twitter username (without @)
             count (int): Number of tweets to fetch
+            since_date (datetime): Only include tweets after this date
+            until_date (datetime): Only include tweets before this date
             
         Returns:
             list: List of tweet dictionaries
@@ -107,7 +117,10 @@ class TweetSummarizerPipeline:
         self._setup_scraper()
         
         print(f"📱 Fetching {count} tweets from @{username}...")
-        tweets = self.scraper.get_user_tweets(username, count)
+        if since_date or until_date:
+            print(f"   Date range: {since_date.strftime('%Y-%m-%d') if since_date else 'any'} to {until_date.strftime('%Y-%m-%d') if until_date else 'any'}")
+        
+        tweets = self.scraper.get_user_tweets(username, count, since_date, until_date)
         
         if not tweets:
             print(f"⚠️ No tweets found for @{username}")
@@ -248,7 +261,76 @@ class TweetSummarizerPipeline:
         print(f"✅ Summary score: {score:.4f}")
         return score
     
-    def process_user(self, username, tweet_count=10, summary_max_length=200):
+    def filter_tweets_by_date(self, tweets, since_date=None, until_date=None):
+        """
+        Filters a list of tweets to include only those within a specified date range.
+        
+        Args:
+            tweets (list): List of tweet dictionaries
+            since_date (datetime): Only include tweets after this date
+            until_date (datetime): Only include tweets before this date
+            
+        Returns:
+            list: Filtered list of tweets
+        """
+        if not since_date and not until_date:
+            return tweets
+        
+        filtered_tweets = []
+        for tweet in tweets:
+            tweet_timestamp = tweet.get('timestamp')
+            if not tweet_timestamp or tweet_timestamp == "Unknown":
+                continue  # Skip tweets without a valid timestamp
+            
+            try:
+                # Parse the timestamp - Twitter uses ISO format
+                if 'T' in tweet_timestamp and tweet_timestamp.endswith('Z'):
+                    # ISO format: 2024-01-01T12:00:00.000Z
+                    tweet_date = datetime.fromisoformat(tweet_timestamp.replace('Z', '+00:00'))
+                elif 'T' in tweet_timestamp:
+                    # ISO format without Z: 2024-01-01T12:00:00
+                    tweet_date = datetime.fromisoformat(tweet_timestamp)
+                elif HAS_DATEUTIL:
+                    # Try to parse with dateutil as fallback
+                    tweet_date = date_parser.parse(tweet_timestamp)
+                else:
+                    # Basic parsing for common formats
+                    formats = [
+                        "%Y-%m-%d %H:%M:%S",
+                        "%Y-%m-%d",
+                        "%m/%d/%Y",
+                        "%d/%m/%Y"
+                    ]
+                    tweet_date = None
+                    for fmt in formats:
+                        try:
+                            tweet_date = datetime.strptime(tweet_timestamp, fmt)
+                            break
+                        except ValueError:
+                            continue
+                    
+                    if tweet_date is None:
+                        raise ValueError(f"Could not parse timestamp format: {tweet_timestamp}")
+                
+                # Convert to naive datetime if needed (remove timezone info for comparison)
+                if hasattr(tweet_date, 'tzinfo') and tweet_date.tzinfo is not None:
+                    tweet_date = tweet_date.replace(tzinfo=None)
+                
+            except (ValueError, TypeError) as e:
+                print(f"⚠️ Could not parse timestamp '{tweet_timestamp}': {e}")
+                continue  # Skip tweets with invalid timestamp format
+            
+            # Apply date filters
+            if since_date and tweet_date < since_date:
+                continue
+            if until_date and tweet_date > until_date:
+                continue
+            
+            filtered_tweets.append(tweet)
+        
+        return filtered_tweets
+
+    def process_user(self, username, tweet_count=10, summary_max_length=200, since_date=None, until_date=None):
         """
         Complete pipeline: scrape tweets, summarize, and score.
         
@@ -256,13 +338,16 @@ class TweetSummarizerPipeline:
             username (str): Twitter username (without @)
             tweet_count (int): Number of tweets to fetch
             summary_max_length (int): Maximum length of summary
+            since_date (datetime): Only include tweets after this date
+            until_date (datetime): Only include tweets before this date
             
         Returns:
             dict: Results containing tweets, summary, and score
         """
         try:
-            # Step 1: Get tweets
-            tweets = self.get_tweets(username, tweet_count)
+            # Step 1: Get tweets with date filtering
+            fetch_count = tweet_count * 2 if (since_date or until_date) else tweet_count
+            tweets = self.get_tweets(username, fetch_count, since_date, until_date)
             if not tweets:
                 return {
                     "username": username,
@@ -272,6 +357,9 @@ class TweetSummarizerPipeline:
                     "summary": "",
                     "score": 0.0
                 }
+            
+            # Limit to requested count
+            tweets = tweets[:tweet_count]
             
             # Step 2: Combine tweets
             combined_text = self.combine_tweets(tweets)

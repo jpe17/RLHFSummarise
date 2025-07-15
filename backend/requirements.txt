@@ -8,3 +8,4 @@ tokenizers>=0.14.0
 numpy>=1.24.0
 huggingface-hub>=0.16.0 
 snscrape
+python-dateutil>=2.8.0

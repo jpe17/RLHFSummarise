@@ -12,16 +12,64 @@ Examples:
     python run_tweet_summarizer.py elonmusk
     python run_tweet_summarizer.py dril --count 15 --save
     python run_tweet_summarizer.py horse_ebooks --count 5 --max-length 150
+    python run_tweet_summarizer.py username --since 2024-01-01 --until 2024-01-31
 """
 
 import argparse
 import sys
 import os
+from datetime import datetime, timedelta
 
 # Add backend to path
 sys.path.append(os.path.join(os.path.dirname(__file__), 'backend'))
 
 from backend.tweet_summarizer_pipeline import TweetSummarizerPipeline
+
+def parse_date(date_str):
+    """Parse date string in various formats."""
+    formats = [
+        "%Y-%m-%d",           # 2024-01-01
+        "%Y/%m/%d",           # 2024/01/01
+        "%m/%d/%Y",           # 01/01/2024
+        "%d/%m/%Y",           # 01/01/2024 (European)
+        "%Y-%m-%d %H:%M:%S",  # 2024-01-01 12:00:00
+        "%Y-%m-%dT%H:%M:%S",  # 2024-01-01T12:00:00
+    ]
+    
+    for fmt in formats:
+        try:
+            return datetime.strptime(date_str, fmt)
+        except ValueError:
+            continue
+    
+    # Try relative dates
+    date_str_lower = date_str.lower()
+    now = datetime.now()
+    
+    if date_str_lower in ['today', 'now']:
+        return now
+    elif date_str_lower == 'yesterday':
+        return now - timedelta(days=1)
+    elif date_str_lower.endswith('d'):
+        try:
+            days = int(date_str_lower[:-1])
+            return now - timedelta(days=days)
+        except ValueError:
+            pass
+    elif date_str_lower.endswith('h'):
+        try:
+            hours = int(date_str_lower[:-1])
+            return now - timedelta(hours=hours)
+        except ValueError:
+            pass
+    elif date_str_lower.endswith('w'):
+        try:
+            weeks = int(date_str_lower[:-1])
+            return now - timedelta(weeks=weeks)
+        except ValueError:
+            pass
+    
+    raise ValueError(f"Unable to parse date: {date_str}")
 
 def main():
     parser = argparse.ArgumentParser(
@@ -33,6 +81,9 @@ Examples:
   %(prog)s dril --count 15 --save
   %(prog)s horse_ebooks --count 5 --max-length 150
   %(prog)s username --device cuda --lora-weights my_weights.pt
+  %(prog)s username --since 2024-01-01 --until 2024-01-31
+  %(prog)s username --since 7d --count 20
+  %(prog)s username --since yesterday --until today
         """
     )
     
@@ -101,6 +152,16 @@ Examples:
     )
     
     parser.add_argument(
+        "--since",
+        help="Filter tweets since this date (e.g., 2024-01-01, 7d, yesterday)"
+    )
+    
+    parser.add_argument(
+        "--until",
+        help="Filter tweets until this date (e.g., 2024-01-31, today)"
+    )
+    
+    parser.add_argument(
         "--quiet", "-q",
         action="store_true",
         help="Suppress detailed output, only show final results"
@@ -118,6 +179,26 @@ Examples:
     if not (0.0 <= args.temperature <= 2.0):
         parser.error("Temperature must be between 0.0 and 2.0")
     
+    # Parse date filters
+    since_date = None
+    until_date = None
+    
+    if args.since:
+        try:
+            since_date = parse_date(args.since)
+        except ValueError as e:
+            parser.error(f"Invalid --since date: {e}")
+    
+    if args.until:
+        try:
+            until_date = parse_date(args.until)
+        except ValueError as e:
+            parser.error(f"Invalid --until date: {e}")
+    
+    # Validate date range
+    if since_date and until_date and since_date > until_date:
+        parser.error("--since date must be before --until date")
+    
     # Set device
     device = None if args.device == "auto" else args.device
     
@@ -132,6 +213,10 @@ Examples:
             print(f"   • Device: {args.device}")
             print(f"   • LoRA weights: {args.lora_weights}")
             print(f"   • Reward model: {args.reward_model}")
+            if since_date:
+                print(f"   • Since: {since_date.strftime('%Y-%m-%d %H:%M:%S')}")
+            if until_date:
+                print(f"   • Until: {until_date.strftime('%Y-%m-%d %H:%M:%S')}")
             print()
         
         pipeline = TweetSummarizerPipeline(
@@ -148,7 +233,9 @@ Examples:
         results = pipeline.process_user(
             username=args.username,
             tweet_count=args.count,
-            summary_max_length=args.max_length
+            summary_max_length=args.max_length,
+            since_date=since_date,
+            until_date=until_date
         )
         
         # Print results
