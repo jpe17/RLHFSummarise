@@ -15,7 +15,7 @@ def main():
     MODEL_ID = "Qwen/Qwen1.5-0.5B"
     DEVICE = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
     BATCH_SIZE = 2
-    LEARNING_RATE = 1e-4
+    LEARNING_RATE = 5e-5
     NUM_EPOCHS = 5
     MAX_SAMPLES = 16000
     

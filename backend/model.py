@@ -83,3 +83,25 @@ def save_lora_weights(model, path="lora_weights.pt"):
     
     torch.save(weights, path)
     print(f"Saved LoRA weights to {path}")
+
+def load_lora_weights(model, path="lora_weights.pt"):
+    """Load LoRA weights from a saved file"""
+    if not torch.cuda.is_available():
+        weights = torch.load(path, map_location='cpu')
+    else:
+        weights = torch.load(path)
+    
+    loaded_count = 0
+    for name, module in model.named_modules():
+        if hasattr(module, 'lora_A'):
+            lora_A_key = f"{name}.lora_A.weight"
+            lora_B_key = f"{name}.lora_B.weight"
+            
+            if lora_A_key in weights and lora_B_key in weights:
+                module.lora_A.weight.data = weights[lora_A_key].to(module.lora_A.weight.device)
+                module.lora_B.weight.data = weights[lora_B_key].to(module.lora_B.weight.device)
+                loaded_count += 1
+    
+    print(f"Loaded LoRA weights from {path}")
+    print(f"Loaded weights for {loaded_count} LoRA modules")
+    return model
