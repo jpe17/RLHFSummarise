@@ -14,25 +14,28 @@ class SummarizationDataset(Dataset):
     
     def __getitem__(self, idx):
         example = self.data[idx]
-        
         input_text = example['prompt'].strip()
         target_text = example['ideal_summary'].strip()
-        
-        # Tokenize the separator WITHOUT truncation to get true length
-        separator = f"Please summarize:\n\n{input_text}\n\nSummary:"
-        sep_tokens = self.tokenizer(separator, return_tensors="pt")["input_ids"].squeeze()
-        
-        # Now tokenize the full text WITH truncation
-        full_text = f"Please summarize:\n\n{input_text}\n\nSummary: {target_text}"
+
+        # Build the prompt and full text
+        prompt = f"Please summarize:\n\n{input_text}\n\nSummary:"
+        full_text = f"{prompt} {target_text}"
+
+        # Tokenize
         encoding = self.tokenizer(full_text, truncation=True, max_length=self.max_length, return_tensors="pt")
         input_ids = encoding["input_ids"].squeeze()
-        
-        # Calculate mask length properly
-        mask_length = min(len(sep_tokens), len(input_ids))
-        
+
+        # Find where the summary starts (after the prompt)
+        prompt_ids = self.tokenizer(prompt, return_tensors="pt")["input_ids"].squeeze()
+        mask_length = len(prompt_ids)
+
         labels = input_ids.clone()
         labels[:mask_length] = -100
-        
+
+        # Ensure at least one label is not masked
+        if (labels != -100).sum() == 0 and len(labels) > mask_length:
+            labels[mask_length] = input_ids[mask_length]
+
         return {"input_ids": input_ids, "labels": labels}
 
 def load_data():
@@ -42,6 +45,10 @@ def setup_tokenizer(model_id):
     tokenizer = AutoTokenizer.from_pretrained(model_id, trust_remote_code=True)
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
+    # Ensure proper tokenizer configuration for Qwen
+    if not hasattr(tokenizer, 'pad_token') or tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+    print(f"Tokenizer vocab size: {tokenizer.vocab_size}")
     return tokenizer
 
 def create_dataloaders(dataset, tokenizer, batch_size=4, max_length=512, max_train_samples=None):

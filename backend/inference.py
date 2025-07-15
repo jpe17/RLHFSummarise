@@ -2,11 +2,61 @@ import torch
 from transformers import AutoTokenizer
 from model import setup_lora_model
 import os
+import glob
+import re
+from datetime import datetime
 
 # Config
 model_id = "Qwen/Qwen1.5-0.5B"
 device = "cuda" if torch.cuda.is_available() else "cpu"
 max_length = 100
+
+def find_latest_weights():
+    """Find the latest weights file based on timestamp"""
+    # Look for weight files in current directory and parent directory
+    search_paths = [".", ".."]
+    weight_files = []
+    
+    for search_path in search_paths:
+        # Pattern to match both epoch and final weights
+        patterns = [
+            os.path.join(search_path, "lora_weights_epoch*_*.pt"),
+            os.path.join(search_path, "lora_weights_final_*.pt")
+        ]
+        
+        for pattern in patterns:
+            weight_files.extend(glob.glob(pattern))
+    
+    if not weight_files:
+        return None
+    
+    # Parse timestamps and find the latest
+    latest_file = None
+    latest_timestamp = None
+    
+    for file_path in weight_files:
+        # Extract timestamp from filename
+        # Pattern: lora_weights_epoch{epoch}_{timestamp}.pt or lora_weights_final_{timestamp}.pt
+        match = re.search(r'_(\d{8}_\d{6})\.pt$', file_path)
+        if match:
+            timestamp_str = match.group(1)
+            try:
+                # Parse timestamp (format: YYYYMMDD_HHMMSS)
+                timestamp = datetime.strptime(timestamp_str, "%Y%m%d_%H%M%S")
+                if latest_timestamp is None or timestamp > latest_timestamp:
+                    latest_timestamp = timestamp
+                    latest_file = file_path
+            except ValueError:
+                continue
+    
+    return latest_file
+
+# Find latest weights or use provided path
+weights_path = find_latest_weights()
+if weights_path:
+    print(f"Using latest weights: {weights_path}")
+else:
+    print("No weights file found")
 
 # Load model and tokenizer
 tokenizer = AutoTokenizer.from_pretrained(model_id, trust_remote_code=True)
@@ -17,8 +67,6 @@ model = setup_lora_model(model_id, device=device, r=16, alpha=32)
 model.eval()
 
 # Load LoRA weights if available
-weights_path = "../lora_weights_epoch3_20250715_074741.pt" if os.path.exists("../lora_weightslora_weights_epoch3_20250715_074741.pt") else "lora_weights_epoch3_20250715_074741.pt" if os.path.exists("lora_weights_epoch3_20250715_074741.pt") else None
-
 if weights_path:
     lora_weights = torch.load(weights_path, map_location=device)
     target_dtype = next(model.parameters()).dtype
