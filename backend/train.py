@@ -17,7 +17,7 @@ def main():
     BATCH_SIZE = 4
     LEARNING_RATE = 1e-5
     NUM_EPOCHS = 5
-    MAX_SAMPLES = 2000
+    MAX_SAMPLES = 16000
     
     # Load everything
     dataset = load_data()
