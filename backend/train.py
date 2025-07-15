@@ -16,7 +16,7 @@ def main():
     BATCH_SIZE = 4
     LEARNING_RATE = 1e-5
     NUM_EPOCHS = 5
-    MAX_SAMPLES = 10000
+    MAX_SAMPLES = 2000
     
     # Load everything
     dataset = load_data()
@@ -63,6 +63,8 @@ def main():
                 val_loss += loss.item()
         
         print(f"Train Loss: {train_loss/len(train_loader):.4f}")
+        print(val_loss)
+        print(len(val_loader))
         print(f"Val Loss: {val_loss/len(val_loader):.4f}")
         
         # Save after each epoch with timestamp
