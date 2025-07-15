@@ -8,6 +8,7 @@ from tqdm import tqdm
 from model import setup_lora_model, save_lora_weights
 from data_loader import load_data, setup_tokenizer, create_dataloaders
 from datetime import datetime
+import math
 
 def main():
     # Config
@@ -61,7 +62,7 @@ def main():
                 loss = model(input_ids=input_ids, labels=labels).loss
                 print(f"Individual val loss: {loss.item()}")
 
-                if not torch.isnan(loss.item()):
+                if not math.isnan(loss.item()):
                     val_loss += loss.item()
         
         print(f"Train Loss: {train_loss/len(train_loader):.4f}")
