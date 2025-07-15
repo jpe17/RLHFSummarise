@@ -83,15 +83,10 @@ if weights_path:
 # Sample post
 post = """
 TIFU by trying to impress my crush with my "cooking skills"
-
 So this happened last weekend and I'm still cringing about it. I (22M) have been talking to this girl (21F) from my chemistry class for a few weeks now, and she mentioned she loves homemade pasta. Being the genius I am, I decided to invite her over for dinner and make "authentic Italian carbonara" despite never having cooked anything more complex than ramen.
-
 I watched exactly one YouTube video and thought I was Gordon Ramsay. Bought all the ingredients, spent way too much money on "good" parmesan, and hyped it up all week. She comes over, I'm trying to be all smooth and confident, talking about how my "nonna taught me this recipe" (I'm not even Italian lol).
-
 Everything that could go wrong did. First, I didn't realize you're supposed to take the pan off heat before adding the eggs. Scrambled eggs in pasta. Then I somehow managed to burn the pancetta while it was literally sitting in water. The kitchen filled with smoke, fire alarm goes off, and I'm frantically trying to fan it with a dish towel while she's just standing there watching this disaster unfold.
-
 The final product looked like cheesy scrambled eggs with burnt meat chunks. She was super sweet about it and we ended up ordering pizza, but I could tell she was trying not to laugh. We're still talking but now she keeps sending me cooking memes and asking if I need help with "basic life skills."
-
 """
 
 # Create prompt and generate
