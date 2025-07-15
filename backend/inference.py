@@ -9,7 +9,7 @@ from datetime import datetime
 # Config
 model_id = "Qwen/Qwen1.5-0.5B"
 device = "cuda" if torch.cuda.is_available() else "cpu"
-max_length = 100
+max_length = 512
 
 def find_latest_weights():
     """Find the latest weights file based on timestamp"""
