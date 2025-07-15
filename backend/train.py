@@ -33,7 +33,7 @@ def main():
         
         # Train
         model.train()
-        train_loss = 0
+        train_loss = 0.0
         for batch in tqdm(train_loader):
             input_ids = batch["input_ids"].to(DEVICE)
             labels = batch["labels"].to(DEVICE)
@@ -47,7 +47,7 @@ def main():
         
         # Validate
         model.eval()
-        val_loss = 0
+        val_loss = 0.0
         with torch.no_grad():
             for batch in val_loader:
                 input_ids = batch["input_ids"].to(DEVICE)
@@ -63,8 +63,6 @@ def main():
                 val_loss += loss.item()
         
         print(f"Train Loss: {train_loss/len(train_loader):.4f}")
-        print(val_loss)
-        print(len(val_loader))
         print(f"Val Loss: {val_loss/len(val_loader):.4f}")
         
         # Save after each epoch with timestamp
