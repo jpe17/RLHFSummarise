@@ -1,0 +1,447 @@
+{
+  "username": "BarackObama",
+  "total_tweets": 44,
+  "export_date": "2025-07-16T22:12:19.866167",
+  "tweets": [
+    {
+      "content": "Pope Francis was the rare leader who made us want to be better people. In his humility and his gestures at once simple and profound – embracing the sick, ministering to the homeless, washing the feet of young prisoners – he shook us out of our complacency and reminded us that we",
+      "timestamp": "2025-04-21T12:46:31.000Z",
+      "parsed_date": "2025-04-21T12:46:31",
+      "likes": 858,
+      "retweets": 66,
+      "replies": 14,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 938
+    },
+    {
+      "content": "Thirty-two years together and you still take my breath away. Happy Valentine’s Day, \n@MichelleObama\n!",
+      "timestamp": "2025-02-14T14:16:02.000Z",
+      "parsed_date": "2025-02-14T14:16:02",
+      "likes": 1,
+      "retweets": 99,
+      "replies": 58,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 158
+    },
+    {
+      "content": "Merry Christmas! Michelle and I hope you and your loved ones have a wonderful day filled with gratitude and joy.",
+      "timestamp": "2024-12-25T16:00:16.000Z",
+      "parsed_date": "2024-12-25T16:00:16",
+      "likes": 865,
+      "retweets": 39,
+      "replies": 19,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 923
+    },
+    {
+      "content": "Happy birthday to my friend, \n@JoeBiden\n!",
+      "timestamp": "2024-11-20T17:17:11.000Z",
+      "parsed_date": "2024-11-20T17:17:11",
+      "likes": 1,
+      "retweets": 53,
+      "replies": 30,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 84
+    },
+    {
+      "content": "Happy anniversary, @MichelleObama! 32 years together, and I couldn’t have asked for a better partner and friend to go through life with.",
+      "timestamp": "2024-10-03T23:30:23.000Z",
+      "parsed_date": "2024-10-03T23:30:23",
+      "likes": 1,
+      "retweets": 72,
+      "replies": 35,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 108
+    },
+    {
+      "content": "How it started. How it's going. \n\nTen years later, and it's still a good look! http://IWillVote.com",
+      "timestamp": "2024-08-28T23:11:31.000Z",
+      "parsed_date": "2024-08-28T23:11:31",
+      "likes": 725,
+      "retweets": 66,
+      "replies": 23,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 814
+    },
+    {
+      "content": "Earlier this week, Michelle and I called our friend \n@KamalaHarris\n. We told her we think she’ll make a fantastic President of the United States, and that she has our full support. At this critical moment for our country, we’re going to do everything we can to make sure she wins in",
+      "timestamp": "2024-07-26T09:01:45.000Z",
+      "parsed_date": "2024-07-26T09:01:45",
+      "likes": 844,
+      "retweets": 114,
+      "replies": 36,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 994
+    },
+    {
+      "content": "There is absolutely no place for political violence in our democracy. Although we don’t yet know exactly what happened, we should all be relieved that former President Trump wasn’t seriously hurt, and use this moment to recommit ourselves to civility and respect in our politics.",
+      "timestamp": "2024-07-13T23:44:14.000Z",
+      "parsed_date": "2024-07-13T23:44:14",
+      "likes": 793,
+      "retweets": 86,
+      "replies": 58,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 937
+    },
+    {
+      "content": "Happy anniversary, sweetheart! \n@MichelleObama\n, you're brilliant, kind, funny, and beautiful—and I'm lucky to call you mine.",
+      "timestamp": "2023-10-03T14:33:47.000Z",
+      "parsed_date": "2023-10-03T14:33:47",
+      "likes": 1,
+      "retweets": 64,
+      "replies": 38,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 103
+    },
+    {
+      "content": "Congratulations to my friend, President \n@JoeBiden\n! This is your time.",
+      "timestamp": "2021-01-20T14:45:13.000Z",
+      "parsed_date": "2021-01-20T14:45:13",
+      "likes": 2,
+      "retweets": 265,
+      "replies": 17,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 284
+    },
+    {
+      "content": "Happy birthday to my love, my partner, and my best friend. Every moment with you is a blessing. Love you, Miche.",
+      "timestamp": "2021-01-17T14:00:40.000Z",
+      "parsed_date": "2021-01-17T14:00:40",
+      "likes": 1,
+      "retweets": 97,
+      "replies": 33,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 131
+    },
+    {
+      "content": "Congratulations to my friends, \n@JoeBiden\n and \n@KamalaHarris\n — our next President and Vice President of the United States.",
+      "timestamp": "2020-11-07T18:03:22.000Z",
+      "parsed_date": "2020-11-07T18:03:22",
+      "likes": 1,
+      "retweets": 154,
+      "replies": 20,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 175
+    },
+    {
+      "content": "Shoot your shot. http://iwillvote.com",
+      "timestamp": "2020-10-31T23:17:56.000Z",
+      "parsed_date": "2020-10-31T23:17:56",
+      "likes": 847,
+      "retweets": 177,
+      "replies": 16,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 1040
+    },
+    {
+      "content": "My statement on the death of George Floyd:",
+      "timestamp": "2020-05-29T16:06:54.000Z",
+      "parsed_date": "2020-05-29T16:06:54",
+      "likes": 1,
+      "retweets": 399,
+      "replies": 31,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 431
+    },
+    {
+      "content": "Barack Obama",
+      "timestamp": "2020-05-14T18:44:56.000Z",
+      "parsed_date": "2020-05-14T18:44:56",
+      "likes": 1,
+      "retweets": 268,
+      "replies": 61,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 330
+    },
+    {
+      "content": "Kobe was a legend on the court and just getting started in what would have been just as meaningful a second act. To lose Gianna is even more heartbreaking to us as parents. Michelle and I send love and prayers to Vanessa and the entire Bryant family on an unthinkable day.",
+      "timestamp": "2020-01-26T21:56:16.000Z",
+      "parsed_date": "2020-01-26T21:56:16",
+      "likes": 3,
+      "retweets": 552,
+      "replies": 14,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 569
+    },
+    {
+      "content": "In every scene, you are my star, \n@MichelleObama\n! Happy birthday, baby!",
+      "timestamp": "2020-01-17T14:13:19.000Z",
+      "parsed_date": "2020-01-17T14:13:19",
+      "likes": 2,
+      "retweets": 360,
+      "replies": 35,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 397
+    },
+    {
+      "content": "Here’s to a happy, healthy, and hopeful 2020. Happy New Year, everybody!",
+      "timestamp": "2020-01-01T17:16:44.000Z",
+      "parsed_date": "2020-01-01T17:16:44",
+      "likes": 855,
+      "retweets": 110,
+      "replies": 18,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 983
+    },
+    {
+      "content": "From the Obama family to yours, Merry Christmas!",
+      "timestamp": "2019-12-25T00:00:22.000Z",
+      "parsed_date": "2019-12-25T00:00:22",
+      "likes": 797,
+      "retweets": 64,
+      "replies": 25,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 886
+    },
+    {
+      "content": "Like the Beatles said: It’s getting better all the time. Thanks, babe, for 27 amazing years!",
+      "timestamp": "2019-10-03T14:10:50.000Z",
+      "parsed_date": "2019-10-03T14:10:50",
+      "likes": 1,
+      "retweets": 187,
+      "replies": 21,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 209
+    },
+    {
+      "content": "I knew it way back then and I’m absolutely convinced of it today — you’re one of a kind, \n@MichelleObama\n. Happy Birthday!",
+      "timestamp": "2019-01-17T15:02:10.000Z",
+      "parsed_date": "2019-01-17T15:02:10",
+      "likes": 1,
+      "retweets": 153,
+      "replies": 26,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 180
+    },
+    {
+      "content": "“Low plastic stool, cheap but delicious noodles, cold Hanoi beer.” This is how I’ll remember Tony. He taught us about food — but more importantly, about its ability to bring us together. To make us a little less afraid of the unknown. We’ll miss him.",
+      "timestamp": "2018-06-08T16:01:17.000Z",
+      "parsed_date": "2018-06-08T16:01:17",
+      "likes": 835,
+      "retweets": 184,
+      "replies": 12,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 1031
+    },
+    {
+      "content": "Michelle and I are so inspired by all the young people who made today’s marches happen. Keep at it. You’re leading us forward. Nothing can stand in the way of millions of voices calling for change.",
+      "timestamp": "2018-03-24T17:07:47.000Z",
+      "parsed_date": "2018-03-24T17:07:47",
+      "likes": 1,
+      "retweets": 236,
+      "replies": 20,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 257
+    },
+    {
+      "content": "Have fun out there among the stars.",
+      "timestamp": "2018-03-14T14:58:59.000Z",
+      "parsed_date": "2018-03-14T14:58:59",
+      "likes": 1,
+      "retweets": 200,
+      "replies": 6,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 207
+    },
+    {
+      "content": "Young people have helped lead all our great movements. How inspiring to see it again in so many smart, fearless students standing up for their right to be safe; marching and organizing to remake the world as it should be. We've been waiting for you. And we've got your backs.",
+      "timestamp": "2018-02-22T16:00:44.000Z",
+      "parsed_date": "2018-02-22T16:00:44",
+      "likes": 1,
+      "retweets": 331,
+      "replies": 25,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 357
+    },
+    {
+      "content": "We are grieving with Parkland. But we are not powerless. Caring for our kids is our first job. And until we can honestly say that we're doing enough to keep them safe from harm, including long overdue, common-sense gun safety laws that most Americans want, then we have to change.",
+      "timestamp": "2018-02-15T17:12:17.000Z",
+      "parsed_date": "2018-02-15T17:12:17",
+      "likes": 961,
+      "retweets": 277,
+      "replies": 24,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 1262
+    },
+    {
+      "content": "Happy Valentine’s Day, \n@MichelleObama\n. You make every day and every place better.",
+      "timestamp": "2018-02-14T16:25:03.000Z",
+      "parsed_date": "2018-02-14T16:25:03",
+      "likes": 1,
+      "retweets": 191,
+      "replies": 19,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 211
+    },
+    {
+      "content": "Dr. King was 26 when the Montgomery bus boycott began. He started small, rallying others who believed their efforts mattered, pressing on through challenges and doubts to change our world for the better. A permanent inspiration for the rest of us to keep pushing towards justice.",
+      "timestamp": "2018-01-15T14:46:02.000Z",
+      "parsed_date": "2018-01-15T14:46:02",
+      "likes": 1,
+      "retweets": 273,
+      "replies": 23,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 297
+    },
+    {
+      "content": "On behalf of the Obama family, Merry Christmas! We wish you joy and peace this holiday season.",
+      "timestamp": "2017-12-25T16:05:05.000Z",
+      "parsed_date": "2017-12-25T16:05:05",
+      "likes": 1,
+      "retweets": 192,
+      "replies": 34,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 227
+    },
+    {
+      "content": "Michelle and I are delighted to congratulate Prince Harry and Meghan Markle on their engagement. We wish you a lifetime of joy and happiness together.",
+      "timestamp": "2017-11-27T21:13:50.000Z",
+      "parsed_date": "2017-11-27T21:13:50",
+      "likes": 859,
+      "retweets": 87,
+      "replies": 10,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 956
+    },
+    {
+      "content": "From the Obama family to yours, we wish you a Happy Thanksgiving full of joy and gratitude.",
+      "timestamp": "2017-11-23T14:44:27.000Z",
+      "parsed_date": "2017-11-23T14:44:27",
+      "likes": 1,
+      "retweets": 166,
+      "replies": 26,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 193
+    },
+    {
+      "content": "ME:  Joe, about halfway through the speech, I’m gonna wish you a happy birth--\nBIDEN:  IT’S MY BIRTHDAY!\nME:  Joe.\n \nHappy birthday to \n@JoeBiden\n, my brother and the best vice president anybody could have.",
+      "timestamp": "2017-11-20T19:02:11.000Z",
+      "parsed_date": "2017-11-20T19:02:11",
+      "likes": 1,
+      "retweets": 392,
+      "replies": 18,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 411
+    },
+    {
+      "content": "Michelle & I are praying for the victims in Las Vegas. Our thoughts are with their families & everyone enduring another senseless tragedy.",
+      "timestamp": "2017-10-02T12:41:16.000Z",
+      "parsed_date": "2017-10-02T12:41:16",
+      "likes": 1,
+      "retweets": 296,
+      "replies": 17,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 314
+    },
+    {
+      "content": "Thinking about our neighbors in Mexico and all our Mexican-American friends tonight. Cuidense mucho y un fuerte abrazo para todos.",
+      "timestamp": "2017-09-20T02:30:52.000Z",
+      "parsed_date": "2017-09-20T02:30:52",
+      "likes": 1,
+      "retweets": 344,
+      "replies": 18,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 363
+    },
+    {
+      "content": "We remember everyone we lost on 9/11 and honor all who defend our country and our ideals. No act of terror will ever change who we are.",
+      "timestamp": "2017-09-11T15:32:51.000Z",
+      "parsed_date": "2017-09-11T15:32:51",
+      "likes": 1,
+      "retweets": 252,
+      "replies": 12,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 265
+    },
+    {
+      "content": "Michelle and I are thinking of the victims and their families in Barcelona. Americans will always stand with our Spanish friends. Un abrazo.",
+      "timestamp": "2017-08-17T19:15:11.000Z",
+      "parsed_date": "2017-08-17T19:15:11",
+      "likes": 1,
+      "retweets": 244,
+      "replies": 20,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 265
+    },
+    {
+      "content": "\"...For love comes more naturally to the human heart than its opposite.\" - Nelson Mandela",
+      "timestamp": "2017-08-13T00:06:39.000Z",
+      "parsed_date": "2017-08-13T00:06:39",
+      "likes": 1,
+      "retweets": 297,
+      "replies": 14,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 312
+    },
+    {
+      "content": "\"People must learn to hate, and if they can learn to hate, they can be taught to love...\"",
+      "timestamp": "2017-08-13T00:06:27.000Z",
+      "parsed_date": "2017-08-13T00:06:27",
+      "likes": 1,
+      "retweets": 362,
+      "replies": 16,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 379
+    },
+    {
+      "content": "\"No one is born hating another person because of the color of his skin or his background or his religion...\"",
+      "timestamp": "2017-08-13T00:06:09.000Z",
+      "parsed_date": "2017-08-13T00:06:09",
+      "likes": 3,
+      "retweets": 1,
+      "replies": 59,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 63
+    },
+    {
+      "content": "John McCain is an American hero & one of the bravest fighters I've ever known. Cancer doesn't know what it's up against. Give it hell, John.",
+      "timestamp": "2017-07-20T00:49:02.000Z",
+      "parsed_date": "2017-07-20T00:49:02",
+      "likes": 1,
+      "retweets": 307,
+      "replies": 22,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 330
+    },
+    {
+      "content": "Of all that I've done in my life, I'm most proud to be Sasha and Malia's dad. To all those lucky enough to be a dad, Happy Father's Day!",
+      "timestamp": "2017-06-18T15:09:20.000Z",
+      "parsed_date": "2017-06-18T15:09:20",
+      "likes": 1,
+      "retweets": 193,
+      "replies": 18,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 212
+    },
+    {
+      "content": "Our hearts go out to those killed and wounded in Manchester. Americans will always stand shoulder to shoulder with the people of the UK.",
+      "timestamp": "2017-05-23T16:56:14.000Z",
+      "parsed_date": "2017-05-23T16:56:14",
+      "likes": 766,
+      "retweets": 163,
+      "replies": 8,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 937
+    },
+    {
+      "content": "Happy Valentine’s Day, \n@michelleobama\n! Almost 28 years with you, but it always feels new.",
+      "timestamp": "2017-02-14T15:34:47.000Z",
+      "parsed_date": "2017-02-14T15:34:47",
+      "likes": 825,
+      "retweets": 205,
+      "replies": 12,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 1042
+    },
+    {
+      "content": "Hi everybody! Back to the original handle. Is this thing still on? Michelle and I are off on a quick vacation, then we’ll get back to work.",
+      "timestamp": "2017-01-20T21:04:08.000Z",
+      "parsed_date": "2017-01-20T21:04:08",
+      "likes": 1,
+      "retweets": 347,
+      "replies": 53,
+      "scraped_at": "2025-07-16 21:09:18",
+      "engagement_total": 401
+    }
+  ]
+}

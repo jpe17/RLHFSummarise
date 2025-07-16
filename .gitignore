@@ -4,3 +4,4 @@ data/axis_evals
 data/comparisons
 backend/__pycache__/
 __pycache__/
+.env

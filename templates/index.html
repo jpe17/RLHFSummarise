@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tweet Summarizer - AI Voice Synthesis</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #000;
+            color: #fff;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #8899a6;
+            font-size: 14px;
+        }
+
+        .status-card {
+            background: #15202b;
+            border: 1px solid #38444d;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .status-card:hover {
+            background: #192734;
+        }
+
+        .init-section {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .init-button {
+            background: #1da1f2;
+            color: white;
+            border: none;
+            border-radius: 9999px;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .init-button:hover {
+            background: #1a91da;
+        }
+
+        .init-button:disabled {
+            background: #38444d;
+            cursor: not-allowed;
+        }
+
+        .form-section {
+            display: none;
+        }
+
+        .form-section.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .form-select, .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #38444d;
+            border-radius: 8px;
+            background: #15202b;
+            color: #fff;
+            font-size: 16px;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-select:focus, .form-input:focus {
+            outline: none;
+            border-color: #1da1f2;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .process-button {
+            background: #1da1f2;
+            color: white;
+            border: none;
+            border-radius: 9999px;
+            padding: 12px 32px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .process-button:hover {
+            background: #1a91da;
+        }
+
+        .process-button:disabled {
+            background: #38444d;
+            cursor: not-allowed;
+        }
+
+        .progress-section {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .progress-section.active {
+            display: block;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #38444d;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #1da1f2;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            color: #8899a6;
+            font-size: 14px;
+        }
+
+        .result-section {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .result-section.active {
+            display: block;
+        }
+
+        .result-card {
+            background: #15202b;
+            border: 1px solid #38444d;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .user-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #1da1f2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            margin-right: 12px;
+        }
+
+        .user-info h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .user-info p {
+            color: #8899a6;
+            font-size: 14px;
+        }
+
+        .summary-text {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 16px;
+            color: #fff;
+        }
+
+        .score-badge {
+            display: inline-block;
+            background: #17bf63;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .audio-player {
+            width: 100%;
+            margin-top: 16px;
+        }
+
+        .error-message {
+            background: #e0245e;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+            font-size: 14px;
+        }
+
+        .success-message {
+            background: #17bf63;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+            font-size: 14px;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #38444d;
+            border-radius: 50%;
+            border-top-color: #1da1f2;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .preview-section {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .preview-section.active {
+            display: block;
+        }
+
+        .tweet-card {
+            background: #15202b;
+            border: 1px solid #38444d;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .tweet-card:hover {
+            background: #192734;
+        }
+
+        .tweet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .tweet-engagement {
+            display: flex;
+            gap: 12px;
+            font-size: 12px;
+            color: #8899a6;
+        }
+
+        .engagement-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .tweet-content {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #fff;
+        }
+
+        .preview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .preview-button {
+            background: #1da1f2;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .preview-button:hover {
+            background: #1a91da;
+        }
+
+        .preview-button:disabled {
+            background: #38444d;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🐦 Tweet Summarizer</h1>
+            <p>AI-powered tweet summarization with voice synthesis</p>
+        </div>
+
+        <!-- Initialization Section -->
+        <div class="status-card init-section" id="initSection">
+            <h2>🚀 Initialize Pipeline</h2>
+            <p style="margin: 20px 0; color: #8899a6;">
+                Click the button below to initialize the AI models for tweet summarization and voice synthesis.
+            </p>
+            <button class="init-button" id="initButton" onclick="initializePipeline()">
+                Initialize Pipeline
+            </button>
+        </div>
+
+        <!-- Form Section -->
+        <div class="status-card form-section" id="formSection">
+            <h2>📝 Select Parameters</h2>
+            
+            <div class="form-group">
+                <label class="form-label">User</label>
+                <select class="form-select" id="userSelect">
+                    <option value="">Select a user...</option>
+                </select>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Voice</label>
+                    <select class="form-select" id="voiceSelect">
+                        <option value="">Select a voice...</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Filter</label>
+                    <select class="form-select" id="filterSelect">
+                        <option value="top">Top Tweets</option>
+                        <option value="latest">Latest Tweets</option>
+                        <option value="random">Random Tweets</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Number of Tweets</label>
+                <input type="number" class="form-input" id="tweetCount" value="5" min="1" max="20">
+            </div>
+
+            <button class="process-button" id="processButton" onclick="processUser()" disabled>
+                Process User
+            </button>
+        </div>
+
+        <!-- Preview Section -->
+        <div class="status-card preview-section" id="previewSection">
+            <div class="preview-header">
+                <h2>📋 Tweet Preview</h2>
+                <button class="preview-button" id="previewButton" onclick="previewTweets()">
+                    Preview Tweets
+                </button>
+            </div>
+            <div id="previewContent">
+                <div style="text-align: center; padding: 20px; color: #8899a6;">
+                    <p>Select a user to preview their tweets</p>
+                    <p style="font-size: 12px; margin-top: 8px;">Tweets will automatically load when you select a user</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Section -->
+        <div class="status-card progress-section" id="progressSection">
+            <h2>⏳ Processing...</h2>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">Starting...</div>
+        </div>
+
+        <!-- Result Section -->
+        <div class="result-section" id="resultSection">
+            <!-- Results will be dynamically added here -->
+        </div>
+    </div>
+
+    <script>
+        let socket = io();
+        let currentJobId = null;
+
+        // Socket event listeners
+        socket.on('progress_update', function(data) {
+            updateProgress(data.progress, data.message);
+            
+            // Add more detailed messages for voice generation
+            if (data.message.includes('Generating voice')) {
+                document.getElementById('progressText').innerHTML = `
+                    <div style="text-align: center;">
+                        <div>${data.message}</div>
+                        <div style="font-size: 12px; color: #8899a6; margin-top: 4px;">
+                            This may take 30-60 seconds for high-quality voice synthesis
+                        </div>
+                    </div>
+                `;
+            } else {
+                document.getElementById('progressText').textContent = data.message;
+            }
+        });
+
+        socket.on('processing_complete', function(data) {
+            if (data.status === 'complete') {
+                showResult(data.result);
+            } else {
+                showError(data.message);
+            }
+            hideProgress();
+        });
+
+        function initializePipeline() {
+            const button = document.getElementById('initButton');
+            button.disabled = true;
+            button.innerHTML = '<span class="loading-spinner"></span>Initializing...';
+
+            fetch('/api/initialize', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Initialization response:', data);
+                if (data.success) {
+                    showSuccess(data.message);
+                    loadUsers();
+                    loadVoices();
+                    showForm();
+                } else {
+                    showError(data.message);
+                    button.disabled = false;
+                    button.innerHTML = 'Initialize Pipeline';
+                }
+            })
+            .catch(error => {
+                showError('Failed to initialize pipeline: ' + error.message);
+                button.disabled = false;
+                button.innerHTML = 'Initialize Pipeline';
+            });
+        }
+
+        function loadUsers() {
+            fetch('/api/users')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const select = document.getElementById('userSelect');
+                    select.innerHTML = '<option value="">Select a user...</option>';
+                    data.users.forEach(user => {
+                        const option = document.createElement('option');
+                        option.value = user;
+                        option.textContent = '@' + user;
+                        select.appendChild(option);
+                    });
+                }
+            });
+        }
+
+        function loadVoices() {
+            fetch('/api/voices')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const select = document.getElementById('voiceSelect');
+                    select.innerHTML = '<option value="">Select a voice...</option>';
+                    data.voices.forEach(voice => {
+                        const option = document.createElement('option');
+                        option.value = voice;
+                        option.textContent = voice.charAt(0).toUpperCase() + voice.slice(1);
+                        select.appendChild(option);
+                    });
+                }
+            });
+        }
+
+        function processUser() {
+            const username = document.getElementById('userSelect').value;
+            const voiceName = document.getElementById('voiceSelect').value;
+            const selectionType = document.getElementById('filterSelect').value;
+            const count = document.getElementById('tweetCount').value;
+
+            if (!username || !voiceName) {
+                showError('Please select both a user and a voice.');
+                return;
+            }
+
+            const button = document.getElementById('processButton');
+            button.disabled = true;
+            button.innerHTML = '<span class="loading-spinner"></span>Processing...';
+
+            fetch('/api/process', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: username,
+                    voice_name: voiceName,
+                    selection_type: selectionType,
+                    count: parseInt(count)
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    currentJobId = data.job_id;
+                    showProgress();
+                    updateProgress(0, 'Starting processing...');
+                } else {
+                    showError(data.message);
+                    button.disabled = false;
+                    button.innerHTML = 'Process User';
+                }
+            })
+            .catch(error => {
+                showError('Failed to start processing: ' + error.message);
+                button.disabled = false;
+                button.innerHTML = 'Process User';
+            });
+        }
+
+        function updateProgress(progress, message) {
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('progressText').textContent = message;
+        }
+
+        function showProgress() {
+            document.getElementById('progressSection').classList.add('active');
+        }
+
+        function hideProgress() {
+            document.getElementById('progressSection').classList.remove('active');
+            const button = document.getElementById('processButton');
+            button.disabled = false;
+            button.innerHTML = 'Process User';
+        }
+
+        function showForm() {
+            console.log('Showing form...');
+            const initSection = document.getElementById('initSection');
+            const formSection = document.getElementById('formSection');
+            const previewSection = document.getElementById('previewSection');
+            
+            console.log('Init section before:', initSection.classList);
+            initSection.classList.add('hidden');
+            console.log('Init section after:', initSection.classList);
+            
+            console.log('Form section before:', formSection.classList);
+            formSection.classList.add('active');
+            console.log('Form section after:', formSection.classList);
+            
+            previewSection.classList.add('active');
+            
+            document.getElementById('processButton').disabled = false;
+        }
+
+        function previewTweets() {
+            const username = document.getElementById('userSelect').value;
+            const selectionType = document.getElementById('filterSelect').value;
+            const count = document.getElementById('tweetCount').value;
+
+            if (!username) {
+                showError('Please select a user first.');
+                return;
+            }
+
+            const button = document.getElementById('previewButton');
+            button.disabled = true;
+            button.innerHTML = '<span class="loading-spinner"></span>Loading...';
+
+            fetch('/api/preview-tweets', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: username,
+                    selection_type: selectionType,
+                    count: parseInt(count)
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                button.disabled = false;
+                button.innerHTML = 'Preview Tweets';
+                
+                if (data.success) {
+                    showTweetPreview(data.tweets, data.selection_type, data.count);
+                } else {
+                    showError(data.message);
+                }
+            })
+            .catch(error => {
+                showError('Failed to preview tweets: ' + error.message);
+                button.disabled = false;
+                button.innerHTML = 'Preview Tweets';
+            });
+        }
+
+        function showTweetPreview(tweets, selectionType, count) {
+            const previewContent = document.getElementById('previewContent');
+            
+            if (!tweets || tweets.length === 0) {
+                previewContent.innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: #8899a6;">
+                        <p>No tweets found for the selected criteria.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let selectionText = '';
+            switch(selectionType) {
+                case 'top':
+                    selectionText = `Top ${count} most engaged tweets`;
+                    break;
+                case 'latest':
+                    selectionText = `Latest ${count} tweets`;
+                    break;
+                case 'random':
+                    selectionText = `Random ${count} tweets`;
+                    break;
+            }
+            
+            let html = `
+                <div style="margin-bottom: 16px;">
+                    <h3 style="color: #1da1f2; margin-bottom: 8px;">${selectionText}</h3>
+                    <p style="color: #8899a6; font-size: 14px;">Showing ${tweets.length} tweets for @${tweets[0]?.username || 'user'}</p>
+                </div>
+            `;
+            
+            tweets.forEach((tweet, index) => {
+                const engagement = tweet.engagement_total || (tweet.likes + (tweet.retweets || 0) + (tweet.replies || 0));
+                const timestamp = tweet.timestamp || tweet.scraped_at || 'Unknown';
+                const dateStr = tweet.parsed_date ? tweet.parsed_date.split('T')[0] : 'Unknown';
+                
+                html += `
+                    <div class="tweet-card">
+                        <div class="tweet-header">
+                            <div style="display: flex; flex-direction: column; gap: 4px;">
+                                <span style="color: #8899a6; font-size: 12px;">Tweet ${index + 1}</span>
+                                <span style="color: #1da1f2; font-size: 11px;">📅 ${dateStr}</span>
+                            </div>
+                            <div class="tweet-engagement">
+                                <div class="engagement-item">
+                                    <span>❤️</span>
+                                    <span>${tweet.likes || 0}</span>
+                                </div>
+                                <div class="engagement-item">
+                                    <span>🔄</span>
+                                    <span>${tweet.retweets || 0}</span>
+                                </div>
+                                <div class="engagement-item">
+                                    <span>💬</span>
+                                    <span>${tweet.replies || 0}</span>
+                                </div>
+                                <div class="engagement-item">
+                                    <span>🔥</span>
+                                    <span>${engagement}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tweet-content">${tweet.content}</div>
+                        <div style="color: #8899a6; font-size: 11px; margin-top: 8px;">${timestamp}</div>
+                    </div>
+                `;
+            });
+            
+            previewContent.innerHTML = html;
+        }
+
+        function showResult(result) {
+            const resultSection = document.getElementById('resultSection');
+            resultSection.classList.add('active');
+
+            const resultCard = document.createElement('div');
+            resultCard.className = 'result-card';
+            resultCard.innerHTML = `
+                <div class="result-header">
+                    <div class="user-avatar">${result.username.charAt(0).toUpperCase()}</div>
+                    <div class="user-info">
+                        <h3>@${result.username}</h3>
+                        <p>${result.voice_name} voice • ${result.tweet_count} tweets • ${result.selection_type}</p>
+                    </div>
+                </div>
+                
+                <div class="score-badge">Score: ${result.score.toFixed(4)}</div>
+                
+                <div class="summary-text">${result.summary}</div>
+                
+                <div style="margin-top: 16px;">
+                    <h4 style="color: #1da1f2; margin-bottom: 8px;">🎵 Generated Audio</h4>
+                    <div id="audio-container-${result.username}-${result.voice_name}">
+                        <div style="text-align: center; padding: 20px; color: #8899a6;">
+                            <div class="loading-spinner"></div>
+                            <p style="margin-top: 8px;">Loading audio...</p>
+                        </div>
+                    </div>
+                    <p style="color: #8899a6; font-size: 12px; margin-top: 8px;">
+                        Audio will appear above when ready
+                    </p>
+                </div>
+            `;
+
+            resultSection.appendChild(resultCard);
+            resultSection.scrollIntoView({ behavior: 'smooth' });
+            
+            // Load audio when ready
+            loadAudio(result.audio_path, result.username, result.voice_name);
+        }
+
+        function loadAudio(audioPath, username, voiceName) {
+            const containerId = `audio-container-${username}-${voiceName}`;
+            const container = document.getElementById(containerId);
+            
+            if (!container) return;
+            
+            // Create audio element
+            const audio = document.createElement('audio');
+            audio.controls = true;
+            audio.className = 'audio-player';
+            audio.preload = 'auto';
+            
+            const source = document.createElement('source');
+            source.src = `/api/audio/${audioPath}`;
+            source.type = 'audio/wav';
+            
+            audio.appendChild(source);
+            
+            // Show loading state
+            container.innerHTML = `
+                <div style="text-align: center; padding: 20px; color: #8899a6;">
+                    <div class="loading-spinner"></div>
+                    <p style="margin-top: 8px;">Loading audio...</p>
+                </div>
+            `;
+            
+            // When audio is ready, replace loading with audio player
+            audio.addEventListener('canplaythrough', function() {
+                container.innerHTML = '';
+                container.appendChild(audio);
+                
+                // Update the description
+                const description = container.parentElement.querySelector('p');
+                if (description) {
+                    description.innerHTML = `
+                        Click play to hear the summary in ${voiceName}'s voice
+                        <br><small style="color: #17bf63;">✅ Audio ready!</small>
+                    `;
+                }
+                
+                // Auto-play after a short delay
+                setTimeout(() => {
+                    audio.play().catch(e => console.log('Auto-play prevented:', e));
+                }, 500);
+            });
+            
+            // Handle errors
+            audio.addEventListener('error', function() {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: #e0245e;">
+                        <p>❌ Failed to load audio</p>
+                        <button onclick="loadAudio('${audioPath}', '${username}', '${voiceName}')" 
+                                style="background: #1da1f2; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
+                            Retry
+                        </button>
+                    </div>
+                `;
+            });
+            
+            // Start loading
+            audio.load();
+        }
+
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = message;
+            document.querySelector('.container').appendChild(errorDiv);
+            
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 5463);
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success-message';
+            successDiv.textContent = message;
+            document.querySelector('.container').appendChild(successDiv);
+            
+            setTimeout(() => {
+                successDiv.remove();
+            }, 3000);
+        }
+
+        // Enable process button when both user and voice are selected
+        document.getElementById('userSelect').addEventListener('change', checkForm);
+        document.getElementById('voiceSelect').addEventListener('change', checkForm);
+        document.getElementById('filterSelect').addEventListener('change', checkForm);
+        document.getElementById('tweetCount').addEventListener('change', checkForm);
+
+        // Auto-preview tweets when user, filter, or count changes
+        document.getElementById('userSelect').addEventListener('change', autoPreviewTweets);
+        document.getElementById('filterSelect').addEventListener('change', autoPreviewTweets);
+        document.getElementById('tweetCount').addEventListener('change', autoPreviewTweets);
+
+        function autoPreviewTweets() {
+            const username = document.getElementById('userSelect').value;
+            if (username) {
+                // Add a small delay to avoid too many requests
+                clearTimeout(window.previewTimeout);
+                window.previewTimeout = setTimeout(() => {
+                    previewTweets();
+                }, 500);
+            }
+        }
+
+        function checkForm() {
+            const username = document.getElementById('userSelect').value;
+            const voiceName = document.getElementById('voiceSelect').value;
+            const processButton = document.getElementById('processButton');
+            const previewButton = document.getElementById('previewButton');
+            
+            // Enable process button only when both user and voice are selected
+            processButton.disabled = !(username && voiceName);
+            
+            // Enable preview button when user is selected
+            previewButton.disabled = !username;
+        }
+    </script>
+</body>
+</html> 

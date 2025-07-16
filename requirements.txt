@@ -14,6 +14,9 @@ selenium==4.15.0
 webdriver-manager==4.0.1
 beautifulsoup4==4.12.2
 requests==2.32.4
+tweepy==4.14.0
+snscrape==0.7.0.20230622
+twint==2.1.20
 
 # Audio processing
 librosa==0.10.0
@@ -37,6 +40,13 @@ python-dateutil==2.9.0
 pandas==1.5.3
 emoji==2.8.0
 
+# Database support (SQLite is built into Python)
+# No additional requirements needed for SQLite
+
 # Optional: For better performance
 # torchdiffeq==0.2.5
-# torchsde==0.2.6 
+# torchsde==0.2.6
+
+# Web framework for UI
+Flask==3.0.0
+Flask-SocketIO==5.3.6 

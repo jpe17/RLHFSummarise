@@ -196,18 +196,18 @@ class IntegratedTweetVoicePipeline:
         print(f"🗣️ Generating speech with {voice_name} voice...")
         
         try:
-            # Generate audio with optimized settings
+            # Generate audio with optimized settings for faster generation
             audio = self.tts.tts(
                 text=text,
                 speaker_wav=reference_wav,
                 language="en",
-                temperature=0.65,
-                length_penalty=1.0,
-                repetition_penalty=2.5,
-                top_k=40,
-                top_p=0.85,
-                gpt_cond_len=12,
-                gpt_cond_chunk_len=6,
+                temperature=0.7,
+                length_penalty=0.8,
+                repetition_penalty=2.0,
+                top_k=20,
+                top_p=0.8,
+                gpt_cond_len=8,
+                gpt_cond_chunk_len=4,
                 split_sentences=True
             )
             
