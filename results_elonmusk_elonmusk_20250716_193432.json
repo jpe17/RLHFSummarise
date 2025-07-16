@@ -1,0 +1,41 @@
+{
+  "username": "elonmusk",
+  "tweets": [
+    {
+      "content": "El burro sabe mas que Maduro",
+      "timestamp": "2024-07-29T21:11:57.000Z",
+      "likes": "992",
+      "retweets": "166",
+      "replies": "29"
+    },
+    {
+      "content": "I regret some of my posts about President \n@realDonaldTrump\n last week. They went too far.",
+      "timestamp": "2025-06-11T07:04:46.000Z",
+      "likes": "1",
+      "retweets": "139",
+      "replies": "154"
+    },
+    {
+      "content": "10 Aug 2024",
+      "timestamp": "2024-08-10T19:23:05.000Z",
+      "likes": "1",
+      "retweets": "235",
+      "replies": "46"
+    }
+  ],
+  "combined_text": "Tweet 1 (❤️992 🔄166 💬29):\nEl burro sabe mas que Maduro\n\nTweet 2 (❤️1 🔄139 💬154):\nI regret some of my posts about President \n@realDonaldTrump\n last week. They went too far.\n\nTweet 3 (❤️1 🔄235 💬46):\n10 Aug 2024",
+  "summary": "I want to have a conversation with @realDonaldTrump, but he's not interested in talking to me... :( what do you say? ⚡️ 🐭#republicans #democrats 🏆#democrats 🌍👍🏻#deplorables#proudofthecitizenshipoftheUSA 📦",
+  "score": 0.08771015703678131,
+  "timestamp": "2025-07-16T19:33:52.916146",
+  "model_type": "PPO-trained",
+  "ppo_weights_path": "simple_ppo_lora_final_20250716_130239.pt",
+  "stats": {
+    "tweet_count": 3,
+    "original_length": 208,
+    "summary_length": 204,
+    "compression_ratio": 0.9807692307692307
+  },
+  "voice_name": "elonmusk",
+  "audio_path": "tweet_summary_elonmusk_20250716_193432.wav",
+  "voice_generated": true
+}

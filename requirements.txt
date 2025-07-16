@@ -1,0 +1,41 @@
+# Integrated Tweet-to-Voice Pipeline Requirements
+# Complete dependencies for tweet scraping, summarization, and voice synthesis
+
+# Core ML and TTS libraries
+TTS==0.22.0
+torch==2.5.0
+torchaudio==2.5.0
+torchvision==0.20.0 
+transformers==4.40.0
+accelerate==1.8.1
+
+# Tweet scraping and web automation
+selenium==4.15.0
+webdriver-manager==4.0.1
+beautifulsoup4==4.12.2
+requests==2.32.4
+
+# Audio processing
+librosa==0.10.0
+soundfile==0.13.1
+numpy==1.22.0
+scipy==1.11.4
+
+# Additional ML dependencies
+einops==0.8.1
+k_diffusion==0.0.16
+encodec==0.1.1
+peft==0.7.1
+bitsandbytes==0.41.1
+datasets==2.14.1
+
+# Utilities
+tqdm==4.67.1
+pathlib
+typing-extensions==4.14.1
+python-dateutil==2.9.0
+pandas==1.5.3
+
+# Optional: For better performance
+# torchdiffeq==0.2.5
+# torchsde==0.2.6 

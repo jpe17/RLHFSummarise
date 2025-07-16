@@ -511,7 +511,7 @@ def main():
     
     try:
         # Test usernames
-        test_usernames = ["elonmusk", "dril", "horse_ebooks"]
+        test_usernames = ["elonmusk", "@BarackObama", "@NASA"]
         
         for username in test_usernames:
             print(f"\n🚀 Processing @{username} with PPO-trained model...")
