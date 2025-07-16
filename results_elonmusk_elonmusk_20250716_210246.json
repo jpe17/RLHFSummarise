@@ -1,0 +1,69 @@
+{
+  "username": "elonmusk",
+  "tweets": [
+    {
+      "content": "Cool feature just dropped for \n@SuperGrok\n subscribers. \n\nTurn on Companions in settings.",
+      "timestamp": "2025-07-14T10:27:49.000Z",
+      "likes": "0",
+      "retweets": "0",
+      "replies": "0"
+    },
+    {
+      "content": "Next I’m buying Coca-Cola to put the cocaine back in",
+      "timestamp": "2022-04-28T00:56:58.000Z",
+      "likes": "0",
+      "retweets": "0",
+      "replies": "0"
+    },
+    {
+      "content": "13 Jul 2024",
+      "timestamp": "2024-07-13T22:51:28.000Z",
+      "likes": "0",
+      "retweets": "0",
+      "replies": "0"
+    },
+    {
+      "content": "I hope that even my worst critics remain on Twitter, because that is what free speech means",
+      "timestamp": "2022-04-25T16:12:30.000Z",
+      "likes": "0",
+      "retweets": "0",
+      "replies": "0"
+    },
+    {
+      "content": "The future is gonna be so",
+      "timestamp": "2024-11-06T05:01:15.000Z",
+      "likes": "0",
+      "retweets": "0",
+      "replies": "0"
+    },
+    {
+      "content": "Let’s make Twitter maximum fun!",
+      "timestamp": "2022-04-28T01:53:50.000Z",
+      "likes": "0",
+      "retweets": "0",
+      "replies": "0"
+    },
+    {
+      "content": "Yesss!!!",
+      "timestamp": "2022-04-25T19:43:22.000Z",
+      "likes": "0",
+      "retweets": "0",
+      "replies": "0"
+    }
+  ],
+  "combined_text": "Cool feature just dropped for \n@SuperGrok\n subscribers. \n\nTurn on Companions in settings.\n\nNext I’m buying Coca-Cola to put the cocaine back in\n\n13 Jul 2024\n\nI hope that even my worst critics remain on Twitter, because that is what free speech means\n\nThe future is gonna be so\n\nLet’s make Twitter maximum fun!\n\nYesss!!!",
+  "summary": "The future of social media is going to be a lot more fun! 😄",
+  "score": -0.1883951723575592,
+  "timestamp": "2025-07-16T21:02:37.044474",
+  "model_type": "PPO-trained",
+  "ppo_weights_path": "simple_ppo_lora_final_20250716_130239.pt",
+  "stats": {
+    "tweet_count": 7,
+    "original_length": 319,
+    "summary_length": 59,
+    "compression_ratio": 0.18495297805642633
+  },
+  "voice_name": "elonmusk",
+  "audio_path": "tweet_summary_elonmusk_20250716_210246.wav",
+  "voice_generated": true
+}

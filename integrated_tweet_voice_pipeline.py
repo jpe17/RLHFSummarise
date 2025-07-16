@@ -23,10 +23,11 @@ def clean_text_for_tts(text):
     Clean text for better TTS synthesis by removing:
     - Hashtags (#hashtag)
     - Emojis and emoticons
-    - URLs
+    - URLs and Twitter links
     - Excessive punctuation
     - Twitter handles (@username)
     - RT (retweet indicators)
+    - Twitter-specific formatting
     
     Args:
         text (str): Raw text to clean
@@ -38,26 +39,34 @@ def clean_text_for_tts(text):
         return ""
     
     # Remove emojis
-    text = emoji.replace_emojis(text, replace='')
+    text = emoji.replace_emoji(text, replace='')
     
-    # Remove hashtags (but keep the text part)
-    text = re.sub(r'#(\w+)', r'\1', text)
+    # Remove hashtags completely (both # and content) - handle multiple consecutive hashtags
+    text = re.sub(r'#\w+(?:#\w+)*', '', text)
     
-    # Remove Twitter handles
+    # Remove Twitter handles completely
     text = re.sub(r'@\w+', '', text)
     
-    # Remove URLs
-    text = re.sub(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', '', text)
+    # Remove URLs and Twitter links more comprehensively
+    # Match various URL patterns including Twitter's t.co links
+    text = re.sub(r'https?://[^\s]+', '', text)
+    text = re.sub(r'pic\.twitter\.com/[^\s]+', '', text)
+    text = re.sub(r't\.co/[^\s]+', '', text)
     
     # Remove RT indicators
     text = re.sub(r'\bRT\b', '', text, flags=re.IGNORECASE)
     
-    # Clean up excessive punctuation
-    # Replace multiple periods/commas with single ones
-    text = re.sub(r'\.{2,}', '.', text)
-    text = re.sub(r',{2,}', ',', text)
-    text = re.sub(r'!{2,}', '!', text)
-    text = re.sub(r'\?{2,}', '?', text)
+    # Remove Twitter-specific patterns like "— @username (username) date"
+    text = re.sub(r'—\s*@\w+\s*\(\w+\)\s*\w+\s+\d+', '', text)
+    text = re.sub(r'—\s*@\w+', '', text)
+    
+    # Remove date patterns at the end
+    text = re.sub(r'\w+\s+\d+,\s+\d{4}$', '', text)
+    text = re.sub(r'\d{4}$', '', text)
+    
+    # Remove patterns like "(@username) date" or "(username) date"
+    text = re.sub(r'\(\s*@?\w+\s*\)\s*\w+\s+\d+', '', text)
+    text = re.sub(r'\(\s*@?\w+\s*\)', '', text)
     
     # Remove emoticons like :), :(, :D, etc.
     text = re.sub(r':[)\-DdPpOo]', '', text)
@@ -73,6 +82,13 @@ def clean_text_for_tts(text):
     for pattern in emoticon_patterns:
         text = re.sub(pattern, '', text)
     
+    # Clean up excessive punctuation
+    # Replace multiple periods/commas with single ones
+    text = re.sub(r'\.{2,}', '.', text)
+    text = re.sub(r',{2,}', ',', text)
+    text = re.sub(r'!{2,}', '!', text)
+    text = re.sub(r'\?{2,}', '?', text)
+    
     # Clean up whitespace
     text = re.sub(r'\s+', ' ', text)  # Multiple spaces to single space
     text = text.strip()
@@ -81,9 +97,17 @@ def clean_text_for_tts(text):
     text = re.sub(r'^[.,!?;:\s]+', '', text)
     text = re.sub(r'[.,!?;:\s]+$', '', text)
     
+    # Remove empty parentheses and brackets
+    text = re.sub(r'\(\s*\)', '', text)
+    text = re.sub(r'\[\s*\]', '', text)
+    
     # Ensure proper sentence endings
     if text and not text.endswith(('.', '!', '?')):
         text += '.'
+    
+    # Final cleanup of any remaining artifacts
+    text = re.sub(r'\s+', ' ', text)  # Multiple spaces to single space
+    text = text.strip()
     
     return text
 
@@ -207,7 +231,7 @@ class IntegratedTweetVoicePipeline:
         Args:
             username (str): Twitter username (without @)
             voice_name (str): Name of the voice to use
-            tweet_count (int): Number of tweets to fetch
+            tweet_count (int): Number of tweets to fetch (default: 10)
             
         Returns:
             dict: Results containing summary, score, and audio path

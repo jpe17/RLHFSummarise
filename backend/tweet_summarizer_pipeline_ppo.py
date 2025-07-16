@@ -180,11 +180,9 @@ class TweetSummarizerPipelinePPO:
         # Sort by engagement and take top tweets
         sorted_tweets = sorted(tweets, key=get_engagement_score, reverse=True)
         
-        # Combine tweets into a single text
+        # Combine tweets into a single text (only content, no formatting)
         combined_text = ""
         for i, tweet in enumerate(sorted_tweets, 1):
-            engagement = get_engagement_score(tweet)
-            combined_text += f"Tweet {i} (❤️{tweet.get('likes', '0')} 🔄{tweet.get('retweets', '0')} 💬{tweet.get('replies', '0')}):\n"
             combined_text += f"{tweet['content']}\n\n"
         
         return combined_text.strip()

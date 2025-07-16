@@ -1,0 +1,55 @@
+{
+  "username": "celinedion",
+  "tweets": [
+    {
+      "content": "I’m honored to have performed tonight, for the Paris 2024 Opening Ceremony, and so full of joy to be back in one of my very favorite cities! Most of all, I’m so happy to be celebrating these amazing athletes, with all their stories of sacrifice and determination, pain and",
+      "timestamp": "2024-07-27T00:28:09.000Z",
+      "likes": "0",
+      "retweets": "0",
+      "replies": "0"
+    },
+    {
+      "content": "Today, Celine Dion’s management team and her record label, Sony Music Entertainment Canada Inc., became aware of the unauthorized usage of the video, recording, musical performance, and likeness of Celine Dion singing “My Heart Will Go On” at a Donald Trump / JD Vance campaign",
+      "timestamp": "2024-08-10T19:03:14.000Z",
+      "likes": "10",
+      "retweets": "0",
+      "replies": "0"
+    },
+    {
+      "content": "Wow, what a night. Thanks to everyone at \n@Paris2024\n , \n@Olympics\n and \n@Dior\n who helped make this dream come true. And now, it’s already time to go!  I will miss you Paris! \n- Celine xx…\n\nPC : Dee Amore",
+      "timestamp": "2024-07-27T23:27:41.000Z",
+      "likes": "0",
+      "retweets": "0",
+      "replies": "0"
+    },
+    {
+      "content": "Let the games begin!Sending love and luck to all competitors. \n- Celine xx… \n#paris2024 #openingceremony",
+      "timestamp": "2024-07-26T23:48:40.000Z",
+      "likes": "0",
+      "retweets": "0",
+      "replies": "0"
+    },
+    {
+      "content": "Adele, we are so grateful to you for welcoming me and my family back to the Colosseum for your amazing show! Your performance was spectacular, your production was so beautiful.  We loved seeing you and hearing you sing…it was such an emotional night for us all.\n \nYour music has",
+      "timestamp": "2024-11-01T18:18:11.000Z",
+      "likes": "0",
+      "retweets": "0",
+      "replies": "0"
+    }
+  ],
+  "combined_text": "Today, Celine Dion’s management team and her record label, Sony Music Entertainment Canada Inc., became aware of the unauthorized usage of the video, recording, musical performance, and likeness of Celine Dion singing “My Heart Will Go On” at a Donald Trump / JD Vance campaign\n\nI’m honored to have performed tonight, for the Paris 2024 Opening Ceremony, and so full of joy to be back in one of my very favorite cities! Most of all, I’m so happy to be celebrating these amazing athletes, with all their stories of sacrifice and determination, pain and\n\nWow, what a night. Thanks to everyone at \n@Paris2024\n , \n@Olympics\n and \n@Dior\n who helped make this dream come true. And now, it’s already time to go!  I will miss you Paris! \n- Celine xx…\n\nPC : Dee Amore\n\nLet the games begin!Sending love and luck to all competitors. \n- Celine xx… \n#paris2024 #openingceremony\n\nAdele, we are so grateful to you for welcoming me and my family back to the Colosseum for your amazing show! Your performance was spectacular, your production was so beautiful.  We loved seeing you and hearing you sing…it was such an emotional night for us all.\n \nYour music has",
+  "summary": "Celine Dion's management and record label got caught using the song \"My Heart Will Go On\" without permission. She is happy to perform tonight as part of the Paris 2024 opening ceremony. We love our city!",
+  "score": -0.15319322049617767,
+  "timestamp": "2025-07-16T20:31:41.182505",
+  "model_type": "PPO-trained",
+  "ppo_weights_path": "simple_ppo_lora_final_20250716_130239.pt",
+  "stats": {
+    "tweet_count": 5,
+    "original_length": 1144,
+    "summary_length": 203,
+    "compression_ratio": 0.17744755244755245
+  },
+  "voice_name": "christina",
+  "audio_path": null,
+  "voice_generated": false
+}

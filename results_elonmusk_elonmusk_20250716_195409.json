@@ -1,0 +1,69 @@
+{
+  "username": "elonmusk",
+  "tweets": [
+    {
+      "content": "Cool feature just dropped for \n@SuperGrok\n subscribers. \n\nTurn on Companions in settings.",
+      "timestamp": "2025-07-14T10:27:49.000Z",
+      "likes": "0",
+      "retweets": "0",
+      "replies": "0"
+    },
+    {
+      "content": "Next I’m buying Coca-Cola to put the cocaine back in",
+      "timestamp": "2022-04-28T00:56:58.000Z",
+      "likes": "0",
+      "retweets": "0",
+      "replies": "0"
+    },
+    {
+      "content": "13 Jul 2024",
+      "timestamp": "2024-07-13T22:51:28.000Z",
+      "likes": "0",
+      "retweets": "0",
+      "replies": "0"
+    },
+    {
+      "content": "I hope that even my worst critics remain on Twitter, because that is what free speech means",
+      "timestamp": "2022-04-25T16:12:30.000Z",
+      "likes": "0",
+      "retweets": "0",
+      "replies": "0"
+    },
+    {
+      "content": "The future is gonna be so",
+      "timestamp": "2024-11-06T05:01:15.000Z",
+      "likes": "0",
+      "retweets": "0",
+      "replies": "0"
+    },
+    {
+      "content": "Let’s make Twitter maximum fun!",
+      "timestamp": "2022-04-28T01:53:50.000Z",
+      "likes": "0",
+      "retweets": "0",
+      "replies": "0"
+    },
+    {
+      "content": "Yesss!!!",
+      "timestamp": "2022-04-25T19:43:22.000Z",
+      "likes": "0",
+      "retweets": "0",
+      "replies": "0"
+    }
+  ],
+  "combined_text": "Tweet 1 (❤️0 🔄0 💬0):\nCool feature just dropped for \n@SuperGrok\n subscribers. \n\nTurn on Companions in settings.\n\nTweet 2 (❤️0 🔄0 💬0):\nNext I’m buying Coca-Cola to put the cocaine back in\n\nTweet 3 (❤️0 🔄0 💬0):\n13 Jul 2024\n\nTweet 4 (❤️0 🔄0 💬0):\nI hope that even my worst critics remain on Twitter, because that is what free speech means\n\nTweet 5 (❤️0 🔄0 💬0):\nThe future is gonna be so\n\nTweet 6 (❤️0 🔄0 💬0):\nLet’s make Twitter maximum fun!\n\nTweet 7 (❤️0 🔄0 💬0):\nYesss!!!",
+  "summary": "@SuperGrok has a new feature to turn on for friends. Turn it on and you get a coke with the words \"you're awesome\". Get it? 😄👍🏼😂🤣😂🔥😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍😍",
+  "score": -0.3311418890953064,
+  "timestamp": "2025-07-16T19:53:41.280049",
+  "model_type": "PPO-trained",
+  "ppo_weights_path": "simple_ppo_lora_final_20250716_130239.pt",
+  "stats": {
+    "tweet_count": 7,
+    "original_length": 466,
+    "summary_length": 290,
+    "compression_ratio": 0.6223175965665236
+  },
+  "voice_name": "elonmusk",
+  "audio_path": "tweet_summary_elonmusk_20250716_195409.wav",
+  "voice_generated": true
+}

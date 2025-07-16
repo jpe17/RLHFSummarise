@@ -8,8 +8,8 @@ from integrated_tweet_voice_pipeline import IntegratedTweetVoicePipeline
 
 def main():
     # 🎯 CUSTOMIZE THESE SETTINGS
-    test_usernames = ["elonmusk", "BarackObama", "NASA"]
-    voices = ["elonmusk", "freeman", "deniro"]
+    test_usernames = ["celinedion", "elonmusk", "BarackObama", "NASA"]
+    voices = ["christina", "elonmusk", "barackobama", "freeman"]
     
     # Create user-voice pairs
     user_voice_pairs = list(zip(test_usernames, voices))
