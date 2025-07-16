@@ -165,7 +165,16 @@ def load_reward_model(reward_model_path="qwen_reward_model.pt", device=None):
     tokenizer = setup_tokenizer(model_config['model_id'])
     
     base_model = setup_lora_model(model_config['model_id'], device)
-    base_model = load_lora_weights(base_model, model_config['lora_weights_path'])
+    
+    # Handle relative path when called from backend directory
+    lora_path = model_config['lora_weights_path']
+    if not os.path.isabs(lora_path) and not os.path.exists(lora_path):
+        # Try parent directory
+        parent_path = os.path.join('..', lora_path)
+        if os.path.exists(parent_path):
+            lora_path = parent_path
+    
+    base_model = load_lora_weights(base_model, lora_path)
     
     reward_model = RewardModel(base_model).to(device)
     reward_model.reward_head.load_state_dict(reward_state['reward_head'])
