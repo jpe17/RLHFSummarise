@@ -370,9 +370,8 @@ class TweetSummarizerPipelinePPO:
             dict: Results containing tweets, summary, and score
         """
         try:
-            # Step 1: Get tweets with date filtering
-            fetch_count = tweet_count * 2 if (since_date or until_date) else tweet_count
-            tweets = self.get_tweets(username, fetch_count, since_date, until_date)
+            # Step 1: Get latest tweets (just tweet_count)
+            tweets = self.get_tweets(username, tweet_count, since_date, until_date)
             if not tweets:
                 return {
                     "username": username,
@@ -383,9 +382,6 @@ class TweetSummarizerPipelinePPO:
                     "score": 0.0,
                     "model_type": "PPO-trained"
                 }
-            
-            # Limit to requested count
-            tweets = tweets[:tweet_count]
             
             # Step 2: Combine tweets
             combined_text = self.combine_tweets(tweets)
@@ -444,7 +440,7 @@ class TweetSummarizerPipelinePPO:
                 "score": 0.0,
                 "model_type": "PPO-trained"
             }
-    
+
     def print_results(self, results):
         """
         Print results in a formatted way.

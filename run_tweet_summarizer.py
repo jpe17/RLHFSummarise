@@ -81,6 +81,7 @@ Examples:
   %(prog)s dril --count 15 --save
   %(prog)s horse_ebooks --count 5 --max-length 150
   %(prog)s username --device cuda --lora-weights my_weights.pt
+  %(prog)s username --use-ppo --ppo-weights simple_ppo_lora_ep15_20250715_160654.pt
   %(prog)s username --since 2024-01-01 --until 2024-01-31
   %(prog)s username --since 7d --count 20
   %(prog)s username --since yesterday --until today
@@ -130,6 +131,18 @@ Examples:
         "--lora-weights",
         default="lora_weights.pt",
         help="Path to LoRA weights file (default: lora_weights.pt)"
+    )
+    
+    parser.add_argument(
+        "--use-ppo",
+        action="store_true",
+        help="Use PPO-trained model instead of baseline LoRA model"
+    )
+    
+    parser.add_argument(
+        "--ppo-weights",
+        default="simple_ppo_lora_ep15_20250715_160654.pt",
+        help="Path to PPO-trained LoRA weights file (default: simple_ppo_lora_ep15_20250715_160654.pt)"
     )
     
     parser.add_argument(
@@ -203,28 +216,54 @@ Examples:
     device = None if args.device == "auto" else args.device
     
     try:
-        # Initialize pipeline
-        if not args.quiet:
-            print(f"🚀 Initializing Tweet Summarizer Pipeline...")
-            print(f"   • Username: @{args.username}")
-            print(f"   • Tweet count: {args.count}")
-            print(f"   • Max summary length: {args.max_length}")
-            print(f"   • Temperature: {args.temperature}")
-            print(f"   • Device: {args.device}")
-            print(f"   • LoRA weights: {args.lora_weights}")
-            print(f"   • Reward model: {args.reward_model}")
-            if since_date:
-                print(f"   • Since: {since_date.strftime('%Y-%m-%d %H:%M:%S')}")
-            if until_date:
-                print(f"   • Until: {until_date.strftime('%Y-%m-%d %H:%M:%S')}")
-            print()
-        
-        pipeline = TweetSummarizerPipeline(
-            model_id=args.model_id,
-            lora_weights_path=args.lora_weights,
-            reward_model_path=args.reward_model,
-            device=device
-        )
+        # Choose pipeline based on --use-ppo flag
+        if args.use_ppo:
+            from backend.tweet_summarizer_pipeline_ppo import TweetSummarizerPipelinePPO
+            
+            if not args.quiet:
+                print(f"🚀 Initializing PPO-Trained Tweet Summarizer Pipeline...")
+                print(f"   • Username: @{args.username}")
+                print(f"   • Tweet count: {args.count}")
+                print(f"   • Max summary length: {args.max_length}")
+                print(f"   • Temperature: {args.temperature}")
+                print(f"   • Device: {args.device}")
+                print(f"   • PPO weights: {args.ppo_weights}")
+                print(f"   • Reward model: {args.reward_model}")
+                if since_date:
+                    print(f"   • Since: {since_date.strftime('%Y-%m-%d %H:%M:%S')}")
+                if until_date:
+                    print(f"   • Until: {until_date.strftime('%Y-%m-%d %H:%M:%S')}")
+                print()
+            
+            pipeline = TweetSummarizerPipelinePPO(
+                model_id=args.model_id,
+                ppo_weights_path=args.ppo_weights,
+                reward_model_path=args.reward_model,
+                device=device
+            )
+        else:
+            # Initialize baseline pipeline
+            if not args.quiet:
+                print(f"🚀 Initializing Tweet Summarizer Pipeline...")
+                print(f"   • Username: @{args.username}")
+                print(f"   • Tweet count: {args.count}")
+                print(f"   • Max summary length: {args.max_length}")
+                print(f"   • Temperature: {args.temperature}")
+                print(f"   • Device: {args.device}")
+                print(f"   • LoRA weights: {args.lora_weights}")
+                print(f"   • Reward model: {args.reward_model}")
+                if since_date:
+                    print(f"   • Since: {since_date.strftime('%Y-%m-%d %H:%M:%S')}")
+                if until_date:
+                    print(f"   • Until: {until_date.strftime('%Y-%m-%d %H:%M:%S')}")
+                print()
+            
+            pipeline = TweetSummarizerPipeline(
+                model_id=args.model_id,
+                lora_weights_path=args.lora_weights,
+                reward_model_path=args.reward_model,
+                device=device
+            )
         
         # Process user
         if not args.quiet:
