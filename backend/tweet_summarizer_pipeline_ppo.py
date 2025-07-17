@@ -21,6 +21,8 @@ from model import setup_lora_model, load_lora_weights
 from reward import load_reward_model
 from data_loader import setup_tokenizer
 from text_utils import format_tweet_for_summarization, clean_text_for_summarization
+import re
+import emoji
 
 class TweetSummarizerPipelinePPO:
     def __init__(self, 
@@ -185,6 +187,16 @@ class TweetSummarizerPipelinePPO:
         combined_text = format_tweet_for_summarization(sorted_tweets)
         
         print(f"🧹 Cleaned {len(sorted_tweets)} tweets for summarization")
+        
+        # Debug: Show before/after cleaning
+        print(f"\n🔍 DEBUG: TEXT CLEANING CHECK")
+        print(f"📏 Combined text length: {len(combined_text)} characters")
+        hashtags = re.findall(r'#\w+', combined_text)
+        print(f"🔍 Hashtags found: {len(hashtags)}")
+        print(f"🔍 Emojis found: {emoji.emoji_count(combined_text)}")
+        if len(hashtags) > 0:
+            print(f"⚠️ WARNING: Hashtags still present: {hashtags[:5]}")
+        
         return combined_text
     
     def generate_summary(self, text, max_length=200, temperature=0.7):

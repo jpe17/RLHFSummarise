@@ -1,0 +1,9 @@
+{
+  "username": "elonmusk",
+  "error": "object of type 'int' has no len()",
+  "tweets": [],
+  "combined_text": "",
+  "summary": "",
+  "score": 0.0,
+  "model_type": "PPO-trained"
+}

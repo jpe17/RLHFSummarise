@@ -24,8 +24,8 @@ def clean_text_for_tts(text):
     # Remove emojis
     text = emoji.replace_emoji(text, replace='')
     
-    # Remove hashtags completely (both # and content) - handle multiple consecutive hashtags
-    text = re.sub(r'#\w+(?:#\w+)*', '', text)
+    # Remove hashtags completely (both # and content) - more robust pattern
+    text = re.sub(r'#\w+', '', text)
     
     # Remove @ symbol but keep the username text
     text = re.sub(r'@(\w+)', r'\1', text)
@@ -112,7 +112,7 @@ def clean_tweet_content(tweet_content):
     text = emoji.replace_emoji(tweet_content, replace='')
     
     # Remove hashtags completely
-    text = re.sub(r'#\w+(?:#\w+)*', '', text)
+    text = re.sub(r'#\w+', '', text)
     
     # Remove @ symbol but keep the username text
     text = re.sub(r'@(\w+)', r'\1', text)
@@ -153,7 +153,7 @@ def clean_text_for_summarization(text):
     text = emoji.replace_emoji(text, replace='')
     
     # Remove hashtags completely (both # and content)
-    text = re.sub(r'#\w+(?:#\w+)*', '', text)
+    text = re.sub(r'#\w+', '', text)
     
     # Remove @ symbol but keep the username text
     text = re.sub(r'@(\w+)', r'\1', text)
