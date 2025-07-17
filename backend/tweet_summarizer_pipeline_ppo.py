@@ -188,10 +188,13 @@ class TweetSummarizerPipelinePPO:
         # Sort by engagement and take top tweets
         sorted_tweets = sorted(tweets, key=get_engagement_score, reverse=True)
         
-        # Use the new text utils to format and clean tweets
-        combined_text = format_tweet_for_summarization(sorted_tweets)
+        # Group tweets by similar themes or users if possible
+        organized_tweets = self._organize_tweets_by_theme(sorted_tweets)
         
-        print(f"🧹 Cleaned {len(sorted_tweets)} tweets for summarization")
+        # Use the new text utils to format and clean tweets
+        combined_text = format_tweet_for_summarization(organized_tweets)
+        
+        print(f"🧹 Cleaned {len(organized_tweets)} tweets for summarization")
         
         # Debug: Show before/after cleaning
         print(f"\n🔍 DEBUG: TEXT CLEANING CHECK")
@@ -204,12 +207,46 @@ class TweetSummarizerPipelinePPO:
         
         return combined_text
     
-    def generate_summary(self, text, **kwargs):
+    def _organize_tweets_by_theme(self, tweets):
+        """
+        Organize tweets by themes or group similar content together.
+        
+        Args:
+            tweets (list): List of tweet dictionaries
+            
+        Returns:
+            list: Organized tweets
+        """
+        if not tweets:
+            return []
+        
+        # Simple organization: group by user if multiple users, otherwise keep order
+        user_groups = {}
+        for tweet in tweets:
+            # Extract user from tweet content or use 'unknown'
+            user = tweet.get('user', 'unknown')
+            if user not in user_groups:
+                user_groups[user] = []
+            user_groups[user].append(tweet)
+        
+        # If multiple users, organize by user
+        if len(user_groups) > 1:
+            organized = []
+            for user, user_tweets in user_groups.items():
+                # Take top 3 tweets per user to avoid overwhelming
+                organized.extend(user_tweets[:3])
+            return organized
+        else:
+            # Single user, return top tweets
+            return tweets[:10]  # Limit to top 10 tweets
+    
+    def generate_summary(self, text, strategy="adaptive", **kwargs):
         """
         Generate a summary of the given text using the PPO-trained model.
         
         Args:
             text (str): Text to summarize
+            strategy (str): Generation strategy - "adaptive", "conservative", "creative"
             **kwargs: Generation parameters (e.g., max_length, temperature)
             
         Returns:
@@ -218,25 +255,17 @@ class TweetSummarizerPipelinePPO:
         if not text.strip():
             return ""
         
-        # Default generation parameters
-        gen_params = {
-            "max_new_tokens": 500,  # Allow longer summaries
-            "min_length": 30,
-            "no_repeat_ngram_size": 2,
-            "num_beams": 4,
-            "temperature": 0.7,
-            "do_sample": False,
-            "pad_token_id": self.tokenizer.pad_token_id,
-            "eos_token_id": self.tokenizer.eos_token_id,
-        }
+        # Get generation parameters based on strategy
+        gen_params = self._get_generation_params(strategy)
+        
         # Update with any provided kwargs
         gen_params.update(kwargs)
 
         # Clean the text for better summarization
         cleaned_text = clean_text_for_summarization(text)
         
-        # Create prompt for summarization (same format as PPO training)
-        prompt = f"Please summarize the following tweets:\n\n{cleaned_text}\n\nSummary:"
+        # Create context-aware prompt based on content analysis
+        prompt = self._create_context_aware_prompt(cleaned_text)
         
         # Debug: Print the input prompt
         print("\n" + "="*80)
@@ -247,6 +276,7 @@ class TweetSummarizerPipelinePPO:
         print(f"📏 Prompt length: {len(prompt)} characters")
         print(f"📏 Original text length: {len(text)} characters")
         print(f"📏 Cleaned text length: {len(cleaned_text)} characters")
+        print(f"🎯 Strategy: {strategy}")
         print("="*80 + "\n")
         
         # Tokenize input
@@ -283,8 +313,155 @@ class TweetSummarizerPipelinePPO:
         full_output = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
         summary = full_output[len(prompt):].strip()
         
-        # No output truncation - let the summary be free
+        # Post-process the summary to remove any remaining artifacts
+        summary = self._post_process_summary(summary)
+        
         print(f"✅ Generated PPO summary ({len(summary)} characters)")
+        return summary
+    
+    def _get_generation_params(self, strategy):
+        """
+        Get generation parameters based on the chosen strategy.
+        
+        Args:
+            strategy (str): Generation strategy
+            
+        Returns:
+            dict: Generation parameters
+        """
+        if strategy == "conservative":
+            # More deterministic, focused on accuracy
+            return {
+                "max_new_tokens": 200,
+                "min_length": 40,
+                "no_repeat_ngram_size": 3,
+                "temperature": 0.6,
+                "do_sample": True,
+                "top_p": 0.8,
+                "top_k": 30,
+                "pad_token_id": self.tokenizer.pad_token_id,
+                "eos_token_id": self.tokenizer.eos_token_id,
+            }
+        elif strategy == "creative":
+            # More creative, diverse outputs
+            return {
+                "max_new_tokens": 350,
+                "min_length": 60,
+                "no_repeat_ngram_size": 2,
+                "temperature": 1.0,
+                "do_sample": True,
+                "top_p": 0.95,
+                "top_k": 100,
+                "pad_token_id": self.tokenizer.pad_token_id,
+                "eos_token_id": self.tokenizer.eos_token_id,
+            }
+        else:  # adaptive (default)
+            # Balanced approach
+            return {
+                "max_new_tokens": 300,
+                "min_length": 50,
+                "no_repeat_ngram_size": 3,
+                "temperature": 0.8,
+                "do_sample": True,
+                "top_p": 0.9,
+                "top_k": 50,
+                "pad_token_id": self.tokenizer.pad_token_id,
+                "eos_token_id": self.tokenizer.eos_token_id,
+            }
+    
+    def _create_context_aware_prompt(self, cleaned_text):
+        """
+        Create a context-aware prompt based on the content analysis.
+        
+        Args:
+            cleaned_text (str): Cleaned text to analyze
+            
+        Returns:
+            str: Context-aware prompt
+        """
+        # Analyze content to determine best prompt strategy
+        lines = cleaned_text.split('\n')
+        non_empty_lines = [line.strip() for line in lines if line.strip()]
+        
+        # Check if content seems to be from multiple sources/topics
+        if len(non_empty_lines) > 5:
+            # Multiple diverse posts
+            prompt = f"""Please create a concise summary of the following social media posts. Since these posts cover different topics, organize your summary by identifying the main themes and key points from each:
+
+{cleaned_text}
+
+Summary:"""
+        elif len(non_empty_lines) <= 2:
+            # Very short content
+            prompt = f"""Please provide a brief summary of the following social media content, focusing on the main message:
+
+{cleaned_text}
+
+Summary:"""
+        else:
+            # Standard content
+            prompt = f"""Please create a concise and coherent summary of the following social media posts. Focus on the main themes, key messages, and important information:
+
+{cleaned_text}
+
+Summary:"""
+        
+        return prompt
+    
+    def _post_process_summary(self, summary):
+        """
+        Post-process the generated summary to remove artifacts and improve quality.
+        
+        Args:
+            summary (str): Raw generated summary
+            
+        Returns:
+            str: Cleaned summary
+        """
+        if not summary:
+            return ""
+        
+        # Remove any remaining hashtags that might have slipped through
+        summary = re.sub(r'#\w+', '', summary)
+        summary = re.sub(r'#[^\s]+', '', summary)
+        
+        # Remove any remaining @ mentions
+        summary = re.sub(r'@\w+', '', summary)
+        summary = re.sub(r'@[^\s]+', '', summary)
+        
+        # Remove URLs that might appear in summary
+        summary = re.sub(r'https?://[^\s]+', '', summary)
+        summary = re.sub(r'www\.[^\s]+', '', summary)
+        
+        # Remove emojis from summary
+        summary = emoji.replace_emoji(summary, replace='')
+        
+        # Fix common generation artifacts
+        summary = re.sub(r'\s+', ' ', summary)  # Multiple spaces
+        summary = re.sub(r'\.{2,}', '.', summary)  # Multiple periods
+        summary = re.sub(r',{2,}', ',', summary)  # Multiple commas
+        
+        # Remove repetitive phrases (common in generation)
+        lines = summary.split('.')
+        unique_lines = []
+        for line in lines:
+            line = line.strip()
+            if line and line not in unique_lines:
+                unique_lines.append(line)
+        
+        summary = '. '.join(unique_lines)
+        
+        # Ensure proper capitalization
+        if summary and not summary[0].isupper():
+            summary = summary[0].upper() + summary[1:]
+        
+        # Ensure proper ending
+        if summary and not summary.endswith(('.', '!', '?')):
+            summary += '.'
+        
+        # Final cleanup
+        summary = summary.strip()
+        
         return summary
     
     def score_summary(self, original_text, summary):
@@ -404,7 +581,7 @@ class TweetSummarizerPipelinePPO:
         
         return filtered_tweets
 
-    def process_user(self, username, tweet_count=10, summary_max_length=200, since_date=None, until_date=None):
+    def process_user(self, username, tweet_count=10, summary_max_length=200, since_date=None, until_date=None, strategy="adaptive"):
         """
         Complete pipeline: scrape tweets, summarize, and score using PPO-trained model.
         
@@ -414,6 +591,7 @@ class TweetSummarizerPipelinePPO:
             summary_max_length (int): Maximum length of summary
             since_date (datetime): Only include tweets after this date
             until_date (datetime): Only include tweets before this date
+            strategy (str): Generation strategy - "adaptive", "conservative", "creative"
             
         Returns:
             dict: Results containing tweets, summary, and score
@@ -429,7 +607,8 @@ class TweetSummarizerPipelinePPO:
                     "combined_text": "",
                     "summary": "",
                     "score": 0.0,
-                    "model_type": "PPO-trained"
+                    "model_type": "PPO-trained",
+                    "strategy": strategy
                 }
             
             # Step 2: Combine tweets
@@ -442,11 +621,12 @@ class TweetSummarizerPipelinePPO:
                     "combined_text": "",
                     "summary": "",
                     "score": 0.0,
-                    "model_type": "PPO-trained"
+                    "model_type": "PPO-trained",
+                    "strategy": strategy
                 }
             
-            # Step 3: Generate summary
-            summary = self.generate_summary(combined_text, max_length=summary_max_length)
+            # Step 3: Generate summary with specified strategy
+            summary = self.generate_summary(combined_text, strategy=strategy, max_length=summary_max_length)
             if not summary:
                 return {
                     "username": username,
@@ -455,7 +635,8 @@ class TweetSummarizerPipelinePPO:
                     "combined_text": combined_text,
                     "summary": "",
                     "score": 0.0,
-                    "model_type": "PPO-trained"
+                    "model_type": "PPO-trained",
+                    "strategy": strategy
                 }
             
             # Step 4: Score summary
@@ -469,6 +650,7 @@ class TweetSummarizerPipelinePPO:
                 "score": score,
                 "timestamp": datetime.now().isoformat(),
                 "model_type": "PPO-trained",
+                "strategy": strategy,
                 "ppo_weights_path": self.ppo_weights_path,
                 "stats": {
                     "tweet_count": len(tweets),
@@ -487,7 +669,8 @@ class TweetSummarizerPipelinePPO:
                 "combined_text": "",
                 "summary": "",
                 "score": 0.0,
-                "model_type": "PPO-trained"
+                "model_type": "PPO-trained",
+                "strategy": strategy
             }
 
     def print_results(self, results):

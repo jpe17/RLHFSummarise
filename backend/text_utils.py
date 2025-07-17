@@ -152,23 +152,41 @@ def clean_text_for_summarization(text):
     # Remove emojis
     text = emoji.replace_emoji(text, replace='')
     
-    # Remove hashtags completely (both # and content)
-    text = re.sub(r'#\w+', '', text)
+    # More aggressive hashtag removal - multiple patterns
+    text = re.sub(r'#\w+', '', text)  # Standard hashtags
+    text = re.sub(r'#[^\s]+', '', text)  # Hashtags with special chars
+    text = re.sub(r'\s#\w+', ' ', text)  # Hashtags with leading space
+    text = re.sub(r'\s#[^\s]+', ' ', text)  # Any hashtag pattern
     
-    # Remove @ symbol but keep the username text
-    text = re.sub(r'@(\w+)', r'\1', text)
+    # Remove @ mentions more thoroughly
+    text = re.sub(r'@\w+', '', text)  # Remove @ mentions completely
+    text = re.sub(r'@[^\s]+', '', text)  # Remove @ mentions with special chars
     
-    # Remove URLs
+    # Remove URLs more comprehensively
     text = re.sub(r'https?://[^\s]+', '', text)
     text = re.sub(r'pic\.twitter\.com/[^\s]+', '', text)
     text = re.sub(r't\.co/[^\s]+', '', text)
+    text = re.sub(r'www\.[^\s]+', '', text)
     
-    # Remove RT indicators
+    # Remove RT indicators and quote tweet patterns
     text = re.sub(r'\bRT\b', '', text, flags=re.IGNORECASE)
+    text = re.sub(r'RT @\w+:', '', text, flags=re.IGNORECASE)
+    text = re.sub(r'QT @\w+:', '', text, flags=re.IGNORECASE)
     
     # Remove emoticons like :), :(, :D, etc.
     text = re.sub(r':[)\-DdPpOo]', '', text)
     text = re.sub(r'[)\-DdPpOo]:', '', text)
+    
+    # Remove common Twitter artifacts
+    text = re.sub(r'\.\.\.$', '', text)  # Trailing dots
+    text = re.sub(r'^\.\.\.$', '', text)  # Leading dots
+    text = re.sub(r'\s+\.\.\.$', '', text)  # Spaced trailing dots
+    
+    # Remove excessive punctuation
+    text = re.sub(r'\.{2,}', '.', text)
+    text = re.sub(r',{2,}', ',', text)
+    text = re.sub(r'!{2,}', '!', text)
+    text = re.sub(r'\?{2,}', '?', text)
     
     # Clean up excessive whitespace
     text = re.sub(r'\s+', ' ', text)
@@ -176,6 +194,16 @@ def clean_text_for_summarization(text):
     
     # Remove empty lines
     text = re.sub(r'\n\s*\n', '\n', text)
+    
+    # Remove lines that are just punctuation or very short
+    lines = text.split('\n')
+    cleaned_lines = []
+    for line in lines:
+        line = line.strip()
+        if len(line) > 5 and not re.match(r'^[^\w]*$', line):  # Not just punctuation
+            cleaned_lines.append(line)
+    
+    text = '\n'.join(cleaned_lines)
     
     return text
 
