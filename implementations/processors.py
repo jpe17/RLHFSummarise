@@ -163,6 +163,9 @@ class ContentProcessor(BaseContentProcessor):
                         description = self.image_to_text.extract_text(media_item.url)
                         # Only add meaningful descriptions (not empty or very short)
                         if description and len(description.strip()) > 10:
+                            # Limit each image description to 200 characters
+                            if len(description) > 200:
+                                description = description[:200].rsplit(' ', 1)[0] + '...'
                             media_descriptions.append(description)
                         processing_steps.append(f"Processed image: {media_item.url}")
                     elif media_item.type == "video":
@@ -174,6 +177,10 @@ class ContentProcessor(BaseContentProcessor):
             post_full_content = cleaned_text
             if media_descriptions:
                 post_full_content += "\n" + "\n".join(media_descriptions)
+            
+            # Limit each individual post to 200 characters total
+            if len(post_full_content) > 200:
+                post_full_content = post_full_content[:200].rsplit(' ', 1)[0] + '...'
                 
             processed_parts.append(post_full_content)
             

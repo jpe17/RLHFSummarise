@@ -220,7 +220,7 @@ class TweetSummarizerPipelinePPO:
         
         # Default generation parameters
         gen_params = {
-            "max_length": 200,
+            "max_new_tokens": 500,  # Allow longer summaries
             "min_length": 30,
             "no_repeat_ngram_size": 2,
             "num_beams": 4,
@@ -283,18 +283,7 @@ class TweetSummarizerPipelinePPO:
         full_output = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
         summary = full_output[len(prompt):].strip()
         
-        # Post-process to limit output length
-        max_output_length = gen_params.get("max_length", 200)
-        if len(summary) > max_output_length:
-            # Truncate to max_output_length characters, trying to break at word boundaries
-            truncated = summary[:max_output_length]
-            last_space = truncated.rfind(' ')
-            if last_space > max_output_length * 0.8:  # If we can break at a word boundary
-                summary = truncated[:last_space] + '...'
-            else:
-                summary = truncated + '...'
-            print(f"📏 Truncated PPO summary from {len(full_output[len(prompt):].strip())} to {len(summary)} characters")
-        
+        # No output truncation - let the summary be free
         print(f"✅ Generated PPO summary ({len(summary)} characters)")
         return summary
     
