@@ -159,13 +159,14 @@ class ContentProcessor(BaseContentProcessor):
             if post.media_items:
                 for media_item in post.media_items:
                     if media_item.type in ["image", "photo"]:
-                        # For Instagram, the main content is often in the image description
+                        # For Instagram, extract text from images but don't include the "Image content:" prefix
                         description = self.image_to_text.extract_text(media_item.url)
-                        # We combine the post's text (caption) with the image content
-                        media_descriptions.append(f"Image content: {description}")
+                        # Only add meaningful descriptions (not empty or very short)
+                        if description and len(description.strip()) > 10:
+                            media_descriptions.append(description)
                         processing_steps.append(f"Processed image: {media_item.url}")
                     elif media_item.type == "video":
-                        media_descriptions.append("Video content (processing not implemented)")
+                        # Skip video content annotation to reduce noise
                         processing_steps.append(f"Noted video: {media_item.url}")
             
             # Combine text and media descriptions
@@ -178,7 +179,7 @@ class ContentProcessor(BaseContentProcessor):
             
         # Combine all processed content
         processed_text = "\n\n".join(processed_parts)
-        combined_text = "\n\n".join([post.content for post in posts])
+        combined_text = processed_text  # Use processed_text as the main content
         
         return ProcessedContent(
             original_posts=posts,

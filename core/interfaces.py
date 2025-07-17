@@ -128,14 +128,12 @@ class BaseSummarizer(ABC):
     """Abstract base class for summarization components."""
     
     @abstractmethod
-    def generate_summary(self, content: ProcessedContent, 
-                        max_length: int = 200) -> Summary:
+    def generate_summary(self, content: ProcessedContent) -> Summary:
         """
         Generate a summary from processed content.
         
         Args:
             content: ProcessedContent object to summarize
-            max_length: Maximum length of the summary
             
         Returns:
             Summary object

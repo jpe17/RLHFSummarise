@@ -73,13 +73,12 @@ class RLHFSummarizer(BaseSummarizer):
             print(f"Error initializing RLHF pipeline: {e}")
             return None
         
-    def generate_summary(self, content: ProcessedContent, max_length: int = 200) -> Summary:
+    def generate_summary(self, content: ProcessedContent) -> Summary:
         """
         Generate a summary using the RLHF/PPO trained model.
         
         Args:
             content: ProcessedContent object containing posts to summarize
-            max_length: Maximum length of the summary
             
         Returns:
             Summary object
@@ -97,10 +96,13 @@ class RLHFSummarizer(BaseSummarizer):
             
             # Use the correct method name and add more generation controls
             generation_params = {
-                "max_length": max_length,  # This will be used for output truncation
-                "min_length": 30,  # Encourage shorter summaries
-                "no_repeat_ngram_size": 2,  # Reduce repetition
-                "num_beams": 4, # Use beam search for higher quality
+                "max_new_tokens": 300,  # Reasonable output length
+                "min_length": 30,  # Encourage meaningful summaries
+                "no_repeat_ngram_size": 3,  # Reduce repetition
+                "num_beams": 1, # Use greedy search for speed
+                "do_sample": False,  # Use deterministic generation
+                "early_stopping": True,  # Stop when EOS token is generated
+                # pad_token_id will be set by the pipeline, not here
             }
 
             summary_text = pipeline.generate_summary(

@@ -148,13 +148,12 @@ class PipelineManager:
             
         return self.content_processor.process_posts(posts)
         
-    def generate_summary(self, content: ProcessedContent, max_length: int = 200) -> Summary:
+    def generate_summary(self, content: ProcessedContent) -> Summary:
         """
         Generate a summary from processed content.
         
         Args:
             content: ProcessedContent object to summarize
-            max_length: Maximum length of the summary
             
         Returns:
             Summary object
@@ -162,7 +161,7 @@ class PipelineManager:
         if not self.summarizer:
             raise ValueError("Summarizer not registered")
             
-        return self.summarizer.generate_summary(content, max_length)
+        return self.summarizer.generate_summary(content)
         
     def synthesize_voice(self, text: str, voice_name: str) -> VoiceOutput:
         """
@@ -181,8 +180,7 @@ class PipelineManager:
         return self.voice_synthesizer.synthesize(text, voice_name)
         
     def run_pipeline_without_tts(self, users: List[Dict[str, str]], 
-                                selection_type: str = "top", count: int = 5, 
-                                max_length: int = 200) -> PipelineResult:
+                                selection_type: str = "top", count: int = 5) -> PipelineResult:
         """
         Run the pipeline from posts to summary, without voice synthesis.
         """
@@ -208,7 +206,7 @@ class PipelineManager:
             processed_content = self.process_content(selected_posts)
             
             self._update_progress(60, "✍️ Generating summary...")
-            summary = self.generate_summary(processed_content, max_length)
+            summary = self.generate_summary(processed_content)
             
             self._update_progress(85, "📦 Finalizing results...")
             total_duration = time.time() - start_time

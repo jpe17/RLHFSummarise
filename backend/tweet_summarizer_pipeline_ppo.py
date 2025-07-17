@@ -226,6 +226,8 @@ class TweetSummarizerPipelinePPO:
             "num_beams": 4,
             "temperature": 0.7,
             "do_sample": False,
+            "pad_token_id": self.tokenizer.pad_token_id,
+            "eos_token_id": self.tokenizer.eos_token_id,
         }
         # Update with any provided kwargs
         gen_params.update(kwargs)
@@ -266,8 +268,6 @@ class TweetSummarizerPipelinePPO:
                     outputs = self.summarizer_model.generate(
                         input_ids=inputs["input_ids"],
                         attention_mask=inputs["attention_mask"],
-                        pad_token_id=self.tokenizer.pad_token_id,
-                        eos_token_id=self.tokenizer.eos_token_id,
                         use_cache=True,
                         **gen_params
                     )
@@ -275,8 +275,6 @@ class TweetSummarizerPipelinePPO:
                 outputs = self.summarizer_model.generate(
                     input_ids=inputs["input_ids"],
                     attention_mask=inputs["attention_mask"],
-                    pad_token_id=self.tokenizer.pad_token_id,
-                    eos_token_id=self.tokenizer.eos_token_id,
                     use_cache=True,
                     **gen_params
                 )

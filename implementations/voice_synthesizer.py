@@ -126,6 +126,23 @@ class TTSVoiceSynthesizer(BaseVoiceSynthesizer):
             Path to the generated audio file
         """
         try:
+            # Truncate text to reasonable length for TTS (around 2000 characters)
+            # This ensures we don't exceed TTS model limits while preserving content
+            MAX_TTS_LENGTH = 2000
+            if len(text) > MAX_TTS_LENGTH:
+                # Find the last complete sentence within the limit
+                truncated = text[:MAX_TTS_LENGTH]
+                last_sentence_end = max(
+                    truncated.rfind('.'),
+                    truncated.rfind('!'),
+                    truncated.rfind('?')
+                )
+                if last_sentence_end > MAX_TTS_LENGTH * 0.7:  # Only truncate if we keep at least 70%
+                    text = truncated[:last_sentence_end + 1]
+                else:
+                    text = truncated + "..."
+                print(f"📝 Truncated text to {len(text)} characters for TTS")
+            
             # Check cache first
             cache_key = self._get_cache_key(text, voice_name)
             if cache_key in self._audio_cache:
@@ -373,6 +390,24 @@ class MockVoiceSynthesizer(BaseVoiceSynthesizer):
         Returns:
             VoiceOutput object with mock data
         """
+        # Truncate text to reasonable length for TTS (around 2000 characters)
+        # This ensures we don't exceed TTS model limits while preserving content
+        MAX_TTS_LENGTH = 2000
+        original_length = len(text)
+        if len(text) > MAX_TTS_LENGTH:
+            # Find the last complete sentence within the limit
+            truncated = text[:MAX_TTS_LENGTH]
+            last_sentence_end = max(
+                truncated.rfind('.'),
+                truncated.rfind('!'),
+                truncated.rfind('?')
+            )
+            if last_sentence_end > MAX_TTS_LENGTH * 0.7:  # Only truncate if we keep at least 70%
+                text = truncated[:last_sentence_end + 1]
+            else:
+                text = truncated + "..."
+            print(f"📝 Truncated text from {original_length} to {len(text)} characters for TTS")
+        
         # Simulate processing time
         time.sleep(0.1)
         

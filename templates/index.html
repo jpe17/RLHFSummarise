@@ -579,7 +579,7 @@
                 <input type="text" class="nav-input" id="twitterHandle" placeholder="@twitter_handle">
                 <input type="text" class="nav-input" id="instagramHandle" placeholder="@instagram_handle">
                 <input type="number" class="nav-input" id="postCount" value="5" min="1" max="50" style="width: 100px;">
-                <input type="number" class="nav-input" id="summaryLength" value="200" min="50" max="500" style="width: 120px;" title="Summary length in characters" placeholder="Summary length">
+
                 <select class="nav-select" id="filterSelect">
                     <option value="latest">Latest</option>
                     <option value="top">Top Engagement</option>
@@ -878,7 +878,6 @@
             const instagramHandle = document.getElementById('instagramHandle').value.replace('@', '');
             const voiceName = document.getElementById('voiceSelect').value;
             const count = document.getElementById('postCount').value;
-            const summaryLength = document.getElementById('summaryLength').value;
             const filter = document.getElementById('filterSelect').value;
 
             if (!voiceName) {
@@ -904,8 +903,7 @@
                     users: users,
                     voice_name: voiceName,
                     selection_type: filter,
-                    count: parseInt(count),
-                    max_length: parseInt(summaryLength)
+                    count: parseInt(count)
                 })
             })
             .then(response => response.json())
@@ -1047,7 +1045,7 @@
         document.getElementById('twitterHandle').addEventListener('input', checkForm);
         document.getElementById('instagramHandle').addEventListener('input', checkForm);
         document.getElementById('postCount').addEventListener('input', checkForm);
-        document.getElementById('summaryLength').addEventListener('input', checkForm);
+
         document.getElementById('filterSelect').addEventListener('change', checkForm);
         document.getElementById('voiceSelect').addEventListener('change', checkForm);
     </script>

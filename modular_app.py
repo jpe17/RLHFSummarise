@@ -177,7 +177,6 @@ def process_user():
     users = data.get('users', [])
     voice_name = data.get('voice_name')
     count = data.get('count', 5)
-    max_length = data.get('max_length', 250)
     selection_type = data.get('selection_type', 'latest')
     
     if not pipeline:
@@ -195,8 +194,7 @@ def process_user():
             result = pipeline.run_pipeline_without_tts(
                 users=users,
                 selection_type=selection_type,
-                count=count,
-                max_length=max_length
+                count=count
             )
             
             # Emit summary as soon as it's ready
