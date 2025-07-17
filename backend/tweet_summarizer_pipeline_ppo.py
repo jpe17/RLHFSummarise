@@ -16,7 +16,7 @@ except ImportError:
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from pipeline_twitter.twitter_scraper_selenium import TwitterSeleniumScraper
+# TwitterSeleniumScraper import removed - not needed for modular system
 from model import setup_lora_model, load_lora_weights
 from reward import load_reward_model
 from data_loader import setup_tokenizer
@@ -126,8 +126,9 @@ class TweetSummarizerPipelinePPO:
     def _setup_scraper(self):
         """Initialize the Twitter scraper when needed."""
         if self.scraper is None:
-            print("🐦 Initializing Twitter scraper...")
-            self.scraper = TwitterSeleniumScraper(headless=True)
+            print("🐦 Twitter scraper not available - using modular system")
+            # TwitterSeleniumScraper removed - modular system handles scraping
+            self.scraper = None
     
     def get_tweets(self, username, count=10, since_date=None, until_date=None):
         """
@@ -143,6 +144,10 @@ class TweetSummarizerPipelinePPO:
             list: List of tweet dictionaries
         """
         self._setup_scraper()
+        
+        if self.scraper is None:
+            print("⚠️ No scraper available - use modular system for tweet fetching")
+            return []
         
         print(f"📱 Fetching {count} tweets from @{username}...")
         if since_date or until_date:
@@ -243,17 +248,31 @@ class TweetSummarizerPipelinePPO:
         
         print("🔄 Generating summary with PPO-trained model...")
         
+        # Use mixed precision for faster inference if available
         with torch.no_grad():
-            outputs = self.summarizer_model.generate(
-                **inputs,
-                max_new_tokens=max_length,
-                temperature=temperature,
-                top_p=0.9,
-                do_sample=True,
-                pad_token_id=self.tokenizer.pad_token_id,
-                eos_token_id=self.tokenizer.eos_token_id,
-                repetition_penalty=1.1
-            )
+            if hasattr(torch, 'autocast') and self.device != 'cpu':
+                with torch.autocast(device_type='cuda' if 'cuda' in self.device else 'cpu'):
+                    outputs = self.summarizer_model.generate(
+                        **inputs,
+                        max_new_tokens=max_length,
+                        temperature=0.7,  # Fixed temperature for consistency
+                        do_sample=False,  # Deterministic for faster generation
+                        pad_token_id=self.tokenizer.pad_token_id,
+                        eos_token_id=self.tokenizer.eos_token_id,
+                        use_cache=True,  # Enable KV cache for faster generation
+                        num_beams=1,  # Greedy decoding for speed
+                    )
+            else:
+                outputs = self.summarizer_model.generate(
+                    **inputs,
+                    max_new_tokens=max_length,
+                    temperature=0.7,
+                    do_sample=False,  # Deterministic for faster generation  
+                    pad_token_id=self.tokenizer.pad_token_id,
+                    eos_token_id=self.tokenizer.eos_token_id,
+                    use_cache=True,  # Enable KV cache for faster generation
+                    num_beams=1,  # Greedy decoding for speed
+                )
         
         # Decode and extract summary
         full_output = self.tokenizer.decode(outputs[0], skip_special_tokens=True)

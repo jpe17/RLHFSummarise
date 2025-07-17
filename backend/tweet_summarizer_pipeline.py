@@ -16,7 +16,7 @@ except ImportError:
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from pipeline_twitter.twitter_scraper_selenium import TwitterSeleniumScraper
+# TwitterSeleniumScraper import removed - not needed for modular system
 from model import setup_lora_model, load_lora_weights
 from reward import load_reward_model
 from data_loader import setup_tokenizer
@@ -99,8 +99,9 @@ class TweetSummarizerPipeline:
     def _setup_scraper(self):
         """Initialize the Twitter scraper when needed."""
         if self.scraper is None:
-            print("🐦 Initializing Twitter scraper...")
-            self.scraper = TwitterSeleniumScraper(headless=True)
+            print("🐦 Twitter scraper not available - using modular system")
+            # TwitterSeleniumScraper removed - modular system handles scraping
+            self.scraper = None
     
     def get_tweets(self, username, count=10, since_date=None, until_date=None):
         """
@@ -116,6 +117,10 @@ class TweetSummarizerPipeline:
             list: List of tweet dictionaries
         """
         self._setup_scraper()
+        
+        if self.scraper is None:
+            print("⚠️ No scraper available - use modular system for tweet fetching")
+            return []
         
         print(f"📱 Fetching {count} tweets from @{username}...")
         if since_date or until_date:

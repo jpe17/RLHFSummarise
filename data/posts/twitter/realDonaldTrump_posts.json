@@ -1,0 +1,162 @@
+{
+  "platform": "twitter",
+  "username": "realDonaldTrump",
+  "total_posts": 7,
+  "last_updated": "2025-07-17T11:04:37.946009",
+  "posts": [
+    {
+      "id": "b9fd491f68eaf163",
+      "platform": "twitter",
+      "username": "realDonaldTrump",
+      "user_display_name": null,
+      "content": "HAPPY 4TH OF JULY!",
+      "content_type": "text",
+      "media_items": [],
+      "timestamp": "2025-07-05T03:41:44",
+      "url": null,
+      "likes": 491,
+      "shares": 58,
+      "comments": 34,
+      "views": null,
+      "platform_data": {
+        "engagement_total": 583,
+        "scraped_at": "2025-07-16 21:07:04"
+      },
+      "scraped_at": "2025-07-17T10:45:16.785035",
+      "processed_at": null,
+      "engagement_total": 583
+    },
+    {
+      "id": "c27f85010255b452",
+      "platform": "twitter",
+      "username": "realDonaldTrump",
+      "user_display_name": null,
+      "content": "President Trump and the First Lady Participate in the Military Family Picnic, July 04, 2025",
+      "content_type": "text",
+      "media_items": [],
+      "timestamp": "2025-07-04T21:17:03",
+      "url": null,
+      "likes": 140,
+      "shares": 24,
+      "comments": 11,
+      "views": null,
+      "platform_data": {
+        "engagement_total": 175,
+        "scraped_at": "2025-07-16 21:07:04"
+      },
+      "scraped_at": "2025-07-17T10:45:16.785048",
+      "processed_at": null,
+      "engagement_total": 175
+    },
+    {
+      "id": "741b106e1a285283",
+      "platform": "twitter",
+      "username": "realDonaldTrump",
+      "user_display_name": null,
+      "content": "Donald J. Trump",
+      "content_type": "text",
+      "media_items": [],
+      "timestamp": "2025-06-22T02:30:31",
+      "url": null,
+      "likes": 1,
+      "shares": 133,
+      "comments": 150,
+      "views": null,
+      "platform_data": {
+        "engagement_total": 284,
+        "scraped_at": "2025-07-16 21:07:04"
+      },
+      "scraped_at": "2025-07-17T10:45:16.785051",
+      "processed_at": null,
+      "engagement_total": 284
+    },
+    {
+      "id": "7a114b22ef25ebca",
+      "platform": "twitter",
+      "username": "realDonaldTrump",
+      "user_display_name": null,
+      "content": "President Donald J. Trump Delivers Address to the Nation, June 21, 2025",
+      "content_type": "text",
+      "media_items": [],
+      "timestamp": "2025-06-22T01:54:32",
+      "url": null,
+      "likes": 436,
+      "shares": 73,
+      "comments": 48,
+      "views": null,
+      "platform_data": {
+        "engagement_total": 557,
+        "scraped_at": "2025-07-16 21:07:04"
+      },
+      "scraped_at": "2025-07-17T10:45:16.785054",
+      "processed_at": null,
+      "engagement_total": 557
+    },
+    {
+      "id": "f6ea2215d27a3984",
+      "platform": "twitter",
+      "username": "realDonaldTrump",
+      "user_display_name": null,
+      "content": "President Trump Participates in the 250th Anniversary of the U.S. Army Grand Military Parade",
+      "content_type": "text",
+      "media_items": [],
+      "timestamp": "2025-06-14T22:03:57",
+      "url": null,
+      "likes": 328,
+      "shares": 58,
+      "comments": 36,
+      "views": null,
+      "platform_data": {
+        "engagement_total": 422,
+        "scraped_at": "2025-07-16 21:07:04"
+      },
+      "scraped_at": "2025-07-17T10:45:16.785057",
+      "processed_at": null,
+      "engagement_total": 422
+    },
+    {
+      "id": "16d60d5055db3dd4",
+      "platform": "twitter",
+      "username": "realDonaldTrump",
+      "user_display_name": null,
+      "content": "President Trump Addresses the Army Academy’s Class of 2025",
+      "content_type": "text",
+      "media_items": [],
+      "timestamp": "2025-05-24T14:18:32",
+      "url": null,
+      "likes": 126,
+      "shares": 23,
+      "comments": 14,
+      "views": null,
+      "platform_data": {
+        "engagement_total": 163,
+        "scraped_at": "2025-07-16 21:07:04"
+      },
+      "scraped_at": "2025-07-17T10:45:16.785064",
+      "processed_at": null,
+      "engagement_total": 163
+    },
+    {
+      "id": "65b9631ba37c87e0",
+      "platform": "twitter",
+      "username": "realDonaldTrump",
+      "user_display_name": null,
+      "content": "“THE ONE, BIG, BEAUTIFUL BILL” has PASSED the House of Representatives! This is arguably the most significant piece of Legislation that will ever be signed in the History of our Country! The Bill includes MASSIVE Tax CUTS, No Tax on Tips, No Tax on Overtime, Tax Deductions when",
+      "content_type": "text",
+      "media_items": [],
+      "timestamp": "2025-05-22T13:44:04",
+      "url": null,
+      "likes": 365,
+      "shares": 62,
+      "comments": 43,
+      "views": null,
+      "platform_data": {
+        "engagement_total": 470,
+        "scraped_at": "2025-07-16 21:07:04"
+      },
+      "scraped_at": "2025-07-17T10:45:16.785070",
+      "processed_at": null,
+      "engagement_total": 470
+    }
+  ]
+}

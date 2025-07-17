@@ -30,6 +30,7 @@ class MediaItem:
     url: str
     type: str  # "image", "video", "gif", etc.
     caption: Optional[str] = None
+    alt_text: Optional[str] = None # Added to support Instagram alt text
     dimensions: Optional[Dict[str, int]] = None  # {"width": 1080, "height": 1080}
     
     def to_dict(self) -> Dict[str, Any]:
@@ -37,6 +38,7 @@ class MediaItem:
             "url": self.url,
             "type": self.type,
             "caption": self.caption,
+            "alt_text": self.alt_text,
             "dimensions": self.dimensions
         }
 
@@ -45,19 +47,17 @@ class MediaItem:
 class SocialPost:
     """Universal data model for social media posts across all platforms."""
     
-    # Core identification
+    # Core identification (required fields first)
     id: str
     platform: Platform
     username: str
-    user_display_name: Optional[str] = None
-    
-    # Content
     content: str  # Main text content
+    timestamp: datetime
+    
+    # Optional fields (with defaults)
+    user_display_name: Optional[str] = None
     content_type: ContentType = ContentType.TEXT
     media_items: List[MediaItem] = field(default_factory=list)
-    
-    # Metadata
-    timestamp: datetime
     url: Optional[str] = None
     
     # Engagement metrics
@@ -199,10 +199,13 @@ class VoiceOutput:
 class PipelineResult:
     """Complete pipeline result."""
     
+    platform: Union[Platform, str]
+    username: str
     posts: List[SocialPost]
+    selection_type: str
     processed_content: ProcessedContent
     summary: Summary
-    voice_output: VoiceOutput
+    voice_output: Optional[VoiceOutput]
     
     # Pipeline metadata
     pipeline_version: str = "1.0"
@@ -211,10 +214,13 @@ class PipelineResult:
     
     def to_dict(self) -> Dict[str, Any]:
         return {
+            "platform": self.platform.value if isinstance(self.platform, Platform) else self.platform,
+            "username": self.username,
             "posts": [post.to_dict() for post in self.posts],
+            "selection_type": self.selection_type,
             "processed_content": self.processed_content.to_dict(),
             "summary": self.summary.to_dict(),
-            "voice_output": self.voice_output.to_dict(),
+            "voice_output": self.voice_output.to_dict() if self.voice_output else None,
             "pipeline_version": self.pipeline_version,
             "total_duration": self.total_duration,
             "completed_at": self.completed_at.isoformat()

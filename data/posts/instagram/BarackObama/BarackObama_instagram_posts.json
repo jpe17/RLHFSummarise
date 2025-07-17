@@ -1,0 +1,92 @@
+{
+  "platform": "instagram",
+  "username": "barackobama",
+  "total_posts": 3,
+  "last_updated": "2025-07-17T11:04:37.944929",
+  "posts": [
+    {
+      "id": "independence_day_2024",
+      "platform": "instagram",
+      "username": "barackobama",
+      "user_display_name": "Barack Obama",
+      "content": "Independence Day is a reminder that America is not the project of any one person. The single most powerful word in our democracy is the word 'We.'\n\n'We The People.'\n'We Shall Overcome.'\n'Yes We Can.'\n\nAmerica is owned by no one. It belongs to all citizens. And at this moment in history—when core democratic principles seem to be continuously under attack, when too many people around the world have become cynical and disengaged—now is precisely the time to ask ourselves tough questions about how we can build our democracies and make them work in meaningful and practical ways for ordinary people.\n\n#IndependenceDay #Democracy #WeThePeople #America",
+      "content_type": "image",
+      "media_items": [
+        {
+          "type": "image",
+          "url": "01.png",
+          "alt_text": "Barack Obama speaking at an Independence Day celebration with American flags in the background"
+        }
+      ],
+      "timestamp": "2024-07-04T21:20:14",
+      "url": null,
+      "likes": 125000,
+      "shares": 15000,
+      "comments": 3200,
+      "views": 2500000,
+      "platform_data": {
+        "engagement_total": 143200,
+        "scraped_at": "2025-07-16 21:04:31"
+      },
+      "scraped_at": "2025-07-17T10:45:16.799244",
+      "processed_at": null,
+      "engagement_total": 143200
+    },
+    {
+      "id": "daca_anniversary",
+      "platform": "instagram",
+      "username": "barackobama",
+      "user_display_name": "Barack Obama",
+      "content": "Thirteen years ago, my administration acted to protect young people who were American in every single way but one: on paper.\n\nDACA was an example of how we can be a nation of immigrants and a nation of laws. And it's an example worth remembering today, when families with similar backgrounds who just want to live, work, and support their communities, are being demonized and treated as enemies.\n\nWe can fix our broken immigration system while still recognizing our common humanity and treating each other with dignity and respect. In fact, it's the only way we ever will.\n\n#DACA #Immigration #Dreamers #Compassion",
+      "content_type": "image",
+      "media_items": [
+        {
+          "type": "image",
+          "url": "02.png",
+          "alt_text": "Barack Obama signing the DACA executive order with young Dreamers standing behind him"
+        }
+      ],
+      "timestamp": "2024-06-15T14:30:00",
+      "url": null,
+      "likes": 89000,
+      "shares": 12000,
+      "comments": 2800,
+      "views": 1800000,
+      "platform_data": {
+        "engagement_total": 103800,
+        "scraped_at": "2025-07-16 21:04:31"
+      },
+      "scraped_at": "2025-07-17T10:45:16.799251",
+      "processed_at": null,
+      "engagement_total": 103800
+    },
+    {
+      "id": "sasha_birthday",
+      "platform": "instagram",
+      "username": "barackobama",
+      "user_display_name": "Barack Obama",
+      "content": "Happy birthday, Sasha! Watching you grow into the incredible woman you are has been a true gift. I'll always be proud of you and will always be here for you.\n\n#HappyBirthday #Family #ProudDad #SashaObama",
+      "content_type": "image",
+      "media_items": [
+        {
+          "type": "image",
+          "url": "03.png",
+          "alt_text": "Barack Obama with his daughter Sasha in a warm family moment, both smiling"
+        }
+      ],
+      "timestamp": "2024-06-10T10:00:00",
+      "url": null,
+      "likes": 210000,
+      "shares": 8000,
+      "comments": 4500,
+      "views": 3200000,
+      "platform_data": {
+        "engagement_total": 222500,
+        "scraped_at": "2025-07-16 21:04:31"
+      },
+      "scraped_at": "2025-07-17T10:45:16.799255",
+      "processed_at": null,
+      "engagement_total": 222500
+    }
+  ]
+} 
