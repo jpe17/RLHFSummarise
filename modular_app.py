@@ -170,7 +170,17 @@ def preview_posts():
 
 @app.route('/api/process', methods=['POST'])
 def process_user():
-    """Process multiple users from different platforms."""
+    """
+    Process multiple users from different platforms.
+    
+    Expected JSON payload:
+    {
+        "users": [{"platform": "twitter", "username": "sama"}, {"platform": "instagram", "username": "BarackObama"}],
+        "voice_name": "deniro",
+        "count": 3,  # Number of posts PER USER (not total)
+        "selection_type": "latest"  # "latest", "top", "diverse", or "random"
+    }
+    """
     global pipeline, processing_status
     
     data = request.json

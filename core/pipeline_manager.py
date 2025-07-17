@@ -180,27 +180,54 @@ class PipelineManager:
         return self.voice_synthesizer.synthesize(text, voice_name)
         
     def run_pipeline_without_tts(self, users: List[Dict[str, str]], 
-                                selection_type: str = "top", count: int = 5) -> PipelineResult:
+                                selection_type: str = "latest", count: int = 5) -> PipelineResult:
         """
         Run the pipeline from posts to summary, without voice synthesis.
+        
+        Args:
+            users: List of user dictionaries with 'platform' and 'username' keys
+            selection_type: How to select posts ("latest", "top", "diverse", "random")
+            count: Number of posts to select PER USER (not total)
         """
         start_time = time.time()
         
         try:
             self._update_progress(10, "Loading posts...")
             all_posts = []
+            
+            print(f"🔍 Processing {len(users)} users with count={count} per user, selection_type={selection_type}")
+            for user_info in users:
+                print(f"  - User: {user_info}")
+            
+            # Load and select posts from each user individually
+            all_selected_posts = []
+            load_limit = max(count, 10)  # Load at least 10 posts per user for better selection
+            
             for user_info in users:
                 platform = Platform(user_info['platform'])
                 username = user_info['username']
                 if username:
-                    posts = self.load_posts(platform, username)
-                    all_posts.extend(posts)
+                    # Load posts for this user
+                    user_posts = self.load_posts(platform, username, limit=load_limit)
+                    print(f"📊 Loaded {len(user_posts)} posts from @{username} on {platform.value}")
+                    
+                    # Select the requested number of posts from this user
+                    if user_posts:
+                        user_selected = self.select_posts(user_posts, selection_type, count)
+                        all_selected_posts.extend(user_selected)
+                        print(f"📊 Selected {len(user_selected)} posts from @{username}")
+                    else:
+                        print(f"⚠️  No posts available from @{username}")
 
-            if not all_posts:
+            if not all_selected_posts:
                 raise ValueError("No posts found for the specified users.")
                 
-            self._update_progress(20, f"Selecting {count} {selection_type} posts...")
-            selected_posts = self.select_posts(all_posts, selection_type, count)
+            print(f"📊 Total posts selected: {len(all_selected_posts)} from {len(users)} users")
+            
+            self._update_progress(20, f"Selected {len(all_selected_posts)} posts ({count} per user)...")
+            selected_posts = all_selected_posts
+            
+            print(f"📊 Final selection: {len(selected_posts)} posts for processing")
             
             self._update_progress(40, "🔎 Processing content...")
             processed_content = self.process_content(selected_posts)

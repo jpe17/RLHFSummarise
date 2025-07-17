@@ -179,14 +179,20 @@ class ContentProcessor(BaseContentProcessor):
                 post_full_content += "\n" + "\n".join(media_descriptions)
             
             # Limit each individual post to 200 characters total
+            original_length = len(post_full_content)
             if len(post_full_content) > 200:
                 post_full_content = post_full_content[:200].rsplit(' ', 1)[0] + '...'
+                print(f"📏 Truncated post from @{post.username}: {original_length} → {len(post_full_content)} chars")
+            else:
+                print(f"📏 Post from @{post.username}: {len(post_full_content)} chars")
                 
             processed_parts.append(post_full_content)
             
         # Combine all processed content
         processed_text = "\n\n".join(processed_parts)
         combined_text = processed_text  # Use processed_text as the main content
+        
+        print(f"📊 Final processed content: {len(processed_text)} chars from {len(processed_parts)} posts")
         
         return ProcessedContent(
             original_posts=posts,
@@ -270,6 +276,8 @@ class PostSelector(BasePostSelector):
             return self._select_random_posts(posts, count)
         elif selection_type == "diverse":
             return self._select_diverse_posts(posts, count)
+        elif selection_type == "balanced":
+            return self._select_balanced_posts(posts, count)
         else:
             raise ValueError(f"Unknown selection type: {selection_type}")
             
@@ -317,4 +325,60 @@ class PostSelector(BasePostSelector):
                 if remaining_count <= 0:
                     break
                     
+        return selected[:count]
+    
+    def _select_balanced_posts(self, posts: List[SocialPost], count: int) -> List[SocialPost]:
+        """
+        Select posts with balanced representation from each user.
+        
+        This ensures that posts from multiple users are included fairly.
+        """
+        # Group posts by username
+        user_posts = {}
+        for post in posts:
+            username = post.username
+            if username not in user_posts:
+                user_posts[username] = []
+            user_posts[username].append(post)
+        
+        print(f"🔍 Balanced selection: {len(user_posts)} users, {count} posts needed")
+        for username, user_post_list in user_posts.items():
+            print(f"  - @{username}: {len(user_post_list)} posts available")
+        
+        # Sort posts within each user by engagement (or timestamp for latest)
+        for username in user_posts:
+            user_posts[username].sort(key=lambda p: p.engagement_total, reverse=True)
+        
+        # Use round-robin selection to ensure fair distribution
+        selected = []
+        user_names = list(user_posts.keys())
+        user_indices = {username: 0 for username in user_names}
+        
+        # Round-robin selection
+        while len(selected) < count:
+            added_any = False
+            
+            for username in user_names:
+                if len(selected) >= count:
+                    break
+                    
+                # Check if this user has more posts available
+                user_index = user_indices[username]
+                available_posts = user_posts[username]
+                
+                if user_index < len(available_posts):
+                    selected.append(available_posts[user_index])
+                    user_indices[username] += 1
+                    added_any = True
+                    print(f"  ✅ Selected post {user_index + 1} from @{username}")
+            
+            # If no user had any posts left, break
+            if not added_any:
+                break
+        
+        print(f"🔍 Final selection: {len(selected)} posts from {len(set(p.username for p in selected))} users")
+        for username in user_names:
+            user_count = sum(1 for p in selected if p.username == username)
+            print(f"  - @{username}: {user_count} posts selected")
+                
         return selected[:count] 
