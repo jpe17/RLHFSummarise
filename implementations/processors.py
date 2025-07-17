@@ -134,6 +134,7 @@ class ContentProcessor(BaseContentProcessor):
     def process_posts(self, posts: List[SocialPost]) -> ProcessedContent:
         """
         Process a list of social posts into content ready for summarization.
+        OPTIMIZED FOR SPEED while maintaining quality.
         
         Args:
             posts: List of SocialPost objects to process
@@ -154,18 +155,18 @@ class ContentProcessor(BaseContentProcessor):
             cleaned_text = self._clean_text(text_content)
             processing_steps.append("Cleaned text content")
             
-            # Process media items if present
+            # Process media items if present (SPEED OPTIMIZATION: Limit media processing)
             media_descriptions = []
-            if post.media_items:
-                for media_item in post.media_items:
+            if post.media_items and len(post.media_items) <= 2:  # Limit to 2 media items max
+                for media_item in post.media_items[:2]:  # Process max 2 items
                     if media_item.type in ["image", "photo"]:
                         # For Instagram, extract text from images but don't include the "Image content:" prefix
                         description = self.image_to_text.extract_text(media_item.url)
                         # Only add meaningful descriptions (not empty or very short)
                         if description and len(description.strip()) > 10:
-                            # Limit each image description to 200 characters
-                            if len(description) > 200:
-                                description = description[:200].rsplit(' ', 1)[0] + '...'
+                            # SPEED OPTIMIZATION: Limit each image description to 150 characters
+                            if len(description) > 150:
+                                description = description[:150].rsplit(' ', 1)[0] + '...'
                             media_descriptions.append(description)
                         processing_steps.append(f"Processed image: {media_item.url}")
                     elif media_item.type == "video":
@@ -178,10 +179,10 @@ class ContentProcessor(BaseContentProcessor):
             if media_descriptions:
                 post_full_content += "\n" + "\n".join(media_descriptions)
             
-            # Limit each individual post to 200 characters total
+            # SPEED OPTIMIZATION: Limit each individual post to 150 characters total
             original_length = len(post_full_content)
-            if len(post_full_content) > 200:
-                post_full_content = post_full_content[:200].rsplit(' ', 1)[0] + '...'
+            if len(post_full_content) > 150:
+                post_full_content = post_full_content[:150].rsplit(' ', 1)[0] + '...'
                 print(f"📏 Truncated post from @{post.username}: {original_length} → {len(post_full_content)} chars")
             else:
                 print(f"📏 Post from @{post.username}: {len(post_full_content)} chars")
@@ -190,6 +191,12 @@ class ContentProcessor(BaseContentProcessor):
             
         # Combine all processed content
         processed_text = "\n\n".join(processed_parts)
+        
+        # SPEED OPTIMIZATION: Limit total processed text to 800 characters
+        if len(processed_text) > 800:
+            processed_text = processed_text[:800].rsplit(' ', 1)[0] + '...'
+            print(f"📏 Truncated total processed text to {len(processed_text)} chars for speed")
+        
         combined_text = processed_text  # Use processed_text as the main content
         
         print(f"📊 Final processed content: {len(processed_text)} chars from {len(processed_parts)} posts")

@@ -183,6 +183,7 @@ class PipelineManager:
                                 selection_type: str = "latest", count: int = 5) -> PipelineResult:
         """
         Run the pipeline from posts to summary, without voice synthesis.
+        OPTIMIZED FOR SPEED while maintaining functionality.
         
         Args:
             users: List of user dictionaries with 'platform' and 'username' keys
@@ -199,9 +200,9 @@ class PipelineManager:
             for user_info in users:
                 print(f"  - User: {user_info}")
             
-            # Load and select posts from each user individually
+            # SPEED OPTIMIZATION: Load and select posts more efficiently
             all_selected_posts = []
-            load_limit = max(count, 10)  # Load at least 10 posts per user for better selection
+            load_limit = min(max(count, 10), 20)  # Cap at 20 posts per user for speed
             
             for user_info in users:
                 platform = Platform(user_info['platform'])

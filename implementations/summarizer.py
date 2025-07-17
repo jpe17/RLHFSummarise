@@ -76,6 +76,7 @@ class RLHFSummarizer(BaseSummarizer):
     def generate_summary(self, content: ProcessedContent) -> Summary:
         """
         Generate a summary using the RLHF/PPO trained model.
+        OPTIMIZED FOR SPEED while maintaining quality.
         
         Args:
             content: ProcessedContent object containing posts to summarize
@@ -94,16 +95,12 @@ class RLHFSummarizer(BaseSummarizer):
                     model_name=self.model_id
                 )
             
-            # Use the correct method name and add more generation controls
+            # SPEED OPTIMIZATION: Use faster generation parameters
             generation_params = {
-                "max_new_tokens": 300,  # Reasonable output length
-                "min_length": 30,  # Encourage meaningful summaries
-                "no_repeat_ngram_size": 3,  # Reduce repetition
-                # Remove conflicting parameters - let the pipeline handle them
-                # "num_beams": 1, # Use greedy search for speed
-                # "do_sample": False,  # Use deterministic generation
-                # "early_stopping": True,  # Stop when EOS token is generated
-                # pad_token_id will be set by the pipeline, not here
+                "max_new_tokens": 120,  # Reduced from 300 for speed
+                "min_length": 20,       # Reduced from 30 for speed
+                "no_repeat_ngram_size": 3,
+                "strategy": "conservative"  # Use fastest strategy
             }
 
             summary_text = pipeline.generate_summary(

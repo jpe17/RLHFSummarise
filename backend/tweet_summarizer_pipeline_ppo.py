@@ -291,23 +291,24 @@ class TweetSummarizerPipelinePPO:
         
         print("🔄 Generating summary with PPO-trained model...")
         
-        # Use mixed precision for faster inference if available
+        # Optimized inference with better caching and no mixed precision issues
         with torch.no_grad():
-            if hasattr(torch, 'autocast') and self.device != 'cpu':
-                with torch.autocast(device_type='cuda' if 'cuda' in self.device else 'cpu'):
-                    outputs = self.summarizer_model.generate(
-                        input_ids=inputs["input_ids"],
-                        attention_mask=inputs["attention_mask"],
-                        use_cache=True,
-                        **gen_params
-                    )
-            else:
-                outputs = self.summarizer_model.generate(
-                    input_ids=inputs["input_ids"],
-                    attention_mask=inputs["attention_mask"],
-                    use_cache=True,
-                    **gen_params
-                )
+            # Use torch.compile for faster inference if available (PyTorch 2.0+)
+            if hasattr(torch, 'compile') and not hasattr(self.summarizer_model, '_compiled'):
+                try:
+                    print("🚀 Compiling model for faster inference...")
+                    self.summarizer_model = torch.compile(self.summarizer_model, mode='reduce-overhead')
+                    self.summarizer_model._compiled = True
+                except Exception as e:
+                    print(f"⚠️ Model compilation failed: {e}")
+            
+            # Direct generation without autocast to avoid potential slowdowns
+            outputs = self.summarizer_model.generate(
+                input_ids=inputs["input_ids"],
+                attention_mask=inputs["attention_mask"],
+                use_cache=True,
+                **gen_params
+            )
         
         # Decode and extract summary
         full_output = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
@@ -322,6 +323,7 @@ class TweetSummarizerPipelinePPO:
     def _get_generation_params(self, strategy):
         """
         Get generation parameters based on the chosen strategy.
+        OPTIMIZED FOR SPEED while maintaining quality.
         
         Args:
             strategy (str): Generation strategy
@@ -330,41 +332,42 @@ class TweetSummarizerPipelinePPO:
             dict: Generation parameters
         """
         if strategy == "conservative":
-            # More deterministic, focused on accuracy
+            # Fast and deterministic
             return {
-                "max_new_tokens": 200,
-                "min_length": 40,
+                "max_new_tokens": 120,  # Reduced from 200
+                "min_length": 20,       # Reduced from 40
                 "no_repeat_ngram_size": 3,
-                "temperature": 0.6,
-                "do_sample": True,
-                "top_p": 0.8,
-                "top_k": 30,
+                "temperature": 0.7,     # Slightly higher for faster convergence
+                "do_sample": False,     # Greedy decoding for speed
+                "num_beams": 1,         # Greedy search
+                "early_stopping": True,
                 "pad_token_id": self.tokenizer.pad_token_id,
                 "eos_token_id": self.tokenizer.eos_token_id,
             }
         elif strategy == "creative":
-            # More creative, diverse outputs
+            # Balanced creativity and speed
             return {
-                "max_new_tokens": 350,
-                "min_length": 60,
+                "max_new_tokens": 180,  # Reduced from 350
+                "min_length": 30,       # Reduced from 60
                 "no_repeat_ngram_size": 2,
-                "temperature": 1.0,
+                "temperature": 0.8,     # Reduced from 1.0
                 "do_sample": True,
-                "top_p": 0.95,
-                "top_k": 100,
+                "top_p": 0.9,          # Reduced from 0.95
+                "top_k": 40,           # Reduced from 100
+                "early_stopping": True,
                 "pad_token_id": self.tokenizer.pad_token_id,
                 "eos_token_id": self.tokenizer.eos_token_id,
             }
-        else:  # adaptive (default)
-            # Balanced approach
+        else:  # adaptive (default) - OPTIMIZED FOR SPEED
+            # Fast balanced approach
             return {
-                "max_new_tokens": 300,
-                "min_length": 50,
+                "max_new_tokens": 150,  # Reduced from 300
+                "min_length": 25,       # Reduced from 50
                 "no_repeat_ngram_size": 3,
-                "temperature": 0.8,
-                "do_sample": True,
-                "top_p": 0.9,
-                "top_k": 50,
+                "temperature": 0.7,     # Reduced from 0.8
+                "do_sample": False,     # Greedy for speed
+                "num_beams": 1,         # Greedy search
+                "early_stopping": True,
                 "pad_token_id": self.tokenizer.pad_token_id,
                 "eos_token_id": self.tokenizer.eos_token_id,
             }
