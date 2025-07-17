@@ -99,9 +99,10 @@ class RLHFSummarizer(BaseSummarizer):
                 "max_new_tokens": 300,  # Reasonable output length
                 "min_length": 30,  # Encourage meaningful summaries
                 "no_repeat_ngram_size": 3,  # Reduce repetition
-                "num_beams": 1, # Use greedy search for speed
-                "do_sample": False,  # Use deterministic generation
-                "early_stopping": True,  # Stop when EOS token is generated
+                # Remove conflicting parameters - let the pipeline handle them
+                # "num_beams": 1, # Use greedy search for speed
+                # "do_sample": False,  # Use deterministic generation
+                # "early_stopping": True,  # Stop when EOS token is generated
                 # pad_token_id will be set by the pipeline, not here
             }
 
