@@ -560,7 +560,7 @@
                 width: 100%;
             }
             
-            .nav-select, .process-btn {
+            .nav-select, .nav-input, .process-btn {
                 width: 100%;
             }
 
@@ -579,6 +579,7 @@
                 <input type="text" class="nav-input" id="twitterHandle" placeholder="@twitter_handle">
                 <input type="text" class="nav-input" id="instagramHandle" placeholder="@instagram_handle">
                 <input type="number" class="nav-input" id="postCount" value="5" min="1" max="50" style="width: 100px;">
+                <input type="number" class="nav-input" id="summaryLength" value="200" min="50" max="500" style="width: 120px;" title="Summary length in characters" placeholder="Summary length">
                 <select class="nav-select" id="filterSelect">
                     <option value="latest">Latest</option>
                     <option value="top">Top Engagement</option>
@@ -658,14 +659,40 @@
             }
         });
 
+        socket.on('summary_ready', function(data) {
+            if (data.job_id === currentJobId) {
+                showSummary(data.result);
+            }
+        });
+
+        socket.on('audio_ready', function(data) {
+            if (data.job_id === currentJobId) {
+                showAudioPlayer(data.audio_path, data.voice_name);
+            }
+        });
+
         socket.on('processing_complete', function(data) {
             if (data.job_id === currentJobId) {
                 if (data.status === 'complete') {
-                    showResult(data.result);
+                    // Summary and audio are handled by their own events
+                    // We just need to hide the progress bar
+                    hideProgress();
+                    showSuccess('✅ Processing complete!');
                 } else {
-                    showError(data.message);
+                    showError(data.message || 'An unknown error occurred.');
+                    hideProgress();
                 }
-                hideProgress();
+            }
+        });
+
+        socket.on('processing_error', function(data) {
+            if (data.job_id === currentJobId) {
+                showError(data.message);
+                // Optionally update the UI to show that audio failed
+                const audioSection = document.querySelector('.audio-section');
+                if (audioSection) {
+                    audioSection.innerHTML += '<p style="color: #e0245e; margin-top: 10px;">Audio generation failed.</p>';
+                }
             }
         });
 
@@ -851,6 +878,7 @@
             const instagramHandle = document.getElementById('instagramHandle').value.replace('@', '');
             const voiceName = document.getElementById('voiceSelect').value;
             const count = document.getElementById('postCount').value;
+            const summaryLength = document.getElementById('summaryLength').value;
             const filter = document.getElementById('filterSelect').value;
 
             if (!voiceName) {
@@ -876,7 +904,8 @@
                     users: users,
                     voice_name: voiceName,
                     selection_type: filter,
-                    count: parseInt(count)
+                    count: parseInt(count),
+                    max_length: parseInt(summaryLength)
                 })
             })
             .then(response => response.json())
@@ -924,18 +953,16 @@
             }
         }
 
-        function showResult(result) {
+        function showSummary(result) {
             const resultSection = document.getElementById('resultSection');
             resultSection.innerHTML = ''; // Clear previous results
             resultSection.classList.add('active');
 
-            // --- Safely access data with fallbacks ---
             const username = result.username || 'Selected User';
             const voiceName = result.voice_name || 'the selected';
             const postCount = result.posts ? result.posts.length : (result.post_count || 0);
             const selectionType = result.selection_type || 'latest';
             const summary = result.summary ? (result.summary.content || 'No summary available.') : 'No summary available.';
-            const audioPath = result.voice_output ? result.voice_output.audio_path : null;
 
             const resultHTML = `
                 <div class="result-header">
@@ -948,21 +975,37 @@
                 
                 <div class="summary-text">${summary.replace(/\n/g, '<br>')}</div>
                 
-                <div class="audio-section">
+                <div class="audio-section" id="audioSection">
                     <h4>🎵 AI Generated Audio</h4>
-                    <p style="color: #8899a6; margin: 8px 0;">Summary read in ${voiceName}'s voice</p>
-                    ${audioPath ? 
-                        `<audio controls class="audio-player" autoplay>
-                            <source src="/api/audio/${audioPath}" type="audio/wav">
-                            Your browser does not support the audio element.
-                        </audio>` : 
-                        '<p style="color: #e0245e;">❌ Audio generation failed or was not requested.</p>'
-                    }
+                    <div class="loading-state" id="audioLoading">
+                        <div class="spinner"></div>
+                        <p style="color: #8899a6; margin-top: 10px;">Generating audio...</p>
+                    </div>
                 </div>
             `;
 
             resultSection.innerHTML = resultHTML;
             resultSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function showAudioPlayer(audioPath, voiceName) {
+            const audioSection = document.getElementById('audioSection');
+            if (!audioSection) return;
+
+            const audioHTML = `
+                <p style="color: #8899a6; margin: 8px 0;">Summary read in ${voiceName}'s voice</p>
+                <audio controls class="audio-player" autoplay>
+                    <source src="/api/audio/${audioPath}" type="audio/wav">
+                    Your browser does not support the audio element.
+                </audio>
+            `;
+            
+            // Remove loading state and add player
+            const audioLoading = document.getElementById('audioLoading');
+            if (audioLoading) {
+                audioLoading.remove();
+            }
+            audioSection.innerHTML += audioHTML;
         }
 
         function showError(message) {
@@ -1004,6 +1047,7 @@
         document.getElementById('twitterHandle').addEventListener('input', checkForm);
         document.getElementById('instagramHandle').addEventListener('input', checkForm);
         document.getElementById('postCount').addEventListener('input', checkForm);
+        document.getElementById('summaryLength').addEventListener('input', checkForm);
         document.getElementById('filterSelect').addEventListener('change', checkForm);
         document.getElementById('voiceSelect').addEventListener('change', checkForm);
     </script>

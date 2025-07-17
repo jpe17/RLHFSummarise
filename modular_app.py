@@ -177,7 +177,7 @@ def process_user():
     users = data.get('users', [])
     voice_name = data.get('voice_name')
     count = data.get('count', 5)
-    max_length = data.get('max_length', 200)
+    max_length = data.get('max_length', 250)
     selection_type = data.get('selection_type', 'latest')
     
     if not pipeline:
@@ -191,7 +191,7 @@ def process_user():
 
     def process_in_background():
         try:
-            # Run pipeline without TTS first
+            # Step 1: Run pipeline to get summary
             result = pipeline.run_pipeline_without_tts(
                 users=users,
                 selection_type=selection_type,
@@ -199,14 +199,17 @@ def process_user():
                 max_length=max_length
             )
             
-            # Synthesize audio in a way that's compatible with the main thread
+            # Emit summary as soon as it's ready
+            summary_data = result.to_dict()
+            socketio.emit('summary_ready', {'job_id': job_id, 'result': summary_data})
+
+            # Step 2: Synthesize audio
             try:
                 pipeline.set_progress_callback(lambda p, m: socketio.emit('progress_update', {'job_id': job_id, 'progress': p, 'message': m}))
                 pipeline._update_progress(90, f'🔊 Synthesizing audio for {voice_name}...')
                 
                 audio_path = pipeline.voice_synthesizer.synthesize(result.summary.content, voice_name)
                 
-                # Use the VoiceOutput data model for consistency
                 from core.data_models import VoiceOutput
                 result.voice_output = VoiceOutput(
                     audio_path=audio_path,
@@ -215,15 +218,23 @@ def process_user():
                 )
                 pipeline._update_progress(100, '✅ Processing complete!')
 
+                # Emit audio when it's ready
+                audio_data = {
+                    'job_id': job_id,
+                    'audio_path': audio_path,
+                    'voice_name': voice_name
+                }
+                socketio.emit('audio_ready', audio_data)
+
             except Exception as e:
                 error_message = f'❌ Error synthesizing voice: {str(e)}'
                 pipeline._update_progress(100, error_message)
-                processing_status[job_id] = {'status': 'error', 'message': error_message}
-                socketio.emit('processing_complete', {'job_id': job_id, 'status': 'error', 'message': error_message})
+                socketio.emit('processing_error', {'job_id': job_id, 'message': error_message})
                 return
 
+            # Final completion update
             processing_status[job_id] = {'status': 'complete', 'result': result.to_dict()}
-            socketio.emit('processing_complete', {'job_id': job_id, 'status': 'complete', 'result': result.to_dict()})
+            socketio.emit('processing_complete', {'job_id': job_id, 'status': 'complete'})
 
         except Exception as e:
             error_message = f'Processing error: {str(e)}'

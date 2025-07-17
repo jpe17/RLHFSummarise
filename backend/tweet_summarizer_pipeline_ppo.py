@@ -204,14 +204,13 @@ class TweetSummarizerPipelinePPO:
         
         return combined_text
     
-    def generate_summary(self, text, max_length=200, temperature=0.7):
+    def generate_summary(self, text, **kwargs):
         """
         Generate a summary of the given text using the PPO-trained model.
         
         Args:
             text (str): Text to summarize
-            max_length (int): Maximum length of summary
-            temperature (float): Generation temperature
+            **kwargs: Generation parameters (e.g., max_length, temperature)
             
         Returns:
             str: Generated summary
@@ -219,6 +218,18 @@ class TweetSummarizerPipelinePPO:
         if not text.strip():
             return ""
         
+        # Default generation parameters
+        gen_params = {
+            "max_length": 200,
+            "min_length": 30,
+            "no_repeat_ngram_size": 2,
+            "num_beams": 4,
+            "temperature": 0.7,
+            "do_sample": False,
+        }
+        # Update with any provided kwargs
+        gen_params.update(kwargs)
+
         # Clean the text for better summarization
         cleaned_text = clean_text_for_summarization(text)
         
@@ -253,30 +264,38 @@ class TweetSummarizerPipelinePPO:
             if hasattr(torch, 'autocast') and self.device != 'cpu':
                 with torch.autocast(device_type='cuda' if 'cuda' in self.device else 'cpu'):
                     outputs = self.summarizer_model.generate(
-                        **inputs,
-                        max_new_tokens=max_length,
-                        temperature=0.7,  # Fixed temperature for consistency
-                        do_sample=False,  # Deterministic for faster generation
+                        input_ids=inputs["input_ids"],
+                        attention_mask=inputs["attention_mask"],
                         pad_token_id=self.tokenizer.pad_token_id,
                         eos_token_id=self.tokenizer.eos_token_id,
-                        use_cache=True,  # Enable KV cache for faster generation
-                        num_beams=1,  # Greedy decoding for speed
+                        use_cache=True,
+                        **gen_params
                     )
             else:
                 outputs = self.summarizer_model.generate(
-                    **inputs,
-                    max_new_tokens=max_length,
-                    temperature=0.7,
-                    do_sample=False,  # Deterministic for faster generation  
+                    input_ids=inputs["input_ids"],
+                    attention_mask=inputs["attention_mask"],
                     pad_token_id=self.tokenizer.pad_token_id,
                     eos_token_id=self.tokenizer.eos_token_id,
-                    use_cache=True,  # Enable KV cache for faster generation
-                    num_beams=1,  # Greedy decoding for speed
+                    use_cache=True,
+                    **gen_params
                 )
         
         # Decode and extract summary
         full_output = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
         summary = full_output[len(prompt):].strip()
+        
+        # Post-process to limit output length
+        max_output_length = gen_params.get("max_length", 200)
+        if len(summary) > max_output_length:
+            # Truncate to max_output_length characters, trying to break at word boundaries
+            truncated = summary[:max_output_length]
+            last_space = truncated.rfind(' ')
+            if last_space > max_output_length * 0.8:  # If we can break at a word boundary
+                summary = truncated[:last_space] + '...'
+            else:
+                summary = truncated + '...'
+            print(f"📏 Truncated PPO summary from {len(full_output[len(prompt):].strip())} to {len(summary)} characters")
         
         print(f"✅ Generated PPO summary ({len(summary)} characters)")
         return summary
@@ -440,7 +459,7 @@ class TweetSummarizerPipelinePPO:
                 }
             
             # Step 3: Generate summary
-            summary = self.generate_summary(combined_text, summary_max_length)
+            summary = self.generate_summary(combined_text, max_length=summary_max_length)
             if not summary:
                 return {
                     "username": username,

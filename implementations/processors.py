@@ -156,22 +156,25 @@ class ContentProcessor(BaseContentProcessor):
             
             # Process media items if present
             media_descriptions = []
-            for media_item in post.media_items:
-                if media_item.type in ["image", "photo"]:
-                    description = self.image_to_text.extract_text(media_item.url)
-                    media_descriptions.append(f"Image: {description}")
-                    processing_steps.append(f"Processed image: {media_item.url}")
-                elif media_item.type == "video":
-                    # TODO: Implement video processing
-                    media_descriptions.append("Video content (processing not implemented)")
-                    processing_steps.append(f"Noted video: {media_item.url}")
-                    
+            if post.media_items:
+                for media_item in post.media_items:
+                    if media_item.type in ["image", "photo"]:
+                        # For Instagram, the main content is often in the image description
+                        description = self.image_to_text.extract_text(media_item.url)
+                        # We combine the post's text (caption) with the image content
+                        media_descriptions.append(f"Image content: {description}")
+                        processing_steps.append(f"Processed image: {media_item.url}")
+                    elif media_item.type == "video":
+                        media_descriptions.append("Video content (processing not implemented)")
+                        processing_steps.append(f"Noted video: {media_item.url}")
+            
             # Combine text and media descriptions
-            post_content = cleaned_text
+            # The caption (cleaned_text) is the primary content, supplemented by media analysis
+            post_full_content = cleaned_text
             if media_descriptions:
-                post_content += "\n" + "\n".join(media_descriptions)
+                post_full_content += "\n" + "\n".join(media_descriptions)
                 
-            processed_parts.append(post_content)
+            processed_parts.append(post_full_content)
             
         # Combine all processed content
         processed_text = "\n\n".join(processed_parts)

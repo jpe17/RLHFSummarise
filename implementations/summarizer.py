@@ -95,10 +95,17 @@ class RLHFSummarizer(BaseSummarizer):
                     model_name=self.model_id
                 )
             
-            # Use the correct method name
+            # Use the correct method name and add more generation controls
+            generation_params = {
+                "max_length": max_length,  # This will be used for output truncation
+                "min_length": 30,  # Encourage shorter summaries
+                "no_repeat_ngram_size": 2,  # Reduce repetition
+                "num_beams": 4, # Use beam search for higher quality
+            }
+
             summary_text = pipeline.generate_summary(
                 content.processed_text,
-                max_length=max_length
+                **generation_params
             )
             
             return Summary(
@@ -106,7 +113,7 @@ class RLHFSummarizer(BaseSummarizer):
                 score=0.8,  # Default score, can be improved later
                 original_content=content,
                 model_name=self.model_id,
-                generation_params={"max_length": max_length}
+                generation_params=generation_params
             )
             
         except Exception as e:

@@ -227,6 +227,17 @@ class TweetSummarizerPipeline:
         full_output = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
         summary = full_output[len(prompt):].strip()
         
+        # Post-process to limit output length
+        if len(summary) > max_length:
+            # Truncate to max_length characters, trying to break at word boundaries
+            truncated = summary[:max_length]
+            last_space = truncated.rfind(' ')
+            if last_space > max_length * 0.8:  # If we can break at a word boundary
+                summary = truncated[:last_space] + '...'
+            else:
+                summary = truncated + '...'
+            print(f"📏 Truncated summary from {len(full_output[len(prompt):].strip())} to {len(summary)} characters")
+        
         print(f"✅ Generated summary ({len(summary)} characters)")
         return summary
     
