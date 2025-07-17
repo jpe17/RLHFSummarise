@@ -14,30 +14,38 @@ from datetime import datetime
 import argparse
 import sys
 
-# Add backend to path
-sys.path.append(os.path.join(os.path.dirname(__file__), 'backend'))
+# Add project root to path
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(project_root)
 
 from backend.tweet_summarizer_pipeline_ppo import TweetSummarizerPipelinePPO
-from integrated_tweet_voice_pipeline import IntegratedTweetVoicePipeline
+from pipeline_twitter.integrated_tweet_voice_pipeline import IntegratedTweetVoicePipeline
 
 class JSONTweetSelector:
     """Select tweets from JSON files based on different criteria."""
     
-    def __init__(self, json_dir="json_tweets"):
+    def __init__(self, json_dir="data/json_tweets"):
         self.json_dir = json_dir
     
     def get_available_users(self):
         """Get list of users available in JSON files."""
         try:
+            print(f"🔍 Looking for JSON files in: {self.json_dir}")
             if not os.path.exists(self.json_dir):
+                print(f"❌ JSON directory does not exist: {self.json_dir}")
                 return []
             
+            files = os.listdir(self.json_dir)
+            print(f"📁 Found {len(files)} files in directory")
+            
             users = []
-            for filename in os.listdir(self.json_dir):
+            for filename in files:
                 if filename.endswith('_tweets.json'):
                     username = filename.replace('_tweets.json', '')
                     users.append(username)
+                    print(f"   ✅ Found user: {username}")
             
+            print(f"👥 Total users found: {len(users)}")
             return sorted(users)
             
         except Exception as e:
@@ -206,13 +214,13 @@ class JSONTweetSelector:
 class IntegratedJSONPipeline:
     """Integrated pipeline using JSON files instead of database."""
     
-    def __init__(self, json_dir="json_tweets"):
+    def __init__(self, json_dir="data/json_tweets"):
         self.json_dir = json_dir
         self.selector = JSONTweetSelector(json_dir)
         self.voice_pipeline = None
         self.summarizer_pipeline = None
     
-    def initialize_pipelines(self, ppo_weights="lora_weights.pt", reward_model="qwen_reward_model.pt"):
+    def initialize_pipelines(self, ppo_weights="rlhf_summarizer/lora_weights.pt", reward_model="rlhf_summarizer/qwen_reward_model.pt"):
         """Initialize the summarization and voice pipelines."""
         try:
             # Initialize PPO summarizer
@@ -226,8 +234,8 @@ class IntegratedJSONPipeline:
             # Initialize voice pipeline with the same parameters as the working version
             self.voice_pipeline = IntegratedTweetVoicePipeline(
                 model_id="Qwen/Qwen1.5-0.5B",
-                ppo_weights_path="simple_ppo_lora_final_20250716_130239.pt",
-                reward_model_path="qwen_reward_model.pt"
+                ppo_weights_path="rlhf_summarizer/simple_ppo_lora_final_20250716_130239.pt",
+                reward_model_path="rlhf_summarizer/qwen_reward_model.pt"
             )
             
             print("✅ Pipelines initialized successfully")

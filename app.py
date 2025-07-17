@@ -12,10 +12,11 @@ from flask import Flask, render_template, request, jsonify, send_file
 from flask_socketio import SocketIO, emit
 import sys
 
-# Add backend to path
-sys.path.append(os.path.join(os.path.dirname(__file__), 'backend'))
+# Add project root to path
+project_root = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(project_root)
 
-from integrated_db_pipeline import IntegratedJSONPipeline
+from pipeline_twitter.integrated_db_pipeline import IntegratedJSONPipeline
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key-here'
@@ -36,7 +37,9 @@ def initialize_pipeline():
     global pipeline
     
     try:
-        pipeline = IntegratedJSONPipeline()
+        # Use the correct path to the JSON files
+        json_dir = os.path.join(project_root, "pipeline_twitter", "data", "json_tweets")
+        pipeline = IntegratedJSONPipeline(json_dir=json_dir)
         success = pipeline.initialize_pipelines()
         
         if success:

@@ -78,7 +78,7 @@ def get_all_users(db_path="tweets_database.db"):
         print(f"❌ Error getting users: {e}")
         return []
 
-def convert_user_to_json(username, db_path="tweets_database.db", output_dir="json_tweets"):
+def convert_user_to_json(username, db_path="tweets_database.db", output_dir="data/json_tweets"):
     """
     Convert all tweets for a specific user to JSON format.
     
@@ -154,7 +154,7 @@ def convert_user_to_json(username, db_path="tweets_database.db", output_dir="jso
         print(f"❌ Error converting tweets for @{username}: {e}")
         return 0
 
-def convert_all_users_to_json(db_path="tweets_database.db", output_dir="json_tweets"):
+def convert_all_users_to_json(db_path="tweets_database.db", output_dir="data/json_tweets"):
     """
     Convert all users in the database to JSON files.
     
@@ -209,7 +209,7 @@ def convert_all_users_to_json(db_path="tweets_database.db", output_dir="json_twe
     
     return summary
 
-def show_json_sample(username, json_dir="json_tweets"):
+def show_json_sample(username, json_dir="data/json_tweets"):
     """Show a sample of the JSON structure for a user."""
     json_file = os.path.join(json_dir, f"{username}_tweets.json")
     
@@ -248,7 +248,7 @@ def main():
     
     parser = argparse.ArgumentParser(description='Convert SQLite database to JSON files')
     parser.add_argument('--db', default='tweets_database.db', help='Database file path')
-    parser.add_argument('--output', default='json_tweets', help='Output directory')
+    parser.add_argument('--output', default='data/json_tweets', help='Output directory')
     parser.add_argument('--user', help='Convert only specific user')
     parser.add_argument('--sample', help='Show sample JSON for specific user')
     

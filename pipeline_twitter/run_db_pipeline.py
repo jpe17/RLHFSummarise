@@ -24,7 +24,7 @@ def main():
     SELECTION_TYPE = "top"  # Options: "top", "latest", "random"
     TWEET_COUNT = 5         # Number of tweets per user
     MAX_LENGTH = 256        # Maximum summary length
-    JSON_DIR = "json_tweets"  # Directory with JSON files
+    JSON_DIR = "data/json_tweets"  # Directory with JSON files
     
     print("🎬 Starting Integrated JSON Pipeline")
     print("=" * 60)

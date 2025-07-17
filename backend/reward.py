@@ -22,7 +22,7 @@ MAX_LENGTH = 256  # Reduced for faster processing
 LR = 5e-5  # Higher learning rate for faster convergence
 EPOCHS = 3  # Fewer epochs, but more efficient
 GRADIENT_ACCUMULATION_STEPS = 2  # Effective batch size = BATCH_SIZE * GRADIENT_ACCUMULATION_STEPS
-LORA_WEIGHTS_PATH = "lora_weights.pt"
+LORA_WEIGHTS_PATH = "rlhf_summarizer/lora_weights.pt"
 
 # Improved reward model
 class RewardModel(nn.Module):
@@ -142,7 +142,7 @@ def collate_fn(batch):
     }
 
 # Save model
-def save_reward_model(model, path="qwen_reward_model.pt"):
+def save_reward_model(model, path="rlhf_summarizer/qwen_reward_model.pt"):
     reward_state = {
         'reward_head': model.reward_head.state_dict(),
         'model_config': {
@@ -154,7 +154,7 @@ def save_reward_model(model, path="qwen_reward_model.pt"):
     torch.save(reward_state, path)
     print(f"✅ Reward model saved as {path}")
 
-def load_reward_model(reward_model_path="qwen_reward_model.pt", device=None):
+def load_reward_model(reward_model_path="rlhf_summarizer/qwen_reward_model.pt", device=None):
     if device is None:
         device = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
     
@@ -168,6 +168,13 @@ def load_reward_model(reward_model_path="qwen_reward_model.pt", device=None):
     
     # Handle relative path when called from backend directory
     lora_path = model_config['lora_weights_path']
+    
+    # Update old paths to new rlhf_summarizer location
+    if lora_path == "lora_weights.pt":
+        lora_path = "rlhf_summarizer/lora_weights.pt"
+    elif lora_path == "simple_ppo_lora_final_20250716_130239.pt":
+        lora_path = "rlhf_summarizer/simple_ppo_lora_final_20250716_130239.pt"
+    
     if not os.path.isabs(lora_path) and not os.path.exists(lora_path):
         # Try parent directory
         parent_path = os.path.join('..', lora_path)

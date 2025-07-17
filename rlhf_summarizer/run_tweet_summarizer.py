@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 """
-Tweet Summarizer Pipeline - PPO-Trained Model CLI
+Tweet Summarizer Pipeline - Command Line Interface
 
-This script provides a command-line interface to run the complete
-tweet summarization and scoring pipeline using the PPO-trained model.
+This script provides a simple command-line interface to run the complete
+tweet summarization and scoring pipeline.
 
 Usage:
-    python run_tweet_summarizer_ppo.py username [options]
+    python run_tweet_summarizer.py username [options]
 
 Examples:
-    python run_tweet_summarizer_ppo.py elonmusk
-    python run_tweet_summarizer_ppo.py dril --count 15 --save
-    python run_tweet_summarizer_ppo.py horse_ebooks --count 5 --max-length 150
-    python run_tweet_summarizer_ppo.py username --since 2024-01-01 --until 2024-01-31
+    python run_tweet_summarizer.py elonmusk
+    python run_tweet_summarizer.py dril --count 15 --save
+    python run_tweet_summarizer.py horse_ebooks --count 5 --max-length 150
+    python run_tweet_summarizer.py username --since 2024-01-01 --until 2024-01-31
 """
 
 import argparse
@@ -20,10 +20,11 @@ import sys
 import os
 from datetime import datetime, timedelta
 
-# Add backend to path
-sys.path.append(os.path.join(os.path.dirname(__file__), 'backend'))
+# Add project root to path
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(project_root)
 
-from backend.tweet_summarizer_pipeline_ppo import TweetSummarizerPipelinePPO
+from backend.tweet_summarizer_pipeline import TweetSummarizerPipeline
 
 def parse_date(date_str):
     """Parse date string in various formats."""
@@ -73,14 +74,15 @@ def parse_date(date_str):
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Scrape tweets, generate summaries, and score them using PPO-trained AI models",
+        description="Scrape tweets, generate summaries, and score them using AI models",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
   %(prog)s elonmusk
   %(prog)s dril --count 15 --save
   %(prog)s horse_ebooks --count 5 --max-length 150
-  %(prog)s username --device cuda --ppo-weights my_ppo_weights.pt
+  %(prog)s username --device cuda --lora-weights my_weights.pt
+  %(prog)s username --use-ppo --ppo-weights simple_ppo_lora_ep15_20250715_160654.pt
   %(prog)s username --since 2024-01-01 --until 2024-01-31
   %(prog)s username --since 7d --count 20
   %(prog)s username --since yesterday --until today
@@ -127,15 +129,27 @@ Examples:
     )
     
     parser.add_argument(
+        "--lora-weights",
+        default="rlhf_summarizer/lora_weights.pt",
+        help="Path to LoRA weights file (default: rlhf_summarizer/lora_weights.pt)"
+    )
+    
+    parser.add_argument(
+        "--use-ppo",
+        action="store_true",
+        help="Use PPO-trained model instead of baseline LoRA model"
+    )
+    
+    parser.add_argument(
         "--ppo-weights",
-        default="lora_weights.pt",
-        help="Path to PPO-trained LoRA weights file (default: lora_weights.pt)"
+        default="simple_ppo_lora_ep15_20250715_160654.pt",
+        help="Path to PPO-trained LoRA weights file (default: simple_ppo_lora_ep15_20250715_160654.pt)"
     )
     
     parser.add_argument(
         "--reward-model",
-        default="qwen_reward_model.pt",
-        help="Path to reward model file (default: qwen_reward_model.pt)"
+        default="rlhf_summarizer/qwen_reward_model.pt",
+        help="Path to reward model file (default: rlhf_summarizer/qwen_reward_model.pt)"
     )
     
     parser.add_argument(
@@ -165,12 +179,6 @@ Examples:
         "--quiet", "-q",
         action="store_true",
         help="Suppress detailed output, only show final results"
-    )
-    
-    parser.add_argument(
-        "--compare-baseline",
-        action="store_true",
-        help="Also run baseline model for comparison"
     )
     
     args = parser.parse_args()
@@ -209,34 +217,60 @@ Examples:
     device = None if args.device == "auto" else args.device
     
     try:
-        # Initialize PPO pipeline
+        # Choose pipeline based on --use-ppo flag
+        if args.use_ppo:
+            from backend.tweet_summarizer_pipeline_ppo import TweetSummarizerPipelinePPO
+            
+            if not args.quiet:
+                print(f"🚀 Initializing PPO-Trained Tweet Summarizer Pipeline...")
+                print(f"   • Username: @{args.username}")
+                print(f"   • Tweet count: {args.count}")
+                print(f"   • Max summary length: {args.max_length}")
+                print(f"   • Temperature: {args.temperature}")
+                print(f"   • Device: {args.device}")
+                print(f"   • PPO weights: {args.ppo_weights}")
+                print(f"   • Reward model: {args.reward_model}")
+                if since_date:
+                    print(f"   • Since: {since_date.strftime('%Y-%m-%d %H:%M:%S')}")
+                if until_date:
+                    print(f"   • Until: {until_date.strftime('%Y-%m-%d %H:%M:%S')}")
+                print()
+            
+            pipeline = TweetSummarizerPipelinePPO(
+                model_id=args.model_id,
+                ppo_weights_path=args.ppo_weights,
+                reward_model_path=args.reward_model,
+                device=device
+            )
+        else:
+            # Initialize baseline pipeline
+            if not args.quiet:
+                print(f"🚀 Initializing Tweet Summarizer Pipeline...")
+                print(f"   • Username: @{args.username}")
+                print(f"   • Tweet count: {args.count}")
+                print(f"   • Max summary length: {args.max_length}")
+                print(f"   • Temperature: {args.temperature}")
+                print(f"   • Device: {args.device}")
+                print(f"   • LoRA weights: {args.lora_weights}")
+                print(f"   • Reward model: {args.reward_model}")
+                if since_date:
+                    print(f"   • Since: {since_date.strftime('%Y-%m-%d %H:%M:%S')}")
+                if until_date:
+                    print(f"   • Until: {until_date.strftime('%Y-%m-%d %H:%M:%S')}")
+                print()
+            
+            pipeline = TweetSummarizerPipeline(
+                model_id=args.model_id,
+                lora_weights_path=args.lora_weights,
+                reward_model_path=args.reward_model,
+                device=device
+            )
+        
+        # Process user
         if not args.quiet:
-            print(f"🚀 Initializing PPO-Trained Tweet Summarizer Pipeline...")
-            print(f"   • Username: @{args.username}")
-            print(f"   • Tweet count: {args.count}")
-            print(f"   • Max summary length: {args.max_length}")
-            print(f"   • Temperature: {args.temperature}")
-            print(f"   • Device: {args.device}")
-            print(f"   • PPO weights: {args.ppo_weights}")
-            print(f"   • Reward model: {args.reward_model}")
-            if since_date:
-                print(f"   • Since: {since_date.strftime('%Y-%m-%d %H:%M:%S')}")
-            if until_date:
-                print(f"   • Until: {until_date.strftime('%Y-%m-%d %H:%M:%S')}")
-            print()
+            print(f"🔄 Processing @{args.username}...")
         
-        ppo_pipeline = TweetSummarizerPipelinePPO(
-            model_id=args.model_id,
-            ppo_weights_path=args.ppo_weights,
-            reward_model_path=args.reward_model,
-            device=device
-        )
-        
-        # Process user with PPO model
-        if not args.quiet:
-            print(f"🔄 Processing @{args.username} with PPO-trained model...")
-        
-        ppo_results = ppo_pipeline.process_user(
+        results = pipeline.process_user(
             username=args.username,
             tweet_count=args.count,
             summary_max_length=args.max_length,
@@ -244,73 +278,28 @@ Examples:
             until_date=until_date
         )
         
-        # Print PPO results
+        # Print results
         if args.quiet:
             # Quiet mode - just essential info
-            if "error" in ppo_results:
-                print(f"❌ PPO Error: {ppo_results['error']}")
+            if "error" in results:
+                print(f"❌ Error: {results['error']}")
                 sys.exit(1)
             
-            print(f"🎯 PPO @{ppo_results['username']} Summary (Score: {ppo_results['score']:.4f}):")
-            print(f"{ppo_results['summary']}")
+            print(f"@{results['username']} Summary (Score: {results['score']:.4f}):")
+            print(f"{results['summary']}")
         else:
             # Full output
-            ppo_pipeline.print_results(ppo_results)
-        
-        # Compare with baseline if requested
-        if args.compare_baseline:
-            if not args.quiet:
-                print(f"\n{'='*80}")
-                print(f"🔄 Running baseline model for comparison...")
-                print(f"{'='*80}")
-            
-            # Import and run baseline
-            from backend.tweet_summarizer_pipeline import TweetSummarizerPipeline
-            
-            baseline_pipeline = TweetSummarizerPipeline(
-                model_id=args.model_id,
-                lora_weights_path="lora_weights.pt",
-                reward_model_path=args.reward_model,
-                device=device
-            )
-            
-            baseline_results = baseline_pipeline.process_user(
-                username=args.username,
-                tweet_count=args.count,
-                summary_max_length=args.max_length,
-                since_date=since_date,
-                until_date=until_date
-            )
-            
-            if not args.quiet:
-                baseline_pipeline.print_results(baseline_results)
-                
-                # Print comparison
-                print(f"\n{'='*80}")
-                print(f"📊 MODEL COMPARISON")
-                print(f"{'='*80}")
-                print(f"PPO Score: {ppo_results.get('score', 0):.4f}")
-                print(f"Baseline Score: {baseline_results.get('score', 0):.4f}")
-                score_diff = ppo_results.get('score', 0) - baseline_results.get('score', 0)
-                print(f"Improvement: {score_diff:+.4f} ({score_diff/baseline_results.get('score', 1)*100:+.1f}%)")
-            else:
-                print(f"\n📊 Baseline @{baseline_results['username']} Summary (Score: {baseline_results['score']:.4f}):")
-                print(f"{baseline_results['summary']}")
-                
-                score_diff = ppo_results.get('score', 0) - baseline_results.get('score', 0)
-                print(f"\n🎯 PPO vs Baseline: {score_diff:+.4f} improvement")
-            
-            baseline_pipeline.close()
+            pipeline.print_results(results)
         
         # Save results if requested
         if args.save:
-            ppo_pipeline.save_results(ppo_results, args.output)
+            pipeline.save_results(results, args.output)
         
         # Clean up
-        ppo_pipeline.close()
+        pipeline.close()
         
         if not args.quiet:
-            print(f"\n✅ PPO pipeline completed successfully!")
+            print(f"\n✅ Pipeline completed successfully!")
         
     except KeyboardInterrupt:
         print(f"\n⚠️ Process interrupted by user")

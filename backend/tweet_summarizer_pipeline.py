@@ -16,16 +16,17 @@ except ImportError:
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from twitter_scraper_selenium import TwitterSeleniumScraper
+from pipeline_twitter.twitter_scraper_selenium import TwitterSeleniumScraper
 from model import setup_lora_model, load_lora_weights
 from reward import load_reward_model
 from data_loader import setup_tokenizer
+from text_utils import format_tweet_for_summarization, clean_text_for_summarization
 
 class TweetSummarizerPipeline:
     def __init__(self, 
                  model_id="Qwen/Qwen1.5-0.5B",
-                 lora_weights_path="lora_weights.pt",
-                 reward_model_path="qwen_reward_model.pt",
+                 lora_weights_path="rlhf_summarizer/lora_weights.pt",
+                 reward_model_path="rlhf_summarizer/qwen_reward_model.pt",
                  device=None):
         """
         Initialize the complete pipeline for tweet summarization and scoring.
@@ -155,14 +156,11 @@ class TweetSummarizerPipeline:
         # Sort by engagement and take top tweets
         sorted_tweets = sorted(tweets, key=get_engagement_score, reverse=True)
         
-        # Combine tweets into a single text
-        combined_text = ""
-        for i, tweet in enumerate(sorted_tweets, 1):
-            engagement = get_engagement_score(tweet)
-            combined_text += f"Tweet {i} (❤️{tweet.get('likes', '0')} 🔄{tweet.get('retweets', '0')} 💬{tweet.get('replies', '0')}):\n"
-            combined_text += f"{tweet['content']}\n\n"
+        # Use the new text utils to format and clean tweets
+        combined_text = format_tweet_for_summarization(sorted_tweets)
         
-        return combined_text.strip()
+        print(f"🧹 Cleaned {len(sorted_tweets)} tweets for summarization")
+        return combined_text
     
     def generate_summary(self, text, max_length=200, temperature=0.7):
         """
@@ -179,8 +177,22 @@ class TweetSummarizerPipeline:
         if not text.strip():
             return ""
         
+        # Clean the text for better summarization
+        cleaned_text = clean_text_for_summarization(text)
+        
         # Create prompt for summarization
-        prompt = f"Please summarize the following tweets:\n\n{text}\n\nSummary:"
+        prompt = f"Please summarize the following tweets:\n\n{cleaned_text}\n\nSummary:"
+        
+        # Debug: Print the input prompt
+        print("\n" + "="*80)
+        print("🔍 DEBUG: INPUT PROMPT TO MODEL")
+        print("="*80)
+        print(prompt)
+        print("="*80)
+        print(f"📏 Prompt length: {len(prompt)} characters")
+        print(f"📏 Original text length: {len(text)} characters")
+        print(f"📏 Cleaned text length: {len(cleaned_text)} characters")
+        print("="*80 + "\n")
         
         # Tokenize input
         inputs = self.tokenizer(

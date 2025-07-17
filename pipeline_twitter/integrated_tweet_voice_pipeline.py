@@ -15,107 +15,18 @@ from TTS.api import TTS
 
 # Tweet summarization imports
 import sys
-sys.path.append("backend")
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(project_root)
 from backend.tweet_summarizer_pipeline_ppo import TweetSummarizerPipelinePPO
+from backend.text_utils import clean_text_for_tts
 
-def clean_text_for_tts(text):
-    """
-    Clean text for better TTS synthesis by removing:
-    - Hashtags (#hashtag)
-    - Emojis and emoticons
-    - URLs and Twitter links
-    - Excessive punctuation
-    - Twitter handles (@username)
-    - RT (retweet indicators)
-    - Twitter-specific formatting
-    
-    Args:
-        text (str): Raw text to clean
-        
-    Returns:
-        str: Cleaned text suitable for TTS
-    """
-    if not text:
-        return ""
-    
-    # Remove emojis
-    text = emoji.replace_emoji(text, replace='')
-    
-    # Remove hashtags completely (both # and content) - handle multiple consecutive hashtags
-    text = re.sub(r'#\w+(?:#\w+)*', '', text)
-    
-    # Remove Twitter handles completely
-    text = re.sub(r'@\w+', '', text)
-    
-    # Remove URLs and Twitter links more comprehensively
-    # Match various URL patterns including Twitter's t.co links
-    text = re.sub(r'https?://[^\s]+', '', text)
-    text = re.sub(r'pic\.twitter\.com/[^\s]+', '', text)
-    text = re.sub(r't\.co/[^\s]+', '', text)
-    
-    # Remove RT indicators
-    text = re.sub(r'\bRT\b', '', text, flags=re.IGNORECASE)
-    
-    # Remove Twitter-specific patterns like "— @username (username) date"
-    text = re.sub(r'—\s*@\w+\s*\(\w+\)\s*\w+\s+\d+', '', text)
-    text = re.sub(r'—\s*@\w+', '', text)
-    
-    # Remove date patterns at the end
-    text = re.sub(r'\w+\s+\d+,\s+\d{4}$', '', text)
-    text = re.sub(r'\d{4}$', '', text)
-    
-    # Remove patterns like "(@username) date" or "(username) date"
-    text = re.sub(r'\(\s*@?\w+\s*\)\s*\w+\s+\d+', '', text)
-    text = re.sub(r'\(\s*@?\w+\s*\)', '', text)
-    
-    # Remove emoticons like :), :(, :D, etc.
-    text = re.sub(r':[)\-DdPpOo]', '', text)
-    text = re.sub(r'[)\-DdPpOo]:', '', text)
-    
-    # Remove other common emoticons
-    emoticon_patterns = [
-        r'[;:]-?[)DdPpOo]',  # ;), ;D, etc.
-        r'[)DdPpOo]-?[;:]',  # ):, D:, etc.
-        r'[<>][;:]-?[)DdPpOo]',  # <3, >:), etc.
-        r'[;:]-?[<>]',  # ;<, :>, etc.
-    ]
-    for pattern in emoticon_patterns:
-        text = re.sub(pattern, '', text)
-    
-    # Clean up excessive punctuation
-    # Replace multiple periods/commas with single ones
-    text = re.sub(r'\.{2,}', '.', text)
-    text = re.sub(r',{2,}', ',', text)
-    text = re.sub(r'!{2,}', '!', text)
-    text = re.sub(r'\?{2,}', '?', text)
-    
-    # Clean up whitespace
-    text = re.sub(r'\s+', ' ', text)  # Multiple spaces to single space
-    text = text.strip()
-    
-    # Remove leading/trailing punctuation
-    text = re.sub(r'^[.,!?;:\s]+', '', text)
-    text = re.sub(r'[.,!?;:\s]+$', '', text)
-    
-    # Remove empty parentheses and brackets
-    text = re.sub(r'\(\s*\)', '', text)
-    text = re.sub(r'\[\s*\]', '', text)
-    
-    # Ensure proper sentence endings
-    if text and not text.endswith(('.', '!', '?')):
-        text += '.'
-    
-    # Final cleanup of any remaining artifacts
-    text = re.sub(r'\s+', ' ', text)  # Multiple spaces to single space
-    text = text.strip()
-    
-    return text
+# Note: clean_text_for_tts function is now imported from backend.text_utils
 
 class IntegratedTweetVoicePipeline:
     def __init__(self, 
                  model_id="Qwen/Qwen1.5-0.5B",
-                 ppo_weights_path="simple_ppo_lora_final_20250716_130239.pt",
-                 reward_model_path="qwen_reward_model.pt"):
+                 ppo_weights_path="rlhf_summarizer/simple_ppo_lora_final_20250716_130239.pt",
+                 reward_model_path="rlhf_summarizer/qwen_reward_model.pt"):
         """
         Integrated pipeline for tweet summarization and voice synthesis.
         

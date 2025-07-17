@@ -20,8 +20,8 @@ from data_loader import setup_tokenizer
 
 # Configuration
 MODEL_ID = "Qwen/Qwen1.5-0.5B"
-LORA_WEIGHTS_PATH = "../lora_weights.pt"
-REWARD_MODEL_PATH = "../qwen_reward_model.pt"
+LORA_WEIGHTS_PATH = "../rlhf_summarizer/lora_weights.pt"
+REWARD_MODEL_PATH = "../rlhf_summarizer/qwen_reward_model.pt"
 DEVICE = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
 
 # PPO Hyperparameters
@@ -325,11 +325,11 @@ for episode in range(num_episodes):
 # 6. Final save
 print("\n💾 Saving final model...")
 final_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-final_path = f"../simple_ppo_lora_final_{final_timestamp}.pt"
+final_path = f"../rlhf_summarizer/simple_ppo_lora_final_{final_timestamp}.pt"
 save_lora_weights(policy_model, final_path)
 
 # Save value head too
-value_path = f"../simple_ppo_value_final_{final_timestamp}.pt"
+value_path = f"../rlhf_summarizer/simple_ppo_value_final_{final_timestamp}.pt"
 torch.save(value_head.state_dict(), value_path)
 
 print(f"✅ Training completed!")

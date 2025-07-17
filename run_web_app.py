@@ -21,7 +21,7 @@ def check_dependencies():
 
 def check_json_files():
     """Check if JSON tweet files exist."""
-    json_dir = "json_tweets"
+    json_dir = "pipeline_twitter/data/json_tweets"
     if not os.path.exists(json_dir):
         print(f"❌ JSON directory not found: {json_dir}")
         print("💡 Run the JSON converter first to create tweet files")

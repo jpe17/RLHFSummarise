@@ -74,7 +74,7 @@ def setup_lora_model(model_id, device="cuda", r=16, alpha=32):
     
     return model
 
-def save_lora_weights(model, path="lora_weights.pt"):
+def save_lora_weights(model, path="rlhf_summarizer/lora_weights.pt"):
     weights = {}
     for name, module in model.named_modules():
         if hasattr(module, 'lora_A'):
@@ -84,7 +84,7 @@ def save_lora_weights(model, path="lora_weights.pt"):
     torch.save(weights, path)
     print(f"Saved LoRA weights to {path}")
 
-def load_lora_weights(model, path="lora_weights.pt"):
+def load_lora_weights(model, path="rlhf_summarizer/lora_weights.pt"):
     """Load LoRA weights from a saved file"""
     if not torch.cuda.is_available():
         weights = torch.load(path, map_location='cpu')

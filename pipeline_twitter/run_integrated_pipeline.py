@@ -4,7 +4,14 @@ Simple usage example for the Integrated Tweet-to-Voice Pipeline.
 Customize the usernames and voices below to fit your needs.
 """
 
-from integrated_tweet_voice_pipeline import IntegratedTweetVoicePipeline
+import sys
+import os
+
+# Add project root to path
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(project_root)
+
+from pipeline_twitter.integrated_tweet_voice_pipeline import IntegratedTweetVoicePipeline
 
 def main():
     # 🎯 CUSTOMIZE THESE SETTINGS

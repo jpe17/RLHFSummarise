@@ -16,20 +16,20 @@ def main():
     # Convert all users to JSON
     summary = convert_all_users_to_json(
         db_path="tweets_database.db",
-        output_dir="json_tweets"
+        output_dir="data/json_tweets"
     )
     
     if summary and summary.get('total_tweets', 0) > 0:
         print(f"\n📋 CONVERSION SUMMARY:")
         print(f"   Total users: {summary['total_users']}")
         print(f"   Total tweets: {summary['total_tweets']}")
-        print(f"   Files saved in: json_tweets/")
+        print(f"   Files saved in: data/json_tweets/")
         
         # Show sample for first user
         users = list(summary.get('users', {}).keys())
         if users:
             print(f"\n📄 Sample JSON structure for @{users[0]}:")
-            show_json_sample(users[0], "json_tweets")
+            show_json_sample(users[0], "data/json_tweets")
     else:
         print("❌ No data found to convert. Make sure you have run the scraper first.")
 
