@@ -72,21 +72,39 @@ class TTSVoiceSynthesizer(BaseVoiceSynthesizer):
 
         if self.tts is None:
             try:
-                from TTS.api import TTS
+                # Fix PyTorch 2.6 weights_only issue for TTS models by temporarily setting torch.load defaults
+                # This is safer than using weights_only=False globally
+                original_load = torch.load
                 
-                # Auto-detect device if not specified
-                if self.device is None:
-                    # SPEED OPTIMIZATION: Always use CPU for faster startup and reliability
-                    self.device = "cpu"
-                    print("🔧 Using CPU for TTS (optimized for speed and reliability)")
+                def patched_load(*args, **kwargs):
+                    # For TTS model loading, allow weights_only=False for compatibility
+                    if 'weights_only' not in kwargs:
+                        kwargs['weights_only'] = False
+                    return original_load(*args, **kwargs)
                 
-                print(f"🎤 Initializing TTS on device: {self.device}")
+                # Temporarily patch torch.load for TTS initialization
+                torch.load = patched_load
                 
-                # Initialize TTS with optimizations
-                print("📥 Loading TTS model with speed optimizations...")
-                
-                # SPEED OPTIMIZATION: Load with minimal memory footprint
-                self.tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2").to(self.device)
+                try:
+                    from TTS.api import TTS
+                    
+                    # Auto-detect device if not specified
+                    if self.device is None:
+                        # SPEED OPTIMIZATION: Always use CPU for faster startup and reliability
+                        self.device = "cpu"
+                        print("🔧 Using CPU for TTS (optimized for speed and reliability)")
+                    
+                    print(f"🎤 Initializing TTS on device: {self.device}")
+                    
+                    # Initialize TTS with optimizations
+                    print("📥 Loading TTS model with speed optimizations...")
+                    
+                    # SPEED OPTIMIZATION: Load with minimal memory footprint
+                    self.tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2").to(self.device)
+                    
+                finally:
+                    # Restore original torch.load
+                    torch.load = original_load
                 
                 # SPEED OPTIMIZATION: Set model to eval mode and optimize for inference
                 self.tts.synthesizer.tts_model.eval()
@@ -324,87 +342,19 @@ class TTSVoiceSynthesizer(BaseVoiceSynthesizer):
 
 
 
-class MockVoiceSynthesizer(BaseVoiceSynthesizer):
-    """
-    Mock voice synthesizer for testing.
-    """
-    
-    def __init__(self):
-        """Initialize mock voice synthesizer."""
-        self.mock_voices = [
-            "christina", "elonmusk", "barackobama", "freeman", 
-            "angie", "daniel", "emma", "halle", "jlaw", "weaver"
-        ]
-        
-    def synthesize(self, text: str, voice_name: str, language: str = "en") -> VoiceOutput:
-        """
-        Mock synthesize voice from text.
-        OPTIMIZED FOR SPEED with same text limits as real TTS.
-        
-        Args:
-            text: Text to synthesize
-            voice_name: Name of the voice to use
-            language: Language/accent code (e.g., "en", "it", "es", etc.)
-            
-        Returns:
-            VoiceOutput object with mock data
-        """
-        # Simple Italian accent for bes voice
-        if voice_name.lower() == "bes" and language == "en":
-            language = "it"
-            print(f"🇮🇹 Mock TTS: Using Italian accent for bes voice")
-        
-        # SPEED OPTIMIZATION: Use same text limits as real TTS
-        MAX_TTS_LENGTH = 300  # Same as real TTS for fast processing
-        original_length = len(text)
-        if len(text) > MAX_TTS_LENGTH:
-            # Find the last complete sentence within the limit
-            truncated = text[:MAX_TTS_LENGTH]
-            last_sentence_end = max(
-                truncated.rfind('.'),
-                truncated.rfind('!'),
-                truncated.rfind('?')
-            )
-            if last_sentence_end > MAX_TTS_LENGTH * 0.4:  # Same as real TTS
-                text = truncated[:last_sentence_end + 1]
-            else:
-                text = truncated + "..."
-            print(f"📝 Mock TTS: Truncated text from {original_length} to {len(text)} characters (target: <15 seconds)")
-        
-        # Simulate minimal processing time
-        time.sleep(0.05)  # Reduced from 0.1 for speed
-        
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        mock_path = f"mock_synthesis_{voice_name}_{timestamp}.wav"
-        
-        return VoiceOutput(
-            audio_path=mock_path,
-            voice_name=voice_name,
-            text=text,
-            duration=len(text) * 0.06,  # Reduced for faster speech simulation
-            sample_rate=22050
-        )
-        
-    def get_available_voices(self) -> List[str]:
-        """
-        Get list of available voices.
-        
-        Returns:
-            List of mock voice names
-        """
-        return self.mock_voices
+# MockVoiceSynthesizer removed - using real TTS only
 
 
 class VoiceSynthesizerFactory:
     """Factory class for creating voice synthesizers."""
     
     @staticmethod
-    def create_synthesizer(synthesizer_type: str, **kwargs) -> BaseVoiceSynthesizer:
+    def create_synthesizer(synthesizer_type: str = "tts", **kwargs) -> BaseVoiceSynthesizer:
         """
         Create a voice synthesizer of the specified type.
         
         Args:
-            synthesizer_type: Type of synthesizer ("tts", "mock")
+            synthesizer_type: Type of synthesizer ("tts" only - mock removed)
             **kwargs: Additional arguments for synthesizer initialization
             
         Returns:
@@ -415,10 +365,8 @@ class VoiceSynthesizerFactory:
         """
         if synthesizer_type == "tts":
             return TTSVoiceSynthesizer(**kwargs)
-        elif synthesizer_type == "mock":
-            return MockVoiceSynthesizer(**kwargs)
         else:
-            raise ValueError(f"Unsupported synthesizer type: {synthesizer_type}")
+            raise ValueError(f"Unsupported synthesizer type: {synthesizer_type}. Only 'tts' is supported.")
             
     @staticmethod
     def get_available_synthesizers() -> dict:

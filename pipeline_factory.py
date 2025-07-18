@@ -35,7 +35,7 @@ class PipelineFactory:
         Args:
             data_dir: Directory for storing posts
             summarizer_type: Type of summarizer to use ("rlhf", "simple")
-            voice_synthesizer_type: Type of voice synthesizer ("tts", "mock")
+            voice_synthesizer_type: Type of voice synthesizer ("tts" only)
             use_vision_model: Whether to use real vision model for image-to-text
             migrate_twitter_data: Whether to migrate existing Twitter data
             
@@ -91,7 +91,7 @@ class PipelineFactory:
         return PipelineFactory.create_default_pipeline(
             data_dir="test_data/posts",
             summarizer_type="simple",
-            voice_synthesizer_type="mock",
+            voice_synthesizer_type="tts",
             use_vision_model=False,
             migrate_twitter_data=False
         )
@@ -161,6 +161,11 @@ class PipelineFactory:
         image_to_text = VisionImageToText() if use_vision_model else MockImageToText()
         content_processor = ContentProcessor(image_to_text=image_to_text, **processor_config)
         manager.register_content_processor(content_processor)
+        
+        # Configure YouTube processor (keep separate, don't register as content processor)
+        from implementations.youtube_processor import YouTubeProcessor
+        youtube_processor = YouTubeProcessor(**config.get("youtube_processor", {}))
+        # Note: YouTubeProcessor is used directly for YouTube processing, not as the main content processor
         
         # Configure post selector
         selector_config = config.get("post_selector", {})
@@ -281,7 +286,7 @@ class PipelineFactory:
             
         # Check voice synthesizer type
         voice_type = config.get("voice_synthesizer_type", "tts")
-        if voice_type not in ["tts", "mock"]:
+        if voice_type != "tts":
             results["errors"].append(f"Invalid voice synthesizer type: {voice_type}")
             results["valid"] = False
             
@@ -373,6 +378,7 @@ def create_preloaded_pipeline(**config_overrides) -> PipelineManager:
     print("🔧 Creating preloaded pipeline...")
     config = {
         "migrate_twitter_data": False,  # Explicitly disable migration
+        "voice_synthesizer_type": "tts",  # Use real TTS
         "summarizer": {
             "model_id": "Qwen/Qwen1.5-0.5B",
             "ppo_weights_path": "rlhf_summarizer/simple_ppo_lora_final_20250716_130239.pt",

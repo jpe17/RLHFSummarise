@@ -14,6 +14,7 @@ class Platform(Enum):
     TWITTER = "twitter"
     INSTAGRAM = "instagram"
     TIKTOK = "tiktok"
+    YOUTUBE = "youtube"
 
 
 class ContentType(Enum):

@@ -31,11 +31,9 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 print("🚀 Initializing AI pipeline in main thread...")
 try:
     pipeline = create_preloaded_pipeline()
-    if hasattr(pipeline.voice_synthesizer, '_get_tts'):
-        print("🔊 Pre-loading TTS model in main thread...")
-        pipeline.voice_synthesizer._get_tts()
     print("✅ AI pipeline initialized successfully.")
     print("🎭 bes voice will automatically use Italian accent when selected")
+    print("🔊 TTS model will load on-demand when first voice synthesis is requested")
 except Exception as e:
     print(f"❌ FATAL: Could not initialize AI pipeline: {e}")
     pipeline = None
@@ -46,7 +44,7 @@ processing_status = {}
 @app.route('/')
 def index():
     """Main page with social media UI."""
-    return render_template('index.html')
+    return render_template('index_with_youtube.html')
 
 @app.route('/api/initialize', methods=['POST'])
 def initialize_pipeline():
@@ -73,7 +71,8 @@ def get_platforms():
         'platforms': [
             {'value': 'twitter', 'label': 'Twitter'},
             {'value': 'instagram', 'label': 'Instagram'},
-            {'value': 'tiktok', 'label': 'TikTok (Coming Soon)'}
+            {'value': 'tiktok', 'label': 'TikTok (Coming Soon)'},
+            {'value': 'youtube', 'label': 'YouTube'}
         ]
     })
 
@@ -346,6 +345,144 @@ def get_config():
             'message': f'Error getting config: {str(e)}'
         })
 
+@app.route('/api/process-youtube', methods=['POST'])
+def process_youtube():
+    """Process YouTube video and generate summary."""
+    global pipeline, processing_status
+    
+    data = request.json
+    youtube_url = data.get('youtube_url')
+    voice_name = data.get('voice_name')
+    
+    if not pipeline:
+        return jsonify({'success': False, 'message': 'Pipeline not initialized'})
+        
+    if not youtube_url:
+        return jsonify({'success': False, 'message': 'YouTube URL is required'})
+
+    job_id = f"youtube_{int(time.time())}"
+    processing_status[job_id] = {'status': 'starting', 'progress': 0, 'message': 'Starting YouTube processing...'}
+
+    def process_in_background():
+        try:
+            # Step 1: Process YouTube video
+            pipeline._update_progress(10, '🎬 Downloading YouTube video...')
+            
+            # Use the YouTube processor directly
+            from implementations.youtube_processor import YouTubeProcessor
+            from core.data_models import SocialPost, Platform
+            from datetime import datetime
+            
+            youtube_processor = YouTubeProcessor()
+            
+            # Create a SocialPost object for the YouTube URL
+            youtube_post = SocialPost(
+                id=f"youtube_{int(time.time())}",
+                platform=Platform.YOUTUBE,
+                username="YouTube Video",
+                content=youtube_url,
+                timestamp=datetime.now()
+            )
+            
+            # Process the video with progress callback and streaming support
+            def progress_callback(progress, message):
+                pipeline._update_progress(progress, message)
+                # Emit streaming updates for summary generation
+                if "Generating summary" in message:
+                    socketio.emit('summary_stream', {
+                        'job_id': job_id, 
+                        'progress': progress, 
+                        'message': message
+                    })
+            
+            processed_content = youtube_processor.process(youtube_post, progress_callback=progress_callback)
+            
+            # Check if this was a cached result and show appropriate progress
+            is_cached = processed_content.original_posts[0].platform_data.get('video_metadata', {}).get('cached', False)
+            
+            if is_cached:
+                pipeline._update_progress(80, '📝 Loading cached summary...')
+            else:
+                pipeline._update_progress(80, '📝 Preparing summary...')
+            
+            # Create result object
+            from core.data_models import PipelineResult, Summary, VoiceOutput
+            from datetime import datetime
+            
+            # Create a proper Summary object from the processed content
+            summary = Summary(
+                content=processed_content.processed_text,  # The summary is in processed_text
+                score=0.8,  # Default score for YouTube summaries
+                original_content=processed_content,
+                model_name="LoRA YouTube Summarizer"
+            )
+            
+            result = PipelineResult(
+                platform=Platform.YOUTUBE,
+                username="YouTube Video",
+                posts=[],  # No posts for YouTube
+                selection_type="video",
+                processed_content=processed_content,
+                summary=summary,  # Now using the proper Summary object
+                voice_output=None,
+                total_duration=0  # We don't track processing time yet
+            )
+            
+            # Emit summary as soon as it's ready
+            summary_data = result.to_dict()
+            print(f"🔍 Debug: Emitting YouTube summary data with keys: {list(summary_data.keys())}")
+            print(f"🔍 Debug: Summary content: {summary_data.get('summary', {}).get('content', 'NO SUMMARY')[:100]}...")
+            socketio.emit('summary_ready', {'job_id': job_id, 'result': summary_data})
+
+            # Step 2: Synthesize audio if voice is selected
+            if voice_name:
+                try:
+                    pipeline._update_progress(90, f'🔊 Synthesizing audio for {voice_name}...')
+                    
+                    # Synthesize voice
+                    voice_output = pipeline.voice_synthesizer.synthesize(result.summary.content, voice_name)
+                    
+                    # Check if voice synthesis was successful
+                    if not voice_output or not voice_output.audio_path or not voice_output.audio_path.strip():
+                        raise Exception("Voice synthesis failed - no audio file generated")
+                    
+                    # Use the voice output from synthesis
+                    result.voice_output = voice_output
+                    pipeline._update_progress(100, '✅ Processing complete!')
+
+                    # Emit audio when it's ready
+                    audio_data = {
+                        'job_id': job_id,
+                        'audio_path': voice_output.audio_path,
+                        'voice_name': voice_name
+                    }
+                    socketio.emit('audio_ready', audio_data)
+
+                except Exception as e:
+                    error_message = f'❌ Error synthesizing voice: {str(e)}'
+                    print(f"YouTube voice synthesis error details: {e}")
+                    pipeline._update_progress(100, error_message)
+                    socketio.emit('processing_error', {'job_id': job_id, 'message': error_message})
+                    return
+            else:
+                pipeline._update_progress(100, '✅ Processing complete!')
+
+            # Final completion update
+            processing_status[job_id] = {'status': 'complete', 'result': result.to_dict()}
+            socketio.emit('processing_complete', {'job_id': job_id, 'status': 'complete'})
+
+        except Exception as e:
+            error_message = f'YouTube processing error: {str(e)}'
+            print(f"YouTube processing error details: {e}")
+            import traceback
+            traceback.print_exc()
+            processing_status[job_id] = {'status': 'error', 'message': error_message}
+            socketio.emit('processing_complete', {'job_id': job_id, 'status': 'error', 'message': error_message})
+
+    socketio.start_background_task(target=process_in_background)
+    
+    return jsonify({'success': True, 'job_id': job_id, 'message': 'YouTube processing started'})
+
 @app.route('/api/stats/<platform>/<username>')
 def get_user_stats(platform, username):
     """Get statistics for a user on a platform."""
@@ -391,6 +528,91 @@ def get_user_stats(platform, username):
         return jsonify({
             'success': False,
             'message': f'Error getting stats: {str(e)}'
+        })
+
+@app.route('/api/youtube/summary/<job_id>')
+def get_youtube_summary(job_id):
+    """Get the summary for a YouTube processing job."""
+    try:
+        # Look for the most recent summary file
+        summaries_dir = "summaries"
+        if not os.path.exists(summaries_dir):
+            return jsonify({'success': False, 'message': 'No summaries directory found'})
+        
+        # Get all summary files and sort by modification time (newest first)
+        summary_files = []
+        for filename in os.listdir(summaries_dir):
+            if filename.startswith('summary_') and filename.endswith('.txt'):
+                filepath = os.path.join(summaries_dir, filename)
+                mod_time = os.path.getmtime(filepath)
+                summary_files.append((filepath, mod_time))
+        
+        if not summary_files:
+            return jsonify({'success': False, 'message': 'No summary files found'})
+        
+        # Get the most recent summary file
+        summary_files.sort(key=lambda x: x[1], reverse=True)
+        latest_summary_file = summary_files[0][0]
+        
+        # Read the summary file
+        with open(latest_summary_file, 'r', encoding='utf-8') as f:
+            content = f.read()
+        
+        # Extract the summary part (everything after "SUMMARY:")
+        summary_start = content.find("SUMMARY:")
+        if summary_start != -1:
+            summary_content = content[summary_start:].replace("SUMMARY:\n", "").replace("-" * 40 + "\n", "").strip()
+        else:
+            summary_content = content
+        
+        return jsonify({
+            'success': True,
+            'summary': summary_content,
+            'file_path': latest_summary_file,
+            'job_id': job_id
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Error reading summary: {str(e)}'
+        })
+
+@app.route('/api/youtube/cache/stats')
+def get_youtube_cache_stats():
+    """Get YouTube cache statistics."""
+    try:
+        from implementations.youtube_processor import youtube_cache
+        stats = youtube_cache.get_cache_stats()
+        
+        return jsonify({
+            'success': True,
+            'stats': stats
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Error getting cache stats: {str(e)}'
+        })
+
+@app.route('/api/youtube/cache/clear')
+def clear_youtube_cache():
+    """Clear the YouTube cache."""
+    try:
+        from implementations.youtube_processor import youtube_cache
+        youtube_cache.cache_data = {"videos": {}, "metadata": {"created": datetime.now().isoformat()}}
+        youtube_cache._save_cache()
+        
+        return jsonify({
+            'success': True,
+            'message': 'YouTube cache cleared successfully'
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'message': f'Error clearing cache: {str(e)}'
         })
 
 if __name__ == '__main__':

@@ -1,0 +1,52 @@
+# Minimal requirements for RLHFSummarise (without TTS compilation issues)
+# This version uses the mock voice synthesizer to avoid compilation problems
+
+# Core ML libraries - use pre-compiled versions for macOS
+--find-links https://download.pytorch.org/whl/torch_stable.html
+torch>=2.0.0
+torchaudio>=2.0.0
+torchvision>=0.15.0
+transformers>=4.35.0
+accelerate>=0.20.0
+
+# Tweet scraping and web automation
+selenium>=4.0.0
+webdriver-manager>=3.8.0
+beautifulsoup4>=4.12.0
+requests>=2.31.0
+tweepy>=4.14.0
+snscrape>=0.7.0
+
+# YouTube processing
+yt-dlp>=2023.12.30
+faster-whisper>=0.10.0
+moviepy>=1.0.3
+
+# Audio processing - minimal set
+soundfile>=0.12.0
+# Use newer numpy that has pre-compiled wheels for macOS
+numpy>=1.24.0,<2.0.0
+scipy>=1.10.0
+
+# Additional ML dependencies (removed bitsandbytes for macOS compatibility)
+einops>=0.7.0
+peft>=0.6.0
+datasets>=2.14.0
+
+# Utilities
+tqdm>=4.65.0
+typing-extensions>=4.7.0
+python-dateutil>=2.8.0
+pandas>=2.0.0
+emoji>=2.8.0
+
+# Web framework for UI
+Flask>=2.3.0
+Flask-SocketIO>=5.3.0
+
+# Additional dependencies for macOS compatibility
+certifi>=2023.7.22
+urllib3>=2.0.0
+
+# Note: TTS and bitsandbytes are not included - the app will use the mock voice synthesizer
+# which provides simulated audio output without requiring TTS compilation 

@@ -1,0 +1,1621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social AI - Tweet, Image & YouTube Summarizer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #000;
+            color: #fff;
+            line-height: 1.6;
+            padding-top: 80px;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid #38444d;
+            z-index: 1000;
+            padding: 12px 24px;
+        }
+        
+        .header-progress {
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 2px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #1da1f2, #ff6b6b);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            position: absolute;
+            top: -24px;
+            right: 24px;
+            font-size: 12px;
+            color: #8899a6;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #1da1f2, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .nav-input, .nav-select {
+            background: #192734;
+            border: 1px solid #38444d;
+            color: #fff;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-input:focus, .nav-select:focus {
+            outline: none;
+            border-color: #1da1f2;
+            box-shadow: 0 0 0 2px rgba(29, 161, 242, 0.2);
+        }
+
+        .nav-input::placeholder {
+            color: #8899a6;
+        }
+
+        .btn {
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+        
+        .filter-btn {
+            background: #273949;
+            color: #fff;
+        }
+
+        .filter-btn:hover:not(:disabled) {
+            background: #384f61;
+        }
+
+        .process-btn {
+            background: linear-gradient(135deg, #1da1f2, #ff6b6b);
+            color: white;
+        }
+
+        .process-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(29, 161, 242, 0.2);
+        }
+
+        .youtube-btn {
+            background: linear-gradient(135deg, #ff0000, #cc0000);
+            color: white;
+        }
+
+        .youtube-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.2);
+        }
+        
+        .youtube-voice-select {
+            background: #192734;
+            border: 1px solid #38444d;
+            color: #e1e8ed;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 200px;
+        }
+
+        .youtube-voice-select:hover {
+            border-color: #1da1f2;
+            background: #22303c;
+        }
+
+        .youtube-voice-select:focus {
+            outline: none;
+            border-color: #1da1f2;
+            box-shadow: 0 0 0 2px rgba(29, 161, 242, 0.2);
+        }
+        
+        /* Search dropdown styles */
+        .search-container {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .search-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #192734;
+            border: 1px solid #38444d;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .search-dropdown.show {
+            display: block;
+        }
+
+        .search-item {
+            padding: 10px 14px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .search-item:hover {
+            background: #273949;
+        }
+
+        .search-item.selected {
+            background: #1da1f2;
+            color: white;
+        }
+
+        .search-item .username {
+            font-weight: 600;
+        }
+
+        .search-item .post-count {
+            color: #8899a6;
+            font-size: 14px;
+        }
+        
+        .streaming-summary {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        .streaming-text {
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .typing-indicator {
+            color: #8899a6;
+            font-style: italic;
+        }
+        
+        .typing-dots {
+            color: #8899a6;
+            animation: typing 1.5s infinite;
+        }
+        
+        .streaming-stats {
+            margin-top: 10px;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            border-left: 3px solid #1da1f2;
+        }
+        
+        @keyframes typing {
+            0%, 20% { opacity: 1; }
+            40% { opacity: 0.5; }
+            60% { opacity: 0.2; }
+            80%, 100% { opacity: 0.5; }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+
+        
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 24px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            min-height: calc(100vh - 80px);
+        }
+
+        .feed-column {
+            background: #15202b;
+            border-radius: 16px;
+            border: 1px solid #38444d;
+            overflow: hidden;
+        }
+
+        .column-header {
+            background: linear-gradient(135deg, #1da1f2, #ff6b6b);
+            padding: 20px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 18px;
+            color: white;
+        }
+
+        .youtube-header {
+            background: linear-gradient(135deg, #ff0000, #cc0000);
+        }
+
+        .feed-content {
+            padding: 20px;
+            height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+
+        .youtube-container {
+            display: none;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            min-height: calc(100vh - 80px);
+        }
+
+        .youtube-container.active {
+            display: grid;
+        }
+
+        .youtube-video-section {
+            background: #15202b;
+            border-radius: 16px;
+            border: 1px solid #38444d;
+            overflow: hidden;
+        }
+
+        .youtube-video-header {
+            background: linear-gradient(135deg, #ff0000, #cc0000);
+            padding: 20px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 18px;
+            color: white;
+        }
+
+        .youtube-video-content {
+            padding: 20px;
+            height: calc(100vh - 200px);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .youtube-input-section {
+            background: #192734;
+            border: 1px solid #38444d;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .youtube-url-input {
+            width: 100%;
+            background: #15202b;
+            border: 1px solid #38444d;
+            color: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        .youtube-url-input:focus {
+            outline: none;
+            border-color: #ff0000;
+            box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.2);
+        }
+
+        .youtube-url-input::placeholder {
+            color: #8899a6;
+        }
+
+        .youtube-video-player {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #000;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #8899a6;
+            font-size: 16px;
+        }
+
+        .youtube-video-player iframe {
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+        }
+
+        .youtube-video-placeholder {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            color: #8899a6;
+        }
+
+        .youtube-video-placeholder .icon {
+            font-size: 48px;
+        }
+
+        .loading-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            color: #8899a6;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #38444d;
+            border-top: 3px solid #ff0000;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result-section {
+            background: #15202b;
+            border: 1px solid #38444d;
+            border-radius: 16px;
+            padding: 24px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .result-section.active {
+            display: block;
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .result-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1da1f2, #ff6b6b);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 24px;
+            margin-right: 16px;
+        }
+
+        .youtube-result-avatar {
+            background: linear-gradient(135deg, #ff0000, #cc0000);
+        }
+
+        .result-info h3 {
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        .result-info p {
+            color: #8899a6;
+            font-size: 14px;
+        }
+
+        .summary-text {
+            background: #192734;
+            border: 1px solid #38444d;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .audio-section {
+            background: #192734;
+            border: 1px solid #38444d;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .audio-player {
+            width: 100%;
+            margin-top: 16px;
+            border-radius: 8px;
+        }
+
+        .error-message {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #e0245e;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 9999;
+        }
+
+        .success-message {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #17bf63;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 9999;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .init-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 3000;
+        }
+
+        .init-modal {
+            background: #15202b;
+            border: 1px solid #38444d;
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            max-width: 400px;
+        }
+
+        .init-button {
+            background: linear-gradient(135deg, #1da1f2, #ff6b6b);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            margin-top: 24px;
+        }
+
+        .init-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(29, 161, 242, 0.3);
+        }
+
+        .init-button:disabled {
+            background: #38444d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding-top: 120px;
+            }
+            .main-container, .youtube-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 16px;
+            }
+
+            .header-content {
+                padding: 0 16px;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .nav-controls {
+                flex-direction: column;
+                gap: 8px;
+                width: 100%;
+            }
+            
+            .nav-select, .nav-input, .process-btn, .youtube-btn {
+                width: 100%;
+            }
+
+            .logo {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">🚀 SocialAI</div>
+            <div class="nav-controls">
+                <div class="search-container">
+                    <input type="text" class="nav-input" id="twitterHandle" placeholder="Search Twitter users..." autocomplete="off">
+                    <div class="search-dropdown" id="twitterDropdown"></div>
+                </div>
+                <div class="search-container">
+                    <input type="text" class="nav-input" id="instagramHandle" placeholder="Search Instagram users..." autocomplete="off">
+                    <div class="search-dropdown" id="instagramDropdown"></div>
+                </div>
+                <input type="number" class="nav-input" id="postCount" value="5" min="1" max="50" style="width: 100px;">
+
+                <select class="nav-select" id="filterSelect">
+                    <option value="latest">Latest</option>
+                    <option value="top">Top Engagement</option>
+                    <option value="random">Random</option>
+                </select>
+                <button class="btn filter-btn" id="filterBtn" onclick="previewPosts()" disabled>Filter Posts</button>
+                <select class="nav-select" id="voiceSelect">
+                    <option value="">Select Person...</option>
+                </select>
+                <button class="btn process-btn" id="processBtn" onclick="processUser()" disabled>
+                    Generate AI Summary
+                </button>
+                <button class="btn youtube-btn" id="youtubeBtn" onclick="toggleYouTube()">
+                    🎬 YouTube Mode
+                </button>
+            </div>
+        </div>
+        <div class="header-progress hidden" id="headerProgress">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <p class="progress-text" id="progressText">Starting...</p>
+        </div>
+    </div>
+
+    <!-- Initialization Overlay -->
+    <div class="init-overlay" id="initOverlay">
+        <div class="init-modal">
+            <h2>🤖 Initialize AI Pipeline</h2>
+            <p style="color: #8899a6; margin: 16px 0;">
+                Load AI models for tweet summarization and voice synthesis
+            </p>
+            <button class="init-button" id="initButton" onclick="initializePipeline()">
+                🚀 Initialize Pipeline
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-container" id="mainContainer">
+        <!-- Posts Feed -->
+        <div class="feed-column">
+            <div class="column-header">
+                Twitter Feed
+            </div>
+            <div class="feed-content" id="postsContent">
+                <div class="loading-state">
+                    <p>Select a user to see their posts</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Images Feed -->
+        <div class="feed-column">
+            <div class="column-header">
+                Instagram Feed
+            </div>
+            <div class="feed-content" id="imagesContent">
+                <div class="loading-state">
+                    <p>Select a user to see their images</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- YouTube Container -->
+    <div class="youtube-container" id="youtubeContainer">
+        <!-- YouTube Video Section -->
+        <div class="youtube-video-section">
+            <div class="youtube-video-header">
+                🎬 YouTube Video
+            </div>
+            <div class="youtube-video-content">
+                <div class="youtube-input-section">
+                    <input type="text" class="youtube-url-input" id="youtubeUrl" 
+                           placeholder="Enter YouTube URL (e.g., https://www.youtube.com/watch?v=...)" 
+                           onkeypress="handleYouTubeUrlEnter(event)">
+                    <select class="youtube-voice-select" id="youtubeVoiceSelect">
+                        <option value="">🔊 Optional: Select Voice...</option>
+                    </select>
+                    <button class="btn youtube-btn" id="processYouTubeBtn" onclick="processYouTube()" disabled>
+                        🎬 Process Video
+                    </button>
+                </div>
+                <div class="youtube-video-player" id="youtubePlayer">
+                    <div class="youtube-video-placeholder">
+                        <div class="icon">📺</div>
+                        <p>Enter a YouTube URL to start</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- YouTube Results Section -->
+        <div class="feed-column">
+            <div class="column-header youtube-header">
+                📝 Video Summary
+            </div>
+            <div class="feed-content" id="youtubeResultsContent">
+                <div class="loading-state">
+                    <p>Process a YouTube video to see the summary</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Section -->
+    <div class="result-section" id="resultSection">
+        <!-- Results will be added here -->
+    </div>
+
+    <script>
+        let socket = io();
+        let currentJobId = null;
+        let pipelineInitialized = false;
+        let availableUsers = [];
+        let availableInstagramUsers = [];
+        let selectedUserIndex = -1;
+        let isYouTubeMode = false;
+
+        // Socket event listeners
+        socket.on('progress_update', function(data) {
+            if (data.job_id === currentJobId) {
+                updateProgress(data.progress, data.message);
+            }
+        });
+
+        socket.on('summary_ready', function(data) {
+            if (data.job_id === currentJobId) {
+                console.log('🔍 Debug: Received summary_ready event:', data);
+                console.log('🔍 Debug: isYouTubeMode:', isYouTubeMode);
+                console.log('🔍 Debug: data.result:', data.result);
+                if (isYouTubeMode) {
+                    console.log('🔍 Debug: Calling showYouTubeSummary');
+                    showYouTubeSummary(data.result);
+                } else {
+                    console.log('🔍 Debug: Calling showSummary for social media');
+                    showSummary(data.result);
+                }
+            } else {
+                console.log('🔍 Debug: Job ID mismatch. Current:', currentJobId, 'Received:', data.job_id);
+            }
+        });
+        
+        socket.on('summary_stream', function(data) {
+            if (data.job_id === currentJobId) {
+                console.log('🔍 Debug: Received summary_stream event:', data);
+                if (isYouTubeMode) {
+                    updateYouTubeSummaryStream(data);
+                }
+            }
+        });
+
+        socket.on('audio_ready', function(data) {
+            if (data.job_id === currentJobId) {
+                showAudioPlayer(data.audio_path, data.voice_name);
+            }
+        });
+
+        socket.on('processing_complete', function(data) {
+            if (data.job_id === currentJobId) {
+                console.log('🔍 Debug: Received processing_complete event:', data);
+                if (data.status === 'complete') {
+                    hideProgress();
+                    showSuccess('✅ Processing complete!');
+                } else {
+                    showError(data.message || 'An unknown error occurred.');
+                    hideProgress();
+                }
+            }
+        });
+
+        socket.on('processing_error', function(data) {
+            if (data.job_id === currentJobId) {
+                console.log('🔍 Debug: Received processing_error event:', data);
+                showError(data.message || 'An unknown error occurred.');
+                hideProgress();
+            }
+        });
+
+
+
+        function toggleYouTube() {
+            isYouTubeMode = !isYouTubeMode;
+            const mainContainer = document.getElementById('mainContainer');
+            const youtubeContainer = document.getElementById('youtubeContainer');
+            const youtubeBtn = document.getElementById('youtubeBtn');
+            
+            if (isYouTubeMode) {
+                mainContainer.classList.add('hidden');
+                youtubeContainer.classList.add('active');
+                youtubeBtn.innerHTML = '📱 Social Mode';
+                youtubeBtn.classList.remove('youtube-btn');
+                youtubeBtn.classList.add('process-btn');
+            } else {
+                mainContainer.classList.remove('hidden');
+                youtubeContainer.classList.remove('active');
+                youtubeBtn.innerHTML = '🎬 YouTube Mode';
+                youtubeBtn.classList.remove('process-btn');
+                youtubeBtn.classList.add('youtube-btn');
+            }
+        }
+
+        function handleYouTubeUrlEnter(event) {
+            if (event.key === 'Enter') {
+                processYouTube();
+            }
+        }
+
+        function processYouTube() {
+            const youtubeUrl = document.getElementById('youtubeUrl').value.trim();
+            const voiceName = document.getElementById('youtubeVoiceSelect').value;
+            
+            if (!youtubeUrl) {
+                showError('Please enter a YouTube URL');
+                return;
+            }
+            
+            if (!pipelineInitialized) {
+                showError('Pipeline not initialized. Please initialize first.');
+                return;
+            }
+
+            // Extract video ID and create embed URL
+            const videoId = extractYouTubeVideoId(youtubeUrl);
+            if (videoId) {
+                const embedUrl = `https://www.youtube.com/embed/${videoId}`;
+                const player = document.getElementById('youtubePlayer');
+                player.innerHTML = `<iframe src="${embedUrl}" frameborder="0" allowfullscreen></iframe>`;
+            }
+
+            // Show processing state
+            const resultsContent = document.getElementById('youtubeResultsContent');
+            resultsContent.innerHTML = `
+                <div class="loading-state">
+                    <div class="spinner"></div>
+                    <p>Processing YouTube video...</p>
+                    <p style="font-size: 12px; color: #8899a6;">Checking cache first...</p>
+                </div>
+            `;
+
+            showProgress();
+            
+            fetch('/api/process-youtube', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    youtube_url: youtubeUrl,
+                    voice_name: voiceName
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    currentJobId = data.job_id;
+                    updateProgress(0, 'Starting YouTube processing...');
+                    
+
+                } else {
+                    showError(data.message);
+                    hideProgress();
+                }
+            })
+            .catch(error => {
+                showError('Failed to start YouTube processing: ' + error.message);
+                hideProgress();
+            });
+        }
+
+        function extractYouTubeVideoId(url) {
+            const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+            const match = url.match(regex);
+            return match ? match[1] : null;
+        }
+
+        function showYouTubeSummary(result) {
+            const resultsContent = document.getElementById('youtubeResultsContent');
+            
+            console.log('🔍 Debug: showYouTubeSummary called with result:', result);
+            console.log('🔍 Debug: result.summary:', result.summary);
+            console.log('🔍 Debug: result.processed_content:', result.processed_content);
+            
+            // Clear any streaming display
+            const streamingDiv = document.getElementById('streamingSummary');
+            if (streamingDiv) {
+                streamingDiv.remove();
+            }
+            
+            // Extract summary from the result object
+            const summary = result.summary ? (result.summary.content || 'No summary available.') : 'No summary available.';
+            const transcription = result.processed_content ? (result.processed_content.combined_text || 'No transcription available.') : 'No transcription available.';
+            
+            // Try to get metadata from the result
+            const metadata = result.processed_content?.metadata?.youtube_metadata || 
+                            result.processed_content?.platform_data?.video_metadata || 
+                            {};
+            
+
+            
+            const summaryHTML = `
+                <div class="result-header">
+                    <div class="result-avatar youtube-result-avatar">🎬</div>
+                    <div class="result-info">
+                        <h3>${metadata.title || 'YouTube Video'}</h3>
+                        <p>${metadata.uploader || 'Unknown'} • ${metadata.duration ? formatDuration(metadata.duration) : 'Unknown duration'}</p>
+                    </div>
+                </div>
+                
+                <div class="summary-content">
+                    <h4>📝 Video Summary</h4>
+                    <div class="summary-text">
+                        ${summary.replace(/\n/g, '<br>')}
+                    </div>
+                </div>
+                
+                <div class="transcription-content">
+                    <h4>📝 Full Transcription</h4>
+                    <div class="transcription-text">
+                        ${transcription.replace(/\n/g, '<br>')}
+                    </div>
+                </div>
+                
+                <div class="audio-section" id="youtubeAudioSection" style="display: none;">
+                    <h4>🎵 AI Generated Audio</h4>
+                    <div class="loading-state" id="youtubeAudioLoading">
+                        <div class="spinner"></div>
+                        <p style="color: #8899a6; margin-top: 10px;">Generating audio...</p>
+                    </div>
+                </div>
+            `;
+
+            resultsContent.innerHTML = summaryHTML;
+            
+            // Show audio section if voice synthesis is expected (if voice was selected)
+            const youtubeVoiceSelect = document.getElementById('youtubeVoiceSelect');
+            if (youtubeVoiceSelect && youtubeVoiceSelect.value) {
+                const audioSection = document.getElementById('youtubeAudioSection');
+                if (audioSection) {
+                    audioSection.style.display = 'block';
+                }
+            }
+        }
+
+        function formatDuration(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+        }
+        
+        function updateYouTubeSummaryStream(data) {
+            const resultsContent = document.getElementById('youtubeResultsContent');
+            
+            // Extract character count from message
+            const charMatch = data.message.match(/\((\d+) chars\)/);
+            const charCount = charMatch ? charMatch[1] : '0';
+            
+            // Create or update streaming summary display
+            let streamingDiv = document.getElementById('streamingSummary');
+            if (!streamingDiv) {
+                streamingDiv = document.createElement('div');
+                streamingDiv.id = 'streamingSummary';
+                streamingDiv.className = 'streaming-summary';
+                streamingDiv.innerHTML = `
+                    <div class="result-header">
+                        <div class="result-avatar youtube-result-avatar">🎬</div>
+                        <div class="result-info">
+                            <h3>YouTube Video</h3>
+                            <p>Generating summary...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="summary-content">
+                        <h4>📝 Video Summary</h4>
+                        <div class="summary-text">
+                            <div class="streaming-text" id="streamingText">
+                                <span class="typing-indicator">Generating summary</span>
+                                <span class="typing-dots">...</span>
+                            </div>
+                            <div class="streaming-stats">
+                                <small>Characters generated: <span id="charCount">0</span></small>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                resultsContent.innerHTML = '';
+                resultsContent.appendChild(streamingDiv);
+            }
+            
+            // Update character count
+            const charCountElement = document.getElementById('charCount');
+            if (charCountElement) {
+                charCountElement.textContent = charCount;
+            }
+            
+            // Update typing indicator
+            const typingIndicator = document.querySelector('.typing-indicator');
+            if (typingIndicator) {
+                typingIndicator.textContent = 'Generating summary';
+            }
+        }
+
+        // YouTube URL validation
+        document.getElementById('youtubeUrl').addEventListener('input', function() {
+            const url = this.value.trim();
+            const processBtn = document.getElementById('processYouTubeBtn');
+            processBtn.disabled = !url || !pipelineInitialized;
+        });
+
+        // Initialize pipeline and other functions (same as original)
+        function initializePipeline() {
+            const button = document.getElementById('initButton');
+            button.disabled = true;
+            button.innerHTML = '<div class="spinner" style="width: 20px; height: 20px; margin: 0 auto;"></div>';
+
+            fetch('/api/initialize', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    button.innerHTML = '✅ Initialized';
+                    hidePipelineInit();
+                    pipelineInitialized = true;
+                    setTimeout(() => {
+                        loadVoices();
+                        loadAvailableUsers();
+                        loadAvailableInstagramUsers();
+                    }, 100);
+                    setTimeout(() => showSuccess(data.message), 200);
+                } else {
+                    showError(data.message);
+                    button.disabled = false;
+                    button.innerHTML = '🚀 Initialize Pipeline';
+                }
+            })
+            .catch(error => {
+                showError('Failed to initialize pipeline: ' + error.message);
+                button.disabled = false;
+                button.innerHTML = '🚀 Initialize Pipeline';
+            });
+        }
+
+        // Include all other functions from the original template here...
+        // (loadVoices, loadAvailableUsers, previewPosts, processUser, etc.)
+        
+        function updateProgress(progress, message) {
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('progressText').textContent = message;
+        }
+
+        function showProgress() {
+            document.getElementById('headerProgress').classList.remove('hidden');
+        }
+
+        function hideProgress() {
+            document.getElementById('headerProgress').classList.add('hidden');
+        }
+
+        function hidePipelineInit() {
+            const overlay = document.getElementById('initOverlay');
+            if (overlay) {
+                overlay.classList.add('hidden');
+            }
+        }
+
+        function showSummary(result) {
+            console.log('🔍 Debug: showSummary called with result:', result);
+            const resultSection = document.getElementById('resultSection');
+            console.log('🔍 Debug: resultSection element:', resultSection);
+            resultSection.innerHTML = '';
+            resultSection.classList.add('active');
+
+            const username = result.username || 'Selected User';
+            const voiceName = result.voice_name || 'the selected';
+            const postCount = result.posts ? result.posts.length : (result.post_count || 0);
+            const selectionType = result.selection_type || 'latest';
+            const summary = result.summary ? (result.summary.content || 'No summary available.') : 'No summary available.';
+            
+            console.log('🔍 Debug: Extracted data - username:', username, 'postCount:', postCount, 'summary length:', summary.length);
+
+            const resultHTML = `
+                <div class="result-header">
+                    <div class="result-avatar">${username.charAt(0).toUpperCase()}</div>
+                    <div class="result-info">
+                        <h3>@${username}</h3>
+                        <p>${voiceName} voice • ${postCount} posts from ${selectionType} selection</p>
+                    </div>
+                </div>
+                
+                <div class="summary-text">${summary.replace(/\n/g, '<br>')}</div>
+                
+                <div class="audio-section" id="audioSection" style="display: none;">
+                    <h4>🎵 AI Generated Audio</h4>
+                    <div class="loading-state" id="audioLoading">
+                        <div class="spinner"></div>
+                        <p style="color: #8899a6; margin-top: 10px;">Generating audio...</p>
+                    </div>
+                </div>
+            `;
+
+            resultSection.innerHTML = resultHTML;
+            resultSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function showAudioPlayer(audioPath, voiceName) {
+            // Determine which audio section to use based on current mode
+            let audioSection;
+            if (isYouTubeMode) {
+                audioSection = document.getElementById('youtubeAudioSection');
+            } else {
+                audioSection = document.getElementById('audioSection');
+            }
+            
+            if (!audioSection) {
+                console.log('🔍 Debug: Audio section not found for mode:', isYouTubeMode ? 'YouTube' : 'Social');
+                return;
+            }
+
+            const audioHTML = `
+                <h4>🎵 AI Generated Audio</h4>
+                <p style="color: #8899a6; margin: 8px 0;">Summary read in ${voiceName}'s voice</p>
+                <audio controls class="audio-player" autoplay>
+                    <source src="/api/audio/${audioPath}" type="audio/wav">
+                    Your browser does not support the audio element.
+                </audio>
+            `;
+            
+            audioSection.style.display = 'block';
+            audioSection.innerHTML = audioHTML;
+            console.log('🔍 Debug: Audio player displayed for voice:', voiceName);
+        }
+
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = message;
+            document.body.appendChild(errorDiv);
+            
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success-message';
+            successDiv.textContent = message;
+            document.body.appendChild(successDiv);
+            
+            setTimeout(() => {
+                successDiv.remove();
+            }, 3000);
+        }
+
+
+
+        function loadVoices() {
+            fetch('/api/voices')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Load voices for social media section
+                    const voiceSelect = document.getElementById('voiceSelect');
+                    voiceSelect.innerHTML = '<option value="">Select Person...</option>';
+                    
+                    // Load voices for YouTube section
+                    const youtubeVoiceSelect = document.getElementById('youtubeVoiceSelect');
+                    youtubeVoiceSelect.innerHTML = '<option value="">🔊 Optional: Select Voice...</option>';
+                    
+                    data.voices.forEach(voice => {
+                        // Social media voices
+                        const option = document.createElement('option');
+                        option.value = voice;
+                        option.textContent = voice.charAt(0).toUpperCase() + voice.slice(1);
+                        voiceSelect.appendChild(option);
+                        
+                        // YouTube voices
+                        const youtubeOption = document.createElement('option');
+                        youtubeOption.value = voice;
+                        youtubeOption.textContent = voice.charAt(0).toUpperCase() + voice.slice(1);
+                        youtubeVoiceSelect.appendChild(youtubeOption);
+                    });
+                }
+            })
+            .catch(error => console.error('Error loading voices:', error));
+        }
+
+        function loadAvailableUsers() {
+            console.log('Loading Twitter users...');
+            fetch('/api/users/twitter')
+            .then(response => {
+                console.log('Twitter API response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Twitter API response data:', data);
+                if (data.success) {
+                    window.availableUsers = data.users;
+                    console.log('Available Twitter users:', window.availableUsers);
+                    console.log('Total users loaded:', window.availableUsers.length);
+                } else {
+                    console.error('Twitter API failed:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Failed to load Twitter users:', error);
+            });
+        }
+
+        function loadAvailableInstagramUsers() {
+            console.log('Loading Instagram users...');
+            fetch('/api/users/instagram')
+            .then(response => {
+                console.log('Instagram API response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Instagram API response data:', data);
+                if (data.success) {
+                    window.availableInstagramUsers = data.users;
+                    console.log('Available Instagram users:', window.availableInstagramUsers);
+                    console.log('Total Instagram users loaded:', window.availableInstagramUsers.length);
+                } else {
+                    console.error('Instagram API failed:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Failed to load Instagram users:', error);
+            });
+        }
+
+        function searchUsers(query, platform = 'twitter') {
+            const dropdownId = platform === 'twitter' ? 'twitterDropdown' : 'instagramDropdown';
+            const dropdown = document.getElementById(dropdownId);
+            const users = platform === 'twitter' ? window.availableUsers : window.availableInstagramUsers;
+            
+            console.log(`Searching ${platform} users for: "${query}"`);
+            console.log(`Available ${platform} users:`, users);
+            
+            if (!query.trim()) {
+                dropdown.classList.remove('show');
+                return;
+            }
+
+            const filteredUsers = users.filter(user => 
+                user.toLowerCase().includes(query.toLowerCase())
+            );
+
+            console.log(`Filtered ${platform} users:`, filteredUsers);
+
+            if (filteredUsers.length === 0) {
+                dropdown.classList.remove('show');
+                return;
+            }
+
+            dropdown.innerHTML = '';
+            filteredUsers.forEach((user, index) => {
+                const item = document.createElement('div');
+                item.className = 'search-item';
+                item.innerHTML = `
+                    <span class="username">@${user}</span>
+                    <span class="post-count">• Available</span>
+                `;
+                item.addEventListener('click', () => selectUser(user, platform));
+                item.addEventListener('mouseenter', () => {
+                    window.selectedUserIndex = index;
+                    updateSelectedItem(dropdown);
+                });
+                dropdown.appendChild(item);
+            });
+
+            window.selectedUserIndex = -1;
+            dropdown.classList.add('show');
+        }
+
+        function selectUser(username, platform = 'twitter') {
+            const inputId = platform === 'twitter' ? 'twitterHandle' : 'instagramHandle';
+            const dropdownId = platform === 'twitter' ? 'twitterDropdown' : 'instagramDropdown';
+            
+            document.getElementById(inputId).value = username;
+            document.getElementById(dropdownId).classList.remove('show');
+            window.selectedUserIndex = -1;
+            checkForm();
+        }
+
+        function updateSelectedItem(dropdown) {
+            const items = dropdown.querySelectorAll('.search-item');
+            items.forEach((item, index) => {
+                item.classList.toggle('selected', index === window.selectedUserIndex);
+            });
+        }
+
+        function handleSearchKeydown(event, platform = 'twitter') {
+            const dropdownId = platform === 'twitter' ? 'twitterDropdown' : 'instagramDropdown';
+            const dropdown = document.getElementById(dropdownId);
+            const items = dropdown.querySelectorAll('.search-item');
+            
+            if (!dropdown.classList.contains('show') || items.length === 0) return;
+
+            switch(event.key) {
+                case 'ArrowDown':
+                    event.preventDefault();
+                    window.selectedUserIndex = Math.min(window.selectedUserIndex + 1, items.length - 1);
+                    updateSelectedItem(dropdown);
+                    break;
+                case 'ArrowUp':
+                    event.preventDefault();
+                    window.selectedUserIndex = Math.max(window.selectedUserIndex - 1, -1);
+                    updateSelectedItem(dropdown);
+                    break;
+                case 'Enter':
+                    event.preventDefault();
+                    if (window.selectedUserIndex >= 0) {
+                        const selectedItem = items[window.selectedUserIndex];
+                        const username = selectedItem.querySelector('.username').textContent.replace('@', '');
+                        selectUser(username, platform);
+                    }
+                    break;
+                case 'Escape':
+                    dropdown.classList.remove('show');
+                    window.selectedUserIndex = -1;
+                    break;
+            }
+        }
+
+        function previewPosts() {
+            const twitterHandle = document.getElementById('twitterHandle').value.replace('@', '');
+            const instagramHandle = document.getElementById('instagramHandle').value.replace('@', '');
+            const count = document.getElementById('postCount').value;
+            const filter = document.getElementById('filterSelect').value;
+
+            if (!twitterHandle && !instagramHandle) return;
+
+            const postsContent = document.getElementById('postsContent');
+            const imagesContent = document.getElementById('imagesContent');
+            postsContent.innerHTML = `<div class="loading-state"><div class="spinner"></div></div>`;
+            imagesContent.innerHTML = `<div class="loading-state"><div class="spinner"></div></div>`;
+
+            fetch('/api/preview-posts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    twitter_handle: twitterHandle,
+                    instagram_handle: instagramHandle,
+                    selection_type: filter,
+                    count: parseInt(count)
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    displayPosts(data.posts, twitterHandle, instagramHandle);
+                } else {
+                    showError(data.message);
+                    postsContent.innerHTML = `<div class="loading-state"><p>${data.message}</p></div>`;
+                    imagesContent.innerHTML = `<div class="loading-state"><p>${data.message}</p></div>`;
+                }
+            })
+            .catch(error => {
+                showError('Failed to load posts: ' + error);
+            });
+        }
+
+        function displayPosts(posts, twitterHandle, instagramHandle) {
+            const postsContent = document.getElementById('postsContent');
+            const imagesContent = document.getElementById('imagesContent');
+            postsContent.innerHTML = '';
+            imagesContent.innerHTML = '';
+
+            const twitterPosts = posts.filter(p => p.platform === 'twitter');
+            const instagramPosts = posts.filter(p => p.platform === 'instagram');
+
+            if (twitterPosts.length > 0) {
+                twitterPosts.forEach(post => postsContent.appendChild(createPostElement(post)));
+            } else {
+                postsContent.innerHTML = `<div class="loading-state"><p>No Twitter posts found for @${twitterHandle}.</p></div>`;
+            }
+
+            if (instagramPosts.length > 0) {
+                instagramPosts.forEach(post => imagesContent.appendChild(createImageElement(post)));
+            } else {
+                imagesContent.innerHTML = `<div class="loading-state"><p>No Instagram posts found for @${instagramHandle}.</p></div>`;
+            }
+        }
+
+        function createPostElement(post) {
+            const postDiv = document.createElement('div');
+            postDiv.className = 'post-card';
+            const postDate = new Date(post.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            
+            postDiv.innerHTML = `
+                <div class="post-header">
+                    <div class="post-avatar">${post.username.charAt(0).toUpperCase()}</div>
+                    <div class="post-info">
+                        <div class="post-username">${post.user_display_name || post.username}</div>
+                        <div class="post-handle">@${post.username} • ${postDate}</div>
+                    </div>
+                </div>
+                <div class="post-content">${post.content.replace(/\n/g, '<br>')}</div>
+                <div class="post-engagement">
+                    <div class="engagement-item">
+                        <span>💬</span>
+                        <span>${formatNumber(post.comments)}</span>
+                    </div>
+                    <div class="engagement-item">
+                        <span>🔄</span>
+                        <span>${formatNumber(post.shares)}</span>
+                    </div>
+                    <div class="engagement-item">
+                        <span>❤️</span>
+                        <span>${formatNumber(post.likes)}</span>
+                    </div>
+                </div>
+            `;
+            return postDiv;
+        }
+
+        function createImageElement(post) {
+            const imageDiv = document.createElement('div');
+            imageDiv.className = 'post-card';
+            const postDate = new Date(post.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            const mediaItem = post.media_items[0];
+            const imagePath = mediaItem ? `data/posts/instagram/${post.username}/${mediaItem.url}` : '';
+
+            imageDiv.innerHTML = `
+                <div class="post-header">
+                    <div class="post-avatar">${post.username.charAt(0).toUpperCase()}</div>
+                    <div class="post-info">
+                        <div class="post-username">${post.user_display_name || post.username}</div>
+                        <div class="post-handle">@${post.username} • ${postDate}</div>
+                    </div>
+                </div>
+                ${mediaItem ? `<img src="${imagePath}" alt="${mediaItem.alt_text || 'Instagram Post'}" class="post-image">` : ''}
+                <div class="post-content" style="margin-top: 12px;">${post.content.replace(/\n/g, '<br>')}</div>
+                <div class="post-engagement">
+                    <div class="engagement-item">
+                        <span>💬</span>
+                        <span>${formatNumber(post.comments)}</span>
+                    </div>
+                    <div class="engagement-item">
+                        <span>❤️</span>
+                        <span>${formatNumber(post.likes)}</span>
+                    </div>
+                    ${post.views ? `<div class="engagement-item"><span>👁️</span><span>${formatNumber(post.views)}</span></div>` : ''}
+                </div>
+            `;
+            return imageDiv;
+        }
+
+        function formatNumber(num) {
+            if (!num) return 0;
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return num.toString();
+        }
+
+        function processUser() {
+            console.log('🔍 Debug: processUser called');
+            console.log('🔍 Debug: isYouTubeMode before processing:', isYouTubeMode);
+            
+            // Ensure we're not in YouTube mode for social media processing
+            isYouTubeMode = false;
+            console.log('🔍 Debug: Set isYouTubeMode to false for social media processing');
+            
+            const twitterHandle = document.getElementById('twitterHandle').value.replace('@', '');
+            const instagramHandle = document.getElementById('instagramHandle').value.replace('@', '');
+            const voiceName = document.getElementById('voiceSelect').value;
+            const count = document.getElementById('postCount').value;
+            const filter = document.getElementById('filterSelect').value;
+            
+            console.log('🔍 Debug: Processing with handles - Twitter:', twitterHandle, 'Instagram:', instagramHandle);
+
+            if (!voiceName) {
+                showError('Please select a voice.');
+                return;
+            }
+
+            const users = [];
+            if (twitterHandle) users.push({ platform: 'twitter', username: twitterHandle });
+            if (instagramHandle) users.push({ platform: 'instagram', username: instagramHandle });
+
+            if (users.length === 0) {
+                showError('Please enter at least one handle.');
+                return;
+            }
+
+            showProgress();
+            
+            fetch('/api/process', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    users: users,
+                    voice_name: voiceName,
+                    selection_type: filter,
+                    count: parseInt(count)
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('🔍 Debug: Process API response:', data);
+                if (data.success) {
+                    currentJobId = data.job_id;
+                    console.log('🔍 Debug: Set currentJobId to:', currentJobId);
+                    updateProgress(0, 'Starting processing...');
+                } else {
+                    showError(data.message);
+                    hideProgress();
+                }
+            })
+            .catch(error => {
+                showError('Failed to start processing: ' + error.message);
+                hideProgress();
+            });
+        }
+
+        function checkForm() {
+            const twitterHandle = document.getElementById('twitterHandle').value;
+            const instagramHandle = document.getElementById('instagramHandle').value;
+            const voiceName = document.getElementById('voiceSelect').value;
+            const filterBtn = document.getElementById('filterBtn');
+            const processBtn = document.getElementById('processBtn');
+
+            const hasHandle = twitterHandle || instagramHandle;
+
+            filterBtn.disabled = !hasHandle;
+            processBtn.disabled = !(hasHandle && voiceName && pipelineInitialized);
+        }
+
+        function resetProcessButton() {
+            const button = document.getElementById('processBtn');
+            button.disabled = false;
+            button.innerHTML = 'Generate AI Summary';
+            checkForm();
+        }
+
+
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize global variables for autocomplete
+            window.availableUsers = [];
+            window.availableInstagramUsers = [];
+            window.selectedUserIndex = -1;
+            
+            // Check if pipeline is already initialized
+            fetch('/api/initialize', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    hidePipelineInit();
+                    pipelineInitialized = true;
+                    loadVoices();
+                    loadAvailableUsers();
+                    loadAvailableInstagramUsers();
+                }
+            })
+            .catch(error => {
+                console.error('Pipeline initialization check failed:', error);
+            });
+
+            // Add event listeners for autocomplete
+            const twitterHandle = document.getElementById('twitterHandle');
+            twitterHandle.addEventListener('input', function() {
+                searchUsers(this.value, 'twitter');
+            });
+            twitterHandle.addEventListener('keydown', function(event) {
+                handleSearchKeydown(event, 'twitter');
+            });
+            twitterHandle.addEventListener('focus', function() {
+                if (this.value.trim()) {
+                    searchUsers(this.value, 'twitter');
+                }
+            });
+
+            const instagramHandle = document.getElementById('instagramHandle');
+            instagramHandle.addEventListener('input', function() {
+                searchUsers(this.value, 'instagram');
+            });
+            instagramHandle.addEventListener('keydown', function(event) {
+                handleSearchKeydown(event, 'instagram');
+            });
+            instagramHandle.addEventListener('focus', function() {
+                if (this.value.trim()) {
+                    searchUsers(this.value, 'instagram');
+                }
+            });
+
+            // Add form validation
+            document.getElementById('voiceSelect').addEventListener('change', checkForm);
+            twitterHandle.addEventListener('input', checkForm);
+            instagramHandle.addEventListener('input', checkForm);
+
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(event) {
+                const dropdowns = document.querySelectorAll('.search-dropdown');
+                dropdowns.forEach(dropdown => {
+                    if (!dropdown.contains(event.target)) {
+                        dropdown.classList.remove('show');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

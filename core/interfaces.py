@@ -202,4 +202,46 @@ class BasePostSelector(ABC):
         Returns:
             Selected posts
         """
+        pass
+
+
+class Processor(ABC):
+    """Abstract base class for processors that handle individual posts."""
+    
+    @property
+    @abstractmethod
+    def name(self) -> str:
+        """Return the name of this processor."""
+        pass
+    
+    @property
+    @abstractmethod
+    def description(self) -> str:
+        """Return a description of what this processor does."""
+        pass
+    
+    @abstractmethod
+    def can_process(self, post: SocialPost) -> bool:
+        """
+        Check if this processor can handle the given post.
+        
+        Args:
+            post: The SocialPost to check
+            
+        Returns:
+            True if this processor can handle the post
+        """
+        pass
+    
+    @abstractmethod
+    def process(self, post: SocialPost) -> ProcessedContent:
+        """
+        Process a single social post.
+        
+        Args:
+            post: The SocialPost to process
+            
+        Returns:
+            ProcessedContent object
+        """
         pass 
