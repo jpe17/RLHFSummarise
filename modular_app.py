@@ -35,6 +35,7 @@ try:
         print("🔊 Pre-loading TTS model in main thread...")
         pipeline.voice_synthesizer._get_tts()
     print("✅ AI pipeline initialized successfully.")
+    print("🎭 bes voice will automatically use Italian accent when selected")
 except Exception as e:
     print(f"❌ FATAL: Could not initialize AI pipeline: {e}")
     pipeline = None
@@ -119,7 +120,8 @@ def get_voices():
         
         return jsonify({
             'success': True,
-            'voices': voices
+            'voices': voices,
+            'message': '🎭 bes voice automatically uses Italian accent when selected'
         })
         
     except Exception as e:
@@ -216,26 +218,28 @@ def process_user():
                 pipeline.set_progress_callback(lambda p, m: socketio.emit('progress_update', {'job_id': job_id, 'progress': p, 'message': m}))
                 pipeline._update_progress(90, f'🔊 Synthesizing audio for {voice_name}...')
                 
-                audio_path = pipeline.voice_synthesizer.synthesize(result.summary.content, voice_name)
+                # Synthesize voice (bes will automatically use Italian accent)
+                voice_output = pipeline.voice_synthesizer.synthesize(result.summary.content, voice_name)
                 
-                from core.data_models import VoiceOutput
-                result.voice_output = VoiceOutput(
-                    audio_path=audio_path,
-                    voice_name=voice_name,
-                    text=result.summary.content
-                )
+                # Check if voice synthesis was successful
+                if not voice_output or not voice_output.audio_path or not voice_output.audio_path.strip():
+                    raise Exception("Voice synthesis failed - no audio file generated")
+                
+                # Use the voice output from synthesis
+                result.voice_output = voice_output
                 pipeline._update_progress(100, '✅ Processing complete!')
 
                 # Emit audio when it's ready
                 audio_data = {
                     'job_id': job_id,
-                    'audio_path': audio_path,
+                    'audio_path': voice_output.audio_path,
                     'voice_name': voice_name
                 }
                 socketio.emit('audio_ready', audio_data)
 
             except Exception as e:
                 error_message = f'❌ Error synthesizing voice: {str(e)}'
+                print(f"Voice synthesis error details: {e}")  # Log to console
                 pipeline._update_progress(100, error_message)
                 socketio.emit('processing_error', {'job_id': job_id, 'message': error_message})
                 return

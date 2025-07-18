@@ -159,13 +159,14 @@ class BaseVoiceSynthesizer(ABC):
     """Abstract base class for voice synthesis components."""
     
     @abstractmethod
-    def synthesize(self, text: str, voice_name: str) -> VoiceOutput:
+    def synthesize(self, text: str, voice_name: str, language: str = "en") -> VoiceOutput:
         """
         Synthesize voice from text.
         
         Args:
             text: Text to synthesize
             voice_name: Name of the voice to use
+            language: Language/accent code (e.g., "en", "it", "es", etc.)
             
         Returns:
             VoiceOutput object

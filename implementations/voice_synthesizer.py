@@ -76,12 +76,9 @@ class TTSVoiceSynthesizer(BaseVoiceSynthesizer):
                 
                 # Auto-detect device if not specified
                 if self.device is None:
-                    # SPEED OPTIMIZATION: Prefer CPU for TTS to avoid GPU memory transfers
-                    if torch.cuda.is_available():
-                        self.device = "cuda"
-                    else:
-                        self.device = "cpu"
-                        print("🔧 Using CPU for TTS (optimized for speed)")
+                    # SPEED OPTIMIZATION: Always use CPU for faster startup and reliability
+                    self.device = "cpu"
+                    print("🔧 Using CPU for TTS (optimized for speed and reliability)")
                 
                 print(f"🎤 Initializing TTS on device: {self.device}")
                 
@@ -108,22 +105,25 @@ class TTSVoiceSynthesizer(BaseVoiceSynthesizer):
                 
         return self.tts
         
-    def synthesize(self, text: str, voice_name: str, language: str = "en") -> str:
+    def synthesize(self, text: str, voice_name: str, language: str = "en") -> VoiceOutput:
         """
-        Synthesize voice from text and return the audio file path.
-        OPTIMIZED FOR SPEED while maintaining quality.
+        Synthesize voice from text.
         
         Args:
             text: Text to synthesize
             voice_name: Name of the voice to use
-            language: Language code (e.g., "en", "it", "es", etc.) - internal parameter
+            language: Language/accent code (e.g., "en", "it", "es", etc.)
             
         Returns:
-            Path to the generated audio file
+            VoiceOutput object
         """
+        # Simple Italian accent for bes voice
+        if voice_name.lower() == "bes" and language == "en":
+            language = "it"
+            print(f"🇮🇹 Using Italian accent for bes voice")
         try:
-            # SPEED OPTIMIZATION: More aggressive text truncation
-            MAX_TTS_LENGTH = 1200  # Reduced from 2000 for faster processing
+            # SPEED OPTIMIZATION: Drastically reduce text for acceptable processing time
+            MAX_TTS_LENGTH = 300  # Much shorter for fast processing (about 10-15 seconds)
             if len(text) > MAX_TTS_LENGTH:
                 # Find the last complete sentence within the limit
                 truncated = text[:MAX_TTS_LENGTH]
@@ -132,22 +132,29 @@ class TTSVoiceSynthesizer(BaseVoiceSynthesizer):
                     truncated.rfind('!'),
                     truncated.rfind('?')
                 )
-                if last_sentence_end > MAX_TTS_LENGTH * 0.6:  # Reduced from 0.7
+                if last_sentence_end > MAX_TTS_LENGTH * 0.4:  # Even more aggressive
                     text = truncated[:last_sentence_end + 1]
                 else:
                     text = truncated + "..."
-                print(f"📝 Truncated text to {len(text)} characters for faster TTS")
+                print(f"📝 Truncated text to {len(text)} characters for faster TTS (target: <15 seconds)")
             
             # Check cache first
             cache_key = self._get_cache_key(text, voice_name, language)
             if cache_key in self._audio_cache:
                 print(f"🚀 Using cached audio for {voice_name} in {language}")
-                return self._audio_cache[cache_key].audio_path
+                return self._audio_cache[cache_key]
             
             print(f"🔊 Generating new audio for {voice_name} in {language}...")
             
             # Clean text (optimized)
             cleaned_text = self._clean_text_for_tts(text)
+            
+            # Final safety check - if still too long, take first 2 sentences max
+            if len(cleaned_text) > 250:
+                sentences = cleaned_text.split('. ')
+                if len(sentences) > 2:
+                    cleaned_text = '. '.join(sentences[:2]) + '.'
+                    print(f"📝 Further reduced to first 2 sentences ({len(cleaned_text)} chars) for speed")
             
             # Get voice reference
             voice_ref_path = self._get_voice_reference(voice_name)
@@ -166,24 +173,26 @@ class TTSVoiceSynthesizer(BaseVoiceSynthesizer):
             # Synthesize speech with SPEED OPTIMIZATIONS
             tts = self._get_tts()
             
-            # SPEED OPTIMIZATION: Use smaller chunk size and process only first chunk
-            text_chunks = self._chunk_text_intelligently(cleaned_text, max_chunk_size=300)  # Reduced from 400
+            # Process all text for complete audio (optimized for speed)
+            print(f"⏱️ Starting TTS generation...")
+            start_time = time.time()
             
-            # Always process only the first chunk for maximum speed
             tts.tts_to_file(
-                text=text_chunks[0],
+                text=cleaned_text,
                 speaker_wav=voice_ref_path,
                 language=language,
                 file_path=output_path,
-                split_sentences=False,  # Disable sentence splitting for speed
-                speed=1.2,  # Increased from 1.1 for faster speech and quicker generation
+                split_sentences=False,  # Disable for speed
+                speed=1.2,  # Faster speech for speed
             )
             
-            if len(text_chunks) > 1:
-                print(f"📄 Processed 1 of {len(text_chunks)} chunks for speed optimization")
+            generation_time = time.time() - start_time
+            print(f"⏱️ TTS generation took {generation_time:.2f} seconds")
+            
+            print(f"📄 Processed complete text ({len(cleaned_text)} characters)")
             
             # Get audio duration (approximate)
-            duration = len(cleaned_text) * 0.08  # Reduced estimate for faster speech
+            duration = len(cleaned_text) * 0.1  # More accurate estimate for complete text
             
             result = VoiceOutput(
                 audio_path=output_path,
@@ -200,11 +209,18 @@ class TTSVoiceSynthesizer(BaseVoiceSynthesizer):
             if not os.path.exists(output_path):
                 raise Exception(f"Audio file was not created: {output_path}")
                 
-            return output_path
+            return result
             
         except Exception as e:
             print(f"Error synthesizing voice: {e}")
-            return "" # Return empty string on error
+            # Return empty VoiceOutput on error
+            return VoiceOutput(
+                audio_path="",
+                voice_name=voice_name,
+                text=text,
+                duration=0.0,
+                sample_rate=22050
+            )
             
     def get_available_voices(self) -> List[str]:
         """
@@ -305,51 +321,7 @@ class TTSVoiceSynthesizer(BaseVoiceSynthesizer):
             
         return text
 
-    def _chunk_text_intelligently(self, text: str, max_chunk_size: int = 500) -> List[str]:
-        """
-        Split text into chunks at natural sentence boundaries for better TTS processing.
-        
-        Args:
-            text: Text to chunk
-            max_chunk_size: Maximum characters per chunk
-            
-        Returns:
-            List of text chunks
-        """
-        if len(text) <= max_chunk_size:
-            return [text]
-        
-        # Split by sentences first
-        sentences = text.split('. ')
-        chunks = []
-        current_chunk = []
-        current_length = 0
-        
-        for sentence in sentences:
-            sentence_length = len(sentence) + 2  # +2 for '. '
-            
-            if current_length + sentence_length > max_chunk_size and current_chunk:
-                # Finalize current chunk
-                chunk_text = '. '.join(current_chunk)
-                if not chunk_text.endswith('.'):
-                    chunk_text += '.'
-                chunks.append(chunk_text)
-                
-                # Start new chunk
-                current_chunk = [sentence]
-                current_length = sentence_length
-            else:
-                current_chunk.append(sentence)
-                current_length += sentence_length
-        
-        # Add final chunk
-        if current_chunk:
-            chunk_text = '. '.join(current_chunk)
-            if not chunk_text.endswith('.'):
-                chunk_text += '.'
-            chunks.append(chunk_text)
-        
-        return chunks
+
 
 
 class MockVoiceSynthesizer(BaseVoiceSynthesizer):
@@ -364,7 +336,7 @@ class MockVoiceSynthesizer(BaseVoiceSynthesizer):
             "angie", "daniel", "emma", "halle", "jlaw", "weaver"
         ]
         
-    def synthesize(self, text: str, voice_name: str) -> VoiceOutput:
+    def synthesize(self, text: str, voice_name: str, language: str = "en") -> VoiceOutput:
         """
         Mock synthesize voice from text.
         OPTIMIZED FOR SPEED with same text limits as real TTS.
@@ -372,12 +344,18 @@ class MockVoiceSynthesizer(BaseVoiceSynthesizer):
         Args:
             text: Text to synthesize
             voice_name: Name of the voice to use
+            language: Language/accent code (e.g., "en", "it", "es", etc.)
             
         Returns:
             VoiceOutput object with mock data
         """
+        # Simple Italian accent for bes voice
+        if voice_name.lower() == "bes" and language == "en":
+            language = "it"
+            print(f"🇮🇹 Mock TTS: Using Italian accent for bes voice")
+        
         # SPEED OPTIMIZATION: Use same text limits as real TTS
-        MAX_TTS_LENGTH = 1200  # Same as real TTS
+        MAX_TTS_LENGTH = 300  # Same as real TTS for fast processing
         original_length = len(text)
         if len(text) > MAX_TTS_LENGTH:
             # Find the last complete sentence within the limit
@@ -387,11 +365,11 @@ class MockVoiceSynthesizer(BaseVoiceSynthesizer):
                 truncated.rfind('!'),
                 truncated.rfind('?')
             )
-            if last_sentence_end > MAX_TTS_LENGTH * 0.6:  # Same as real TTS
+            if last_sentence_end > MAX_TTS_LENGTH * 0.4:  # Same as real TTS
                 text = truncated[:last_sentence_end + 1]
             else:
                 text = truncated + "..."
-            print(f"📝 Mock TTS: Truncated text from {original_length} to {len(text)} characters")
+            print(f"📝 Mock TTS: Truncated text from {original_length} to {len(text)} characters (target: <15 seconds)")
         
         # Simulate minimal processing time
         time.sleep(0.05)  # Reduced from 0.1 for speed

@@ -1,0 +1,568 @@
+{
+  "platform": "instagram",
+  "username": "besdoingthings",
+  "total_posts": 20,
+  "last_updated": "2025-07-17T16:26:17.036426",
+  "posts": [
+    {
+      "id": "besdoingthings_instagram_1",
+      "platform": "instagram",
+      "username": "besdoingthings",
+      "user_display_name": "Bes - ML Educator & MLX8 Founder",
+      "content": "Just finished teaching a 6-hour workshop on transformer architecture! 🧠 My students' eyes were glazing over by hour 4, but they powered through! Remember: understanding attention mechanisms is like learning to ride a bike - painful at first, but once you get it, you never forget it. #MachineLearning #MLX8 #Teaching #Transformers",
+      "content_type": "image",
+      "media_items": [
+        {
+          "type": "image",
+          "url": "bes1.png",
+          "alt_text": "Bes teaching at MLX8 workshop with whiteboard covered in transformer diagrams"
+        }
+      ],
+      "timestamp": "2025-07-16T20:30:15",
+      "url": null,
+      "likes": 1247,
+      "shares": 89,
+      "comments": 67,
+      "views": 3456,
+      "platform_data": {
+        "engagement_total": 1403,
+        "scraped_at": "2025-07-17 15:26:04"
+      },
+      "scraped_at": "2025-07-17 15:26:04",
+      "processed_at": null,
+      "engagement_total": 1403
+    },
+    {
+      "id": "besdoingthings_instagram_2",
+      "platform": "instagram",
+      "username": "besdoingthings",
+      "user_display_name": "Bes - ML Educator & MLX8 Founder",
+      "content": "Coffee break debugging session! ☕️ Just spent 6 hours on a model only to find the issue was a missing comma in the config file. My Albanian temper almost made me throw my laptop out the window! 😤 But hey, that's ML for you - 99% debugging, 1% actual machine learning. #Debugging #MachineLearning #CoffeeTime #MLX8",
+      "content_type": "image",
+      "media_items": [
+        {
+          "type": "image",
+          "url": "bes2.png",
+          "alt_text": "Bes with coffee and laptop, looking frustrated but amused while debugging code"
+        }
+      ],
+      "timestamp": "2025-07-15T14:22:33",
+      "url": null,
+      "likes": 892,
+      "shares": 156,
+      "comments": 89,
+      "views": 2345,
+      "platform_data": {
+        "engagement_total": 1137,
+        "scraped_at": "2025-07-17 15:26:04"
+      },
+      "scraped_at": "2025-07-17 15:26:04",
+      "processed_at": null,
+      "engagement_total": 1137
+    },
+    {
+      "id": "besdoingthings_instagram_3",
+      "platform": "instagram",
+      "username": "besdoingthings",
+      "user_display_name": "Bes - ML Educator & MLX8 Founder",
+      "content": "My Albanian grandmother just asked me what I do for work. I said 'I teach computers to think like humans.' She replied: 'But computers are already smarter than humans, no?' Grandma, you have no idea how right you are... 😂 #AlbanianGrandma #MachineLearning #Family #MLX8",
+      "content_type": "image",
+      "media_items": [
+        {
+          "type": "image",
+          "url": "bes3.png",
+          "alt_text": "Bes with his Albanian grandmother, both laughing during a family conversation"
+        }
+      ],
+      "timestamp": "2025-07-14T18:45:12",
+      "url": null,
+      "likes": 1567,
+      "shares": 234,
+      "comments": 123,
+      "views": 4567,
+      "platform_data": {
+        "engagement_total": 1924,
+        "scraped_at": "2025-07-17 15:26:04"
+      },
+      "scraped_at": "2025-07-17 15:26:04",
+      "processed_at": null,
+      "engagement_total": 1924
+    },
+    {
+      "id": "besdoingthings_instagram_4",
+      "platform": "instagram",
+      "username": "besdoingthings",
+      "user_display_name": "Bes - ML Educator & MLX8 Founder",
+      "content": "🚀 BREAKING: MLX8 is launching our new 'Build Your Own LLM' course! 12 weeks of intensive learning, from basic neural networks to deploying your own GPT-like model. Early bird pricing available for the first 50 students. DM me if you're interested! #LLM #MachineLearning #Education #MLX8 #Launch",
+      "content_type": "image",
+      "media_items": [
+        {
+          "type": "image",
+          "url": "bes4.png",
+          "alt_text": "Bes presenting MLX8 course materials with excited students in background"
+        }
+      ],
+      "timestamp": "2025-07-13T10:15:42",
+      "url": null,
+      "likes": 1345,
+      "shares": 267,
+      "comments": 156,
+      "views": 3789,
+      "platform_data": {
+        "engagement_total": 1768,
+        "scraped_at": "2025-07-17 15:26:04"
+      },
+      "scraped_at": "2025-07-17 15:26:04",
+      "processed_at": null,
+      "engagement_total": 1768
+    },
+    {
+      "id": "besdoingthings_instagram_5",
+      "platform": "instagram",
+      "username": "besdoingthings",
+      "user_display_name": "Bes - ML Educator & MLX8 Founder",
+      "content": "Teaching moment: A student asked why we use ReLU instead of sigmoid for hidden layers. My answer: 'Because ReLU doesn't kill gradients like sigmoid does. It's like having a conversation vs talking to a wall.' Sometimes the simplest explanations are the best ones. 🤷‍♂️ #Teaching #ReLU #NeuralNetworks #MLX8",
+      "content_type": "image",
+      "media_items": [
+        {
+          "type": "image",
+          "url": "bes5.png",
+          "alt_text": "Bes drawing neural network diagrams on whiteboard during teaching session"
+        }
+      ],
+      "timestamp": "2025-07-12T16:30:28",
+      "url": null,
+      "likes": 678,
+      "shares": 89,
+      "comments": 45,
+      "views": 1890,
+      "platform_data": {
+        "engagement_total": 812,
+        "scraped_at": "2025-07-17 15:26:04"
+      },
+      "scraped_at": "2025-07-17 15:26:04",
+      "processed_at": null,
+      "engagement_total": 812
+    },
+    {
+      "id": "besdoingthings_instagram_6",
+      "platform": "instagram",
+      "username": "besdoingthings",
+      "user_display_name": "Bes - ML Educator & MLX8 Founder",
+      "content": "Meta reunion dinner tonight! 🍕 It's amazing how many of my former colleagues are now building their own companies or leading ML teams. The Meta ML culture was something special - intense, collaborative, and always pushing boundaries. Miss those late-night debugging sessions over pizza. #Meta #Reunion #MachineLearning #Pizza",
+      "content_type": "image",
+      "media_items": [
+        {
+          "type": "image",
+          "url": "bes1.png",
+          "alt_text": "Bes with former Meta colleagues at a restaurant, all smiling and sharing pizza"
+        }
+      ],
+      "timestamp": "2025-07-11T12:45:19",
+      "url": null,
+      "likes": 445,
+      "shares": 67,
+      "comments": 34,
+      "views": 1234,
+      "platform_data": {
+        "engagement_total": 546,
+        "scraped_at": "2025-07-17 15:26:04"
+      },
+      "scraped_at": "2025-07-17 15:26:04",
+      "processed_at": null,
+      "engagement_total": 546
+    },
+    {
+      "id": "besdoingthings_instagram_7",
+      "platform": "instagram",
+      "username": "besdoingthings",
+      "user_display_name": "Bes - ML Educator & MLX8 Founder",
+      "content": "Weekend project: Building a small LLM that can translate between Italian and Albanian! 🇮🇹🇦🇱 My grandmothers will finally be able to understand each other! The model is only 50M parameters but it's surprisingly good. Sometimes smaller is better. #PersonalProject #NLP #Multilingual #Italian #Albanian",
+      "content_type": "image",
+      "media_items": [
+        {
+          "type": "image",
+          "url": "bes2.png",
+          "alt_text": "Bes working on laptop with code visible, showing translation model interface"
+        }
+      ],
+      "timestamp": "2025-07-10T15:20:33",
+      "url": null,
+      "likes": 789,
+      "shares": 123,
+      "comments": 67,
+      "views": 2345,
+      "platform_data": {
+        "engagement_total": 979,
+        "scraped_at": "2025-07-17 15:26:04"
+      },
+      "scraped_at": "2025-07-17 15:26:04",
+      "processed_at": null,
+      "engagement_total": 979
+    },
+    {
+      "id": "besdoingthings_instagram_8",
+      "platform": "instagram",
+      "username": "besdoingthings",
+      "user_display_name": "Bes - ML Educator & MLX8 Founder",
+      "content": "🎉 Proud moment: One of my MLX8 students just got hired as an ML Engineer at Google! She started with zero ML knowledge 6 months ago. Now she's building production models. This is why I do what I do. Everyone deserves access to quality ML education. #SuccessStory #MachineLearning #MLX8 #Google #ProudTeacher",
+      "content_type": "image",
+      "media_items": [
+        {
+          "type": "image",
+          "url": "bes3.png",
+          "alt_text": "Bes celebrating with a student who just got hired, both looking excited and proud"
+        }
+      ],
+      "timestamp": "2025-07-09T19:10:45",
+      "url": null,
+      "likes": 1456,
+      "shares": 234,
+      "comments": 89,
+      "views": 3456,
+      "platform_data": {
+        "engagement_total": 1779,
+        "scraped_at": "2025-07-17 15:26:04"
+      },
+      "scraped_at": "2025-07-17 15:26:04",
+      "processed_at": null,
+      "engagement_total": 1779
+    },
+    {
+      "id": "besdoingthings_instagram_9",
+      "platform": "instagram",
+      "username": "besdoingthings",
+      "user_display_name": "Bes - ML Educator & MLX8 Founder",
+      "content": "Hot take: The 'AI will replace programmers' narrative is mostly fear-mongering. AI will replace bad programmers who just copy-paste from Stack Overflow. Good programmers who understand fundamentals, can debug, and think systematically? We're more valuable than ever. Focus on being good, not just fast. #AI #Programming #MachineLearning",
+      "content_type": "image",
+      "media_items": [
+        {
+          "type": "image",
+          "url": "bes4.png",
+          "alt_text": "Bes giving a passionate talk about AI and programming, gesturing animatedly"
+        }
+      ],
+      "timestamp": "2025-07-08T14:35:22",
+      "url": null,
+      "likes": 1123,
+      "shares": 198,
+      "comments": 123,
+      "views": 2987,
+      "platform_data": {
+        "engagement_total": 1444,
+        "scraped_at": "2025-07-17 15:26:04"
+      },
+      "scraped_at": "2025-07-17 15:26:04",
+      "processed_at": null,
+      "engagement_total": 1444
+    },
+    {
+      "id": "besdoingthings_instagram_10",
+      "platform": "instagram",
+      "username": "besdoingthings",
+      "user_display_name": "Bes - ML Educator & MLX8 Founder",
+      "content": "My Italian side is showing today - just spent 2 hours explaining gradient descent over espresso and cannoli. Student: 'So it's like rolling down a hill?' Me: 'Exactly! But the hill is made of math and the ball is your loss function.' Sometimes the best analogies come with good food. 🇮🇹 #Italian #GradientDescent #Teaching #Cannoli",
+      "content_type": "image",
+      "media_items": [
+        {
+          "type": "image",
+          "url": "bes5.png",
+          "alt_text": "Bes with espresso and cannoli, drawing gradient descent diagrams on napkin"
+        }
+      ],
+      "timestamp": "2025-07-07T22:15:18",
+      "url": null,
+      "likes": 856,
+      "shares": 167,
+      "comments": 89,
+      "views": 2456,
+      "platform_data": {
+        "engagement_total": 1112,
+        "scraped_at": "2025-07-17 15:26:04"
+      },
+      "scraped_at": "2025-07-17 15:26:04",
+      "processed_at": null,
+      "engagement_total": 1112
+    },
+    {
+      "id": "besdoingthings_instagram_11",
+      "platform": "instagram",
+      "username": "besdoingthings",
+      "user_display_name": "Bes - ML Educator & MLX8 Founder",
+      "content": "Student feedback that made my day: 'Bes, you make complex ML concepts feel like cooking recipes. Step by step, with clear instructions and lots of encouragement.' This is exactly what I aim for! Teaching should be accessible, practical, and encouraging. #SuccessStory #Teaching #MachineLearning #MLX8",
+      "content_type": "image",
+      "media_items": [
+        {
+          "type": "image",
+          "url": "bes1.png",
+          "alt_text": "Bes reading student feedback with a big smile, surrounded by teaching materials"
+        }
+      ],
+      "timestamp": "2025-07-06T11:40:55",
+      "url": null,
+      "likes": 678,
+      "shares": 89,
+      "comments": 45,
+      "views": 1678,
+      "platform_data": {
+        "engagement_total": 812,
+        "scraped_at": "2025-07-17 15:26:04"
+      },
+      "scraped_at": "2025-07-17 15:26:04",
+      "processed_at": null,
+      "engagement_total": 812
+    },
+    {
+      "id": "besdoingthings_instagram_12",
+      "platform": "instagram",
+      "username": "besdoingthings",
+      "user_display_name": "Bes - ML Educator & MLX8 Founder",
+      "content": "Just published a new tutorial on building attention mechanisms from scratch! No frameworks, no shortcuts - just pure math and code. Perfect for MLX8 students who want to understand what's happening under the hood. Link in bio! 🔗 #AttentionMechanisms #Tutorial #MachineLearning #MLX8",
+      "content_type": "image",
+      "media_items": [
+        {
+          "type": "image",
+          "url": "bes2.png",
+          "alt_text": "Bes recording tutorial video with attention mechanism diagrams on screen"
+        }
+      ],
+      "timestamp": "2025-07-05T20:30:12",
+      "url": null,
+      "likes": 445,
+      "shares": 67,
+      "comments": 34,
+      "views": 1234,
+      "platform_data": {
+        "engagement_total": 546,
+        "scraped_at": "2025-07-17 15:26:04"
+      },
+      "scraped_at": "2025-07-17 15:26:04",
+      "processed_at": null,
+      "engagement_total": 546
+    },
+    {
+      "id": "besdoingthings_instagram_13",
+      "platform": "instagram",
+      "username": "besdoingthings",
+      "user_display_name": "Bes - ML Educator & MLX8 Founder",
+      "content": "Fun fact: I once spent 3 days optimizing a model at Meta, only to realize I was using the wrong loss function. My team still hasn't let me live it down. Lesson learned: Always double-check your assumptions, even (especially) when you're in a hurry. #MLWarStories #Meta #LearningFromMistakes #MachineLearning",
+      "content_type": "image",
+      "media_items": [
+        {
+          "type": "image",
+          "url": "bes3.png",
+          "alt_text": "Bes laughing while telling story, with Meta office background visible"
+        }
+      ],
+      "timestamp": "2025-06-30T14:45:22",
+      "url": null,
+      "likes": 567,
+      "shares": 123,
+      "comments": 78,
+      "views": 1890,
+      "platform_data": {
+        "engagement_total": 768,
+        "scraped_at": "2025-07-17 15:26:04"
+      },
+      "scraped_at": "2025-07-17 15:26:04",
+      "processed_at": null,
+      "engagement_total": 768
+    },
+    {
+      "id": "besdoingthings_instagram_14",
+      "platform": "instagram",
+      "username": "besdoingthings",
+      "user_display_name": "Bes - ML Educator & MLX8 Founder",
+      "content": "🌍 MLX8 community update: We now have students from 15 different countries! From Albania to Zimbabwe, people are learning ML together. This is what I dreamed of when I started - making quality ML education accessible to everyone, everywhere. #GlobalCommunity #MachineLearning #Education #MLX8",
+      "content_type": "image",
+      "media_items": [
+        {
+          "type": "image",
+          "url": "bes4.png",
+          "alt_text": "Bes with diverse group of MLX8 students from different countries, all smiling"
+        }
+      ],
+      "timestamp": "2025-06-29T19:20:33",
+      "url": null,
+      "likes": 789,
+      "shares": 234,
+      "comments": 89,
+      "views": 2345,
+      "platform_data": {
+        "engagement_total": 1112,
+        "scraped_at": "2025-07-17 15:26:04"
+      },
+      "scraped_at": "2025-07-17 15:26:04",
+      "processed_at": null,
+      "engagement_total": 1112
+    },
+    {
+      "id": "besdoingthings_instagram_15",
+      "platform": "instagram",
+      "username": "besdoingthings",
+      "user_display_name": "Bes - ML Educator & MLX8 Founder",
+      "content": "My Italian mother just asked me to explain what I do for work. Me: 'I teach people how to make computers smarter.' Her: 'But computers are already smart enough to beat you at chess.' Touché, mamma. Touché. 😅 #ItalianMom #MachineLearning #Family #Chess",
+      "content_type": "image",
+      "media_items": [
+        {
+          "type": "image",
+          "url": "bes5.png",
+          "alt_text": "Bes with his Italian mother, both laughing during family conversation"
+        }
+      ],
+      "timestamp": "2025-06-28T22:10:45",
+      "url": null,
+      "likes": 456,
+      "shares": 89,
+      "comments": 45,
+      "views": 1456,
+      "platform_data": {
+        "engagement_total": 590,
+        "scraped_at": "2025-07-17 15:26:04"
+      },
+      "scraped_at": "2025-07-17 15:26:04",
+      "processed_at": null,
+      "engagement_total": 590
+    },
+    {
+      "id": "besdoingthings_instagram_16",
+      "platform": "instagram",
+      "username": "besdoingthings",
+      "user_display_name": "Bes - ML Educator & MLX8 Founder",
+      "content": "Just finished a 4-hour coding session with a student who was struggling with backpropagation. We went through it step by step, drew diagrams, used analogies, and finally - the lightbulb moment! 💡 These moments make all the late nights worth it. #Teaching #Backpropagation #Breakthrough #MLX8",
+      "content_type": "image",
+      "media_items": [
+        {
+          "type": "image",
+          "url": "bes1.png",
+          "alt_text": "Bes and student celebrating breakthrough moment with diagrams and notes visible"
+        }
+      ],
+      "timestamp": "2025-06-27T15:35:18",
+      "url": null,
+      "likes": 334,
+      "shares": 67,
+      "comments": 34,
+      "views": 1234,
+      "platform_data": {
+        "engagement_total": 435,
+        "scraped_at": "2025-07-17 15:26:04"
+      },
+      "scraped_at": "2025-07-17 15:26:04",
+      "processed_at": null,
+      "engagement_total": 435
+    },
+    {
+      "id": "besdoingthings_instagram_17",
+      "platform": "instagram",
+      "username": "besdoingthings",
+      "user_display_name": "Bes - ML Educator & MLX8 Founder",
+      "content": "Albanian proverb of the day: 'Knowledge is like a garden - if you don't tend to it, it will wither.' This is why I'm so passionate about teaching at MLX8. Knowledge shared is knowledge multiplied. Every student who succeeds makes the entire field stronger. #AlbanianWisdom #Teaching #MachineLearning #MLX8",
+      "content_type": "image",
+      "media_items": [
+        {
+          "type": "image",
+          "url": "bes2.png",
+          "alt_text": "Bes in garden setting, teaching students outdoors with nature background"
+        }
+      ],
+      "timestamp": "2025-06-26T12:20:33",
+      "url": null,
+      "likes": 289,
+      "shares": 123,
+      "comments": 56,
+      "views": 987,
+      "platform_data": {
+        "engagement_total": 468,
+        "scraped_at": "2025-07-17 15:26:04"
+      },
+      "scraped_at": "2025-07-17 15:26:04",
+      "processed_at": null,
+      "engagement_total": 468
+    },
+    {
+      "id": "besdoingthings_instagram_18",
+      "platform": "instagram",
+      "username": "besdoingthings",
+      "user_display_name": "Bes - ML Educator & MLX8 Founder",
+      "content": "Pro tip from my Meta days: when debugging a model that's not converging, the first question should always be 'Did I remember to set requires_grad=True?' I've lost more hours to this than I care to admit. 😅 #MachineLearning #Debugging #MLX8 #Meta #ProTips",
+      "content_type": "image",
+      "media_items": [
+        {
+          "type": "image",
+          "url": "bes3.png",
+          "alt_text": "Bes looking frustrated but amused while debugging code on multiple screens"
+        }
+      ],
+      "timestamp": "2025-06-25T16:45:19",
+      "url": null,
+      "likes": 567,
+      "shares": 156,
+      "comments": 78,
+      "views": 1789,
+      "platform_data": {
+        "engagement_total": 801,
+        "scraped_at": "2025-07-17 15:26:04"
+      },
+      "scraped_at": "2025-07-17 15:26:04",
+      "processed_at": null,
+      "engagement_total": 801
+    },
+    {
+      "id": "besdoingthings_instagram_19",
+      "platform": "instagram",
+      "username": "besdoingthings",
+      "user_display_name": "Bes - ML Educator & MLX8 Founder",
+      "content": "Teaching moment: A student asked why we use ReLU instead of sigmoid for hidden layers. My answer: 'Because ReLU doesn't kill gradients like sigmoid does. It's like having a conversation vs talking to a wall.' Sometimes the simplest explanations are the best ones. 🤷‍♂️ #Teaching #ReLU #NeuralNetworks #MLX8",
+      "content_type": "image",
+      "media_items": [
+        {
+          "type": "image",
+          "url": "bes4.png",
+          "alt_text": "Bes drawing neural network diagrams on whiteboard during teaching session"
+        }
+      ],
+      "timestamp": "2025-06-24T10:30:28",
+      "url": null,
+      "likes": 445,
+      "shares": 89,
+      "comments": 45,
+      "views": 1345,
+      "platform_data": {
+        "engagement_total": 579,
+        "scraped_at": "2025-07-17 15:26:04"
+      },
+      "scraped_at": "2025-07-17 15:26:04",
+      "processed_at": null,
+      "engagement_total": 579
+    },
+    {
+      "id": "besdoingthings_instagram_20",
+      "platform": "instagram",
+      "username": "besdoingthings",
+      "user_display_name": "Bes - ML Educator & MLX8 Founder",
+      "content": "Coffee break thought: The best ML engineers I've worked with at Meta weren't the ones with the highest GPAs or the most papers published. They were the ones who could explain complex concepts to a 5-year-old and debug production issues at 3 AM. Communication + problem-solving > pure technical skills #Meta #MachineLearning #Leadership",
+      "content_type": "image",
+      "media_items": [
+        {
+          "type": "image",
+          "url": "bes5.png",
+          "alt_text": "Bes with coffee, deep in thought while working on complex ML problems"
+        }
+      ],
+      "timestamp": "2025-06-23T14:15:42",
+      "url": null,
+      "likes": 623,
+      "shares": 189,
+      "comments": 78,
+      "views": 2123,
+      "platform_data": {
+        "engagement_total": 890,
+        "scraped_at": "2025-07-17 15:26:04"
+      },
+      "scraped_at": "2025-07-17 15:26:04",
+      "processed_at": null,
+      "engagement_total": 890
+    }
+  ]
+} 

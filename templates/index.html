@@ -643,7 +643,7 @@
                 </select>
                 <button class="btn filter-btn" id="filterBtn" onclick="previewPosts()" disabled>Filter Posts</button>
                 <select class="nav-select" id="voiceSelect">
-                    <option value="">Select Voice...</option>
+                    <option value="">Select Person...</option>
                 </select>
                 <button class="btn process-btn" id="processBtn" onclick="processUser()" disabled>
                     Generate AI Summary
@@ -934,7 +934,7 @@
             .then(data => {
                 if (data.success) {
                     const select = document.getElementById('voiceSelect');
-                    select.innerHTML = '<option value="">Select Voice...</option>';
+                    select.innerHTML = '<option value="">Select Person...</option>';
                     data.voices.forEach(voice => {
                         const option = document.createElement('option');
                         option.value = voice;
@@ -1176,7 +1176,7 @@
                 
                 <div class="summary-text">${summary.replace(/\n/g, '<br>')}</div>
                 
-                <div class="audio-section" id="audioSection">
+                <div class="audio-section" id="audioSection" style="display: none;">
                     <h4>🎵 AI Generated Audio</h4>
                     <div class="loading-state" id="audioLoading">
                         <div class="spinner"></div>
@@ -1194,6 +1194,7 @@
             if (!audioSection) return;
 
             const audioHTML = `
+                <h4>🎵 AI Generated Audio</h4>
                 <p style="color: #8899a6; margin: 8px 0;">Summary read in ${voiceName}'s voice</p>
                 <audio controls class="audio-player" autoplay>
                     <source src="/api/audio/${audioPath}" type="audio/wav">
@@ -1201,12 +1202,9 @@
                 </audio>
             `;
             
-            // Remove loading state and add player
-            const audioLoading = document.getElementById('audioLoading');
-            if (audioLoading) {
-                audioLoading.remove();
-            }
-            audioSection.innerHTML += audioHTML;
+            // Show the audio section and replace content with player
+            audioSection.style.display = 'block';
+            audioSection.innerHTML = audioHTML;
         }
 
         function showError(message) {
