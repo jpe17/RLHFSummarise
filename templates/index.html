@@ -196,10 +196,234 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 24px;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* Tab Navigation */
+        .tab-navigation {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            background: #15202b;
+            border-radius: 12px;
+            padding: 8px;
+            border: 1px solid #38444d;
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #8899a6;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+
+        .tab-btn:hover {
+            background: rgba(29, 161, 242, 0.1);
+            color: #1da1f2;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #1da1f2, #ff6b6b);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 32px;
-            min-height: calc(100vh - 80px);
+        }
+
+        /* YouTube Container */
+        .youtube-container {
+            grid-column: 1 / -1;
+            background: #15202b;
+            border-radius: 16px;
+            border: 1px solid #38444d;
+            padding: 32px;
+        }
+
+        .youtube-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .youtube-header h2 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #1da1f2, #ff6b6b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .youtube-header p {
+            color: #8899a6;
+            font-size: 16px;
+        }
+
+        .youtube-form {
+            max-width: 800px;
+            margin: 0 auto 32px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            align-items: end;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .youtube-input, .youtube-select {
+            width: 100%;
+            background: #192734;
+            border: 1px solid #38444d;
+            color: #fff;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .youtube-input:focus, .youtube-select:focus {
+            outline: none;
+            border-color: #1da1f2;
+            box-shadow: 0 0 0 2px rgba(29, 161, 242, 0.2);
+        }
+
+        .youtube-checkbox {
+            width: 20px;
+            height: 20px;
+            accent-color: #1da1f2;
+        }
+
+        .youtube-btn {
+            width: 100%;
+            margin-top: 20px;
+            padding: 16px 24px;
+            font-size: 16px;
+        }
+
+        .youtube-results {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .result-card {
+            background: #192734;
+            border: 1px solid #38444d;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .result-section {
+            margin-bottom: 24px;
+        }
+
+        .result-section h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #1da1f2;
+        }
+
+        .result-content {
+            background: #15202b;
+            border-radius: 8px;
+            padding: 16px;
+            color: #fff;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .topics-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .topic-tag {
+            background: linear-gradient(135deg, #1da1f2, #ff6b6b);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* Loading and error states */
+        .loading-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #8899a6;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #38444d;
+            border-top: 4px solid #1da1f2;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message, .success-message {
+            position: fixed;
+            top: 100px;
+            right: 24px;
+            padding: 16px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            z-index: 1001;
+            animation: slideIn 0.3s ease;
+        }
+
+        .error-message {
+            background: #e0245e;
+            color: white;
+        }
+
+        .success-message {
+            background: #17bf63;
+            color: white;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .hidden {
+            display: none !important;
         }
 
         .feed-column {
@@ -673,26 +897,86 @@
 
     <!-- Main Content -->
     <div class="main-container">
-        <!-- Posts Feed -->
-        <div class="feed-column">
-            <div class="column-header">
-                Twitter Feed
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+            <button class="tab-btn active" onclick="switchTab('social')" id="socialTab">
+                📱 Social Media
+            </button>
+            <button class="tab-btn" onclick="switchTab('youtube')" id="youtubeTab">
+                🎥 YouTube Summarizer
+            </button>
+        </div>
+
+        <!-- Social Media Tab -->
+        <div class="tab-content active" id="socialTabContent">
+            <div class="feed-column">
+                <div class="column-header">
+                    Twitter Feed
+                </div>
+                <div class="feed-content" id="postsContent">
+                    <div class="loading-state">
+                        <p>Select a user to see their posts</p>
+                    </div>
+                </div>
             </div>
-            <div class="feed-content" id="postsContent">
-                <div class="loading-state">
-                    <p>Select a user to see their posts</p>
+
+            <div class="feed-column">
+                <div class="column-header">
+                    Instagram Feed
+                </div>
+                <div class="feed-content" id="imagesContent">
+                    <div class="loading-state">
+                        <p>Select a user to see their images</p>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Images Feed -->
-        <div class="feed-column">
-            <div class="column-header">
-                Instagram Feed
-            </div>
-            <div class="feed-content" id="imagesContent">
-                <div class="loading-state">
-                    <p>Select a user to see their images</p>
+        <!-- YouTube Tab -->
+        <div class="tab-content" id="youtubeTabContent">
+            <div class="youtube-container">
+                <div class="youtube-header">
+                    <h2>🎥 YouTube Video Summarizer</h2>
+                    <p>Paste a YouTube URL to generate an AI summary with transcription</p>
+                </div>
+                
+                <div class="youtube-form">
+                    <div class="form-group">
+                        <label for="youtubeUrl">YouTube URL:</label>
+                        <input type="url" id="youtubeUrl" placeholder="https://www.youtube.com/watch?v=..." class="youtube-input">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="youtubeVoice">Voice (Optional):</label>
+                            <select id="youtubeVoice" class="youtube-select">
+                                <option value="">No audio</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="whisperModel">Whisper Model:</label>
+                            <select id="whisperModel" class="youtube-select">
+                                <option value="base">Base (Fast)</option>
+                                <option value="small">Small (Balanced)</option>
+                                <option value="medium">Medium (Accurate)</option>
+                                <option value="large">Large (Best)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="useGpu">Use GPU:</label>
+                            <input type="checkbox" id="useGpu" class="youtube-checkbox">
+                        </div>
+                    </div>
+                    
+                    <button class="btn process-btn youtube-btn" onclick="processYouTube()" disabled>
+                        🎥 Process YouTube Video
+                    </button>
+                </div>
+                
+                <div class="youtube-results" id="youtubeResults">
+                    <!-- Results will be displayed here -->
                 </div>
             </div>
         </div>
@@ -1274,6 +1558,206 @@
                 searchUsers(this.value, 'instagram');
             }
         });
+
+        // YouTube functionality
+        function switchTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName + 'TabContent').classList.add('active');
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            
+            // Load voices for YouTube tab if needed
+            if (tabName === 'youtube' && pipelineInitialized) {
+                loadVoicesForYouTube();
+            }
+        }
+
+        function loadVoicesForYouTube() {
+            fetch('/api/voices')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const voiceSelect = document.getElementById('youtubeVoice');
+                    voiceSelect.innerHTML = '<option value="">No audio</option>';
+                    
+                    data.voices.forEach(voice => {
+                        const option = document.createElement('option');
+                        option.value = voice;
+                        option.textContent = voice;
+                        voiceSelect.appendChild(option);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Failed to load voices for YouTube:', error);
+            });
+        }
+
+        function processYouTube() {
+            const youtubeUrl = document.getElementById('youtubeUrl').value.trim();
+            const voiceName = document.getElementById('youtubeVoice').value;
+            const whisperModel = document.getElementById('whisperModel').value;
+            const useGpu = document.getElementById('useGpu').checked;
+            
+            if (!youtubeUrl) {
+                showError('Please enter a YouTube URL.');
+                return;
+            }
+            
+            // Validate YouTube URL
+            fetch('/api/youtube/validate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ youtube_url: youtubeUrl })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.valid) {
+                    startYouTubeProcessing(youtubeUrl, voiceName, whisperModel, useGpu);
+                } else {
+                    showError(data.message || 'Invalid YouTube URL format.');
+                }
+            })
+            .catch(error => {
+                showError('Failed to validate URL: ' + error.message);
+            });
+        }
+
+        function startYouTubeProcessing(youtubeUrl, voiceName, whisperModel, useGpu) {
+            showProgress();
+            
+            fetch('/api/youtube/process', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    youtube_url: youtubeUrl,
+                    voice_name: voiceName,
+                    whisper_model: whisperModel,
+                    use_gpu: useGpu
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    currentJobId = data.job_id;
+                    updateProgress(0, 'Starting YouTube processing...');
+                } else {
+                    showError(data.message);
+                    hideProgress();
+                }
+            })
+            .catch(error => {
+                showError('Failed to start YouTube processing: ' + error.message);
+                hideProgress();
+            });
+        }
+
+        // YouTube socket event listeners
+        socket.on('youtube_summary_ready', function(data) {
+            if (data.job_id === currentJobId) {
+                showYouTubeResults(data.result);
+            }
+        });
+
+        socket.on('youtube_audio_ready', function(data) {
+            if (data.job_id === currentJobId) {
+                showYouTubeAudioPlayer(data.audio_path, data.voice_name);
+            }
+        });
+
+        function showYouTubeResults(result) {
+            const resultsDiv = document.getElementById('youtubeResults');
+            
+            const content = result.content;
+            const analysis = result.analysis_info;
+            
+            const resultsHTML = `
+                <div class="result-card">
+                    <div class="result-section">
+                        <h3>📝 Transcription</h3>
+                        <div class="result-content">${content.transcription || 'No transcription available.'}</div>
+                    </div>
+                    
+                    <div class="result-section">
+                        <h3>🎯 AI Summary</h3>
+                        <div class="result-content">${content.summary || 'No summary available.'}</div>
+                    </div>
+                    
+                    <div class="result-section">
+                        <h3>🏷️ Key Topics</h3>
+                        <div class="topics-list">
+                            ${content.topics ? content.topics.map(topic => 
+                                `<span class="topic-tag">${topic.topic} (${topic.relevance_score}%)</span>`
+                            ).join('') : 'No topics identified.'}
+                        </div>
+                    </div>
+                    
+                    <div class="result-section">
+                        <h3>📊 Analysis Info</h3>
+                        <div class="result-content">
+                            <strong>Source:</strong> ${analysis.source_file}<br>
+                            <strong>Content Type:</strong> ${analysis.content_type}<br>
+                            <strong>Processed:</strong> ${new Date(analysis.processed_at).toLocaleString()}<br>
+                            <strong>Method:</strong> ${analysis.summarization_method}
+                        </div>
+                    </div>
+                    
+                    ${voiceName ? `
+                    <div class="result-section" id="youtubeAudioSection">
+                        <h3>🎵 AI Generated Audio</h3>
+                        <div class="loading-state">
+                            <div class="spinner"></div>
+                            <p style="color: #8899a6; margin-top: 10px;">Generating audio...</p>
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            resultsDiv.innerHTML = resultsHTML;
+            resultsDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function showYouTubeAudioPlayer(audioPath, voiceName) {
+            const audioSection = document.getElementById('youtubeAudioSection');
+            if (!audioSection) return;
+
+            const audioHTML = `
+                <p style="color: #8899a6; margin: 8px 0;">Summary read in ${voiceName}'s voice</p>
+                <audio controls class="audio-player" autoplay>
+                    <source src="/api/audio/${audioPath}" type="audio/wav">
+                    Your browser does not support the audio element.
+                </audio>
+            `;
+            
+            // Remove loading state and add player
+            const loadingState = audioSection.querySelector('.loading-state');
+            if (loadingState) {
+                loadingState.remove();
+            }
+            audioSection.innerHTML += audioHTML;
+        }
+
+        // YouTube form validation
+        function checkYouTubeForm() {
+            const youtubeUrl = document.getElementById('youtubeUrl').value.trim();
+            const youtubeBtn = document.querySelector('.youtube-btn');
+            
+            youtubeBtn.disabled = !youtubeUrl || !pipelineInitialized;
+        }
+
+        // YouTube URL input event listener
+        const youtubeUrlInput = document.getElementById('youtubeUrl');
+        youtubeUrlInput.addEventListener('input', checkYouTubeForm);
 
         // Close dropdowns when clicking outside
         document.addEventListener('click', function(event) {

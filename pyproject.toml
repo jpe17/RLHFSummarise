@@ -3,15 +3,57 @@ name = "rlhfsummarise"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.10,<3.11"
 dependencies = [
-    "accelerate>=1.9.0",
-    "faster-whisper>=1.1.1",
-    "moviepy>=2.2.1",
-    "openai>=1.97.0",
+    # Core ML and TTS libraries
+    "TTS==0.22.0",
+    "torch>=2.0.0",
+    "torchaudio>=2.0.0",
+    "torchvision>=0.15.0",
+    "transformers>=4.40.0",
+    "accelerate>=1.8.1",
+    
+    # Tweet scraping and web automation
+    "selenium>=4.15.0",
+    "webdriver-manager>=4.0.1",
+    "beautifulsoup4>=4.12.2",
+    "requests>=2.32.4",
+    "tweepy>=4.14.0",
+    "snscrape>=0.7.0.20230622",
+    "twint>=2.1.20",
+    
+    # Audio processing
+    "librosa>=0.10.0",
+    "soundfile>=0.13.1",
+    "numpy==1.22.0",
+    "scipy>=1.11.4",
+    
+    # Additional ML dependencies
+    "einops>=0.8.1",
+    "k_diffusion>=0.0.16",
+    "encodec>=0.1.1",
+    "peft>=0.7.1",
+    "datasets>=2.14.0",
+    "pyarrow>=10.0.0,<15.0.0",  # Fixed pyarrow version for compatibility
+    
+    # Utilities
+    "tqdm>=4.67.1",
     "pathlib>=1.0.1",
+    "typing-extensions>=4.14.1",
+    "python-dateutil>=2.9.0",
+    "pandas>=1.5.3",
+    "emoji>=2.8.0",
+    
+    # Web framework for UI
+    "flask>=3.0.0",
+    "flask-socketio>=5.3.6",
+    
+    # YouTube processing
+    "yt-dlp>=2023.12.30",
+    "faster-whisper>=1.1.1",
+    "moviepy>=1.0.3,<2.2.0",
+    
+    # Other dependencies
+    "openai>=1.97.0",
     "pathutils>=1.0",
-    "torch>=2.7.1",
-    "transformers>=4.53.2",
-    "yt-dlp>=2025.6.30",
 ]

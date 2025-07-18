@@ -12,6 +12,7 @@ import torch.nn as nn
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import re
 from collections import Counter
+from tqdm import tqdm
 
 # Simple directory utility function
 def get_subdir(dir_name: str) -> str:
@@ -188,18 +189,31 @@ class LoRASummarizer:
         chunks = []
         start = 0
         
-        while start < len(tokens):
-            end = min(start + max_chunk_tokens, len(tokens))
-            chunk_tokens = tokens[start:end]
-            chunk_text = self.tokenizer.decode(chunk_tokens, skip_special_tokens=True)
-            chunks.append(chunk_text)
-            start = end - overlap_tokens
-            if start >= len(tokens):
+        # Calculate total number of chunks for progress bar
+        total_chunks = 0
+        temp_start = 0
+        while temp_start < len(tokens):
+            temp_end = min(temp_start + max_chunk_tokens, len(tokens))
+            total_chunks += 1
+            temp_start = temp_end - overlap_tokens
+            if temp_start >= len(tokens):
                 break
         
+        print(f"📦 Splitting text into {total_chunks} chunks...")
+        with tqdm(total=total_chunks, desc="Creating chunks", unit="chunk") as pbar:
+            while start < len(tokens):
+                end = min(start + max_chunk_tokens, len(tokens))
+                chunk_tokens = tokens[start:end]
+                chunk_text = self.tokenizer.decode(chunk_tokens, skip_special_tokens=True)
+                chunks.append(chunk_text)
+                start = end - overlap_tokens
+                if start >= len(tokens):
+                    break
+                pbar.update(1)
+        
         return chunks
-    
-    def generate_summary(self, text, max_length=300, temperature=0.7, chunk_size=1000):
+
+    def generate_summary(self, text, max_length=300, temperature=0.7, chunk_size=2048):
         """
         Generate a summary of the given text using the LoRA model.
         
@@ -230,20 +244,22 @@ class LoRASummarizer:
             return summary
         else:
             # Text needs chunking
-            print(f"📦 Text is too long, splitting into chunks...")
             chunks = self.chunk_text(text, chunk_size, overlap_tokens=100)
             print(f" Split into {len(chunks)} chunks")
             
-            # Generate summaries for each chunk
+            # Generate summaries for each chunk with progress bar
             chunk_summaries = []
-            for i, chunk in enumerate(chunks):
-                print(f" Processing chunk {i+1}/{len(chunks)} ({len(chunk)} chars)...")
-                chunk_summary = self._generate_summary_for_chunk(
-                    chunk, 
-                    max_length=max_length//len(chunks),
-                    temperature=temperature
-                )
-                chunk_summaries.append(chunk_summary)
+            print(f" Processing {len(chunks)} chunks...")
+            with tqdm(total=len(chunks), desc="Generating summaries", unit="chunk") as pbar:
+                for i, chunk in enumerate(chunks):
+                    chunk_summary = self._generate_summary_for_chunk(
+                        chunk, 
+                        max_length=max_length//len(chunks),
+                        temperature=temperature
+                    )
+                    chunk_summaries.append(chunk_summary)
+                    pbar.set_postfix({"chunk": f"{i+1}/{len(chunks)}", "chars": len(chunk_summary)})
+                    pbar.update(1)
             
             # Combine chunk summaries
             combined_summary = " ".join(chunk_summaries)
@@ -771,21 +787,21 @@ def process_video_audio(input_source: str, metadata: Dict[str, Any] = None, mode
         print(transcription_data["transcription"])
         
         # Step 2: Detect and correct errors using LoRA model
-        print("\nDetecting potential errors...")
-        errors = lora_summarizer.detect_transcription_errors(transcription_data["transcription"])
+        # print("\nDetecting potential errors...")
+        # errors = lora_summarizer.detect_transcription_errors(transcription_data["transcription"])
         
-        if errors:
-            print("\nDetected errors:")
-            print(json.dumps(errors, indent=2))
+        # if errors:
+        #     print("\nDetected errors:")
+        #     print(json.dumps(errors, indent=2))
             
-            print("\nApplying corrections...")
-            corrected_text = lora_summarizer.correct_transcription(transcription_data["transcription"], errors)
-            print("\nCorrected transcription:")
-            print(corrected_text)
-        else:
-            print("\nNo errors detected in the transcription.")
-            corrected_text = transcription_data["transcription"]
-        
+        #     print("\nApplying corrections...")
+        #     corrected_text = lora_summarizer.correct_transcription(transcription_data["transcription"], errors)
+        #     print("\nCorrected transcription:")
+        #     print(corrected_text)
+        # else:
+        #     print("\nNo errors detected in the transcription.")
+        #     corrected_text = transcription_data["transcription"]
+        corrected_text = transcription_data["transcription"]
         # Step 3: Generate summary using LoRA model
         print("\nGenerating summary...")
         summary = lora_summarizer.generate_summary(corrected_text, max_length=400, temperature=0.7)

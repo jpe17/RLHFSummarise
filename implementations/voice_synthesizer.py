@@ -73,6 +73,7 @@ class TTSVoiceSynthesizer(BaseVoiceSynthesizer):
         if self.tts is None:
             try:
                 from TTS.api import TTS
+                import torch  # Move torch import here
                 
                 # Auto-detect device if not specified
                 if self.device is None:
@@ -87,6 +88,16 @@ class TTSVoiceSynthesizer(BaseVoiceSynthesizer):
                 
                 # Initialize TTS with optimizations
                 print("📥 Loading TTS model with speed optimizations...")
+                
+                # FIX: Handle PyTorch 2.6+ compatibility issue
+                import torch.serialization
+                try:
+                    # Add safe globals for TTS config classes
+                    from TTS.tts.configs.xtts_config import XttsConfig
+                    torch.serialization.add_safe_globals([XttsConfig])
+                    print("✅ Added TTS config to safe globals")
+                except ImportError:
+                    print("⚠️ Could not import TTS config, using fallback method")
                 
                 # SPEED OPTIMIZATION: Load with minimal memory footprint
                 self.tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2").to(self.device)
@@ -103,8 +114,41 @@ class TTSVoiceSynthesizer(BaseVoiceSynthesizer):
                 
             except Exception as e:
                 print(f"❌ Error initializing TTS: {e}")
-                self.model_loaded = False
-                raise
+                # Try fallback method for PyTorch 2.6+ compatibility
+                try:
+                    print("🔄 Trying fallback TTS initialization...")
+                    
+                    # FIX: Import torch here for fallback
+                    import torch
+                    from TTS.api import TTS
+                    
+                    # FIX: Use a simpler approach - monkey patch torch.load temporarily
+                    original_torch_load = torch.load
+                    
+                    def safe_torch_load(*args, **kwargs):
+                        kwargs['weights_only'] = False
+                        return original_torch_load(*args, **kwargs)
+                    
+                    # Temporarily replace torch.load
+                    torch.load = safe_torch_load
+                    
+                    try:
+                        self.tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2").to(self.device)
+                        self.tts.synthesizer.tts_model.eval()
+                        
+                        for param in self.tts.synthesizer.tts_model.parameters():
+                            param.requires_grad = False
+                        
+                        self.model_loaded = True
+                        print("✅ TTS model initialized with fallback method")
+                    finally:
+                        # Restore original torch.load
+                        torch.load = original_torch_load
+                    
+                except Exception as fallback_error:
+                    print(f"❌ Fallback TTS initialization also failed: {fallback_error}")
+                    self.model_loaded = False
+                    raise
                 
         return self.tts
         

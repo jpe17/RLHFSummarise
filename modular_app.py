@@ -19,6 +19,29 @@ os.environ['PYTORCH_ENABLE_MPS_FALLBACK'] = '1'
 from pipeline_factory import PipelineFactory, create_preloaded_pipeline
 from core.data_models import Platform
 
+# Import YouTube processing functionality
+try:
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("video_to_text_lora", "video-to-text-lora.py")
+    if spec and spec.loader:
+        video_to_text_lora = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(video_to_text_lora)
+        LoRASummarizer = video_to_text_lora.LoRASummarizer
+        process_video_audio = video_to_text_lora.process_video_audio
+    else:
+        LoRASummarizer = None
+        process_video_audio = None
+except Exception as e:
+    print(f"Warning: Could not import video-to-text-lora: {e}")
+    LoRASummarizer = None
+    process_video_audio = None
+
+# Fix PyTorch 2.6+ compatibility with TTS
+try:
+    import fix_torch_compatibility
+except ImportError:
+    print("⚠️ Could not import torch compatibility fix")
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key-here'
 socketio = SocketIO(app, cors_allowed_origins="*")
@@ -38,6 +61,19 @@ try:
 except Exception as e:
     print(f"❌ FATAL: Could not initialize AI pipeline: {e}")
     pipeline = None
+
+# Initialize LoRA summarizer for YouTube processing
+if LoRASummarizer is not None:
+    print("🎥 Initializing LoRA summarizer for YouTube processing...")
+    try:
+        lora_summarizer = LoRASummarizer()
+        print("✅ LoRA summarizer initialized successfully.")
+    except Exception as e:
+        print(f"❌ FATAL: Could not initialize LoRA summarizer: {e}")
+        lora_summarizer = None
+else:
+    print("⚠️ LoRA summarizer not available - YouTube processing will be disabled")
+    lora_summarizer = None
 # ------------------------------------
 
 processing_status = {}
@@ -388,6 +424,102 @@ def get_user_stats(platform, username):
             'success': False,
             'message': f'Error getting stats: {str(e)}'
         })
+
+@app.route('/api/youtube/process', methods=['POST'])
+def process_youtube():
+    """Process YouTube video and generate summary."""
+    global lora_summarizer
+    
+    data = request.json
+    youtube_url = data.get('youtube_url')
+    voice_name = data.get('voice_name')
+    whisper_model = data.get('whisper_model', 'base')
+    use_gpu = data.get('use_gpu', False)
+    
+    if not lora_summarizer:
+        return jsonify({'success': False, 'message': 'LoRA summarizer not initialized'})
+    
+    if not youtube_url:
+        return jsonify({'success': False, 'message': 'YouTube URL is required'})
+    
+    job_id = f"youtube_job_{int(time.time())}"
+    processing_status[job_id] = {'status': 'starting', 'progress': 0, 'message': 'Starting YouTube processing...'}
+    
+    def process_youtube_in_background():
+        try:
+            # Update progress
+            socketio.emit('progress_update', {'job_id': job_id, 'progress': 10, 'message': '🎥 Downloading YouTube audio...'})
+            
+            # Process the YouTube video
+            result = process_video_audio(
+                input_source=youtube_url,
+                model_size=whisper_model,
+                use_gpu=use_gpu
+            )
+            
+            socketio.emit('progress_update', {'job_id': job_id, 'progress': 80, 'message': '✅ YouTube processing complete!'})
+            
+            # Emit the result
+            socketio.emit('youtube_summary_ready', {
+                'job_id': job_id, 
+                'result': result
+            })
+            
+            # If voice synthesis is requested, generate audio
+            if voice_name and pipeline and pipeline.voice_synthesizer:
+                try:
+                    socketio.emit('progress_update', {'job_id': job_id, 'progress': 85, 'message': f'🔊 Synthesizing audio for {voice_name}...'})
+                    
+                    summary_text = result['content']['summary']
+                    audio_path = pipeline.voice_synthesizer.synthesize(summary_text, voice_name)
+                    
+                    socketio.emit('progress_update', {'job_id': job_id, 'progress': 100, 'message': '✅ Audio synthesis complete!'})
+                    
+                    # Emit audio when it's ready
+                    audio_data = {
+                        'job_id': job_id,
+                        'audio_path': audio_path,
+                        'voice_name': voice_name,
+                        'text': summary_text
+                    }
+                    socketio.emit('youtube_audio_ready', audio_data)
+                    
+                except Exception as e:
+                    error_message = f'❌ Error synthesizing voice: {str(e)}'
+                    socketio.emit('processing_error', {'job_id': job_id, 'message': error_message})
+            
+            # Final completion update
+            processing_status[job_id] = {'status': 'complete', 'result': result}
+            socketio.emit('processing_complete', {'job_id': job_id, 'status': 'complete'})
+            
+        except Exception as e:
+            error_message = f'YouTube processing error: {str(e)}'
+            processing_status[job_id] = {'status': 'error', 'message': error_message}
+            socketio.emit('processing_complete', {'job_id': job_id, 'status': 'error', 'message': error_message})
+    
+    socketio.start_background_task(target=process_youtube_in_background)
+    
+    return jsonify({'success': True, 'job_id': job_id, 'message': 'YouTube processing started'})
+
+@app.route('/api/youtube/validate', methods=['POST'])
+def validate_youtube_url():
+    """Validate YouTube URL format."""
+    data = request.json
+    youtube_url = data.get('youtube_url', '')
+    
+    # Simple YouTube URL validation
+    valid_patterns = [
+        r'https?://(?:www\.)?youtube\.com/watch\?v=[\w-]+',
+        r'https?://youtu\.be/[\w-]+',
+        r'https?://(?:www\.)?youtube\.com/embed/[\w-]+'
+    ]
+    
+    import re
+    for pattern in valid_patterns:
+        if re.match(pattern, youtube_url):
+            return jsonify({'success': True, 'valid': True})
+    
+    return jsonify({'success': True, 'valid': False, 'message': 'Invalid YouTube URL format'})
 
 if __name__ == '__main__':
     socketio.run(app, debug=True, host='0.0.0.0', port=5464)  # Different port to avoid conflicts 

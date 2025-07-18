@@ -2,7 +2,7 @@
 # Complete dependencies for tweet scraping, summarization, and voice synthesis
 
 # Core ML and TTS libraries
-TTS==0.22.0
+TTS==0.23.0
 torch==2.5.0
 torchaudio==2.5.0
 torchvision==0.20.0 
