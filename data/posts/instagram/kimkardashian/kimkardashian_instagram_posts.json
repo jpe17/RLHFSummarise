@@ -1,0 +1,148 @@
+{
+  "platform": "instagram",
+  "username": "kimkardashian",
+  "total_posts": 5,
+  "last_updated": "2025-07-17T11:04:37.944929",
+  "posts": [
+    {
+      "id": "wedding_birthday",
+      "platform": "instagram",
+      "username": "kimkardashian",
+      "user_display_name": "Kim Kardashian",
+      "content": "a wedding with my birthday girl",
+      "content_type": "image",
+      "media_items": [
+        {
+          "type": "image",
+          "url": "kk1.png",
+          "alt_text": "Kim Kardashian at a wedding with her birthday girl"
+        }
+      ],
+      "timestamp": "2024-07-03T18:00:00",
+      "url": null,
+      "likes": 890000,
+      "shares": 45000,
+      "comments": 12000,
+      "views": 8500000,
+      "platform_data": {
+        "engagement_total": 946000,
+        "scraped_at": "2025-07-16 21:04:31"
+      },
+      "scraped_at": "2025-07-17T10:45:16.799244",
+      "processed_at": null,
+      "engagement_total": 946000
+    },
+    {
+      "id": "north_birthday",
+      "platform": "instagram",
+      "username": "kimkardashian",
+      "user_display_name": "Kim Kardashian",
+      "content": "My little baby North turns 12 years old today. We were looking at pics today together and laughing so hard, you were so small. It's been the most special calling being your mom. I love you forever and got you forever my bubs.",
+      "content_type": "image",
+      "media_items": [
+        {
+          "type": "image",
+          "url": "kk2.png",
+          "alt_text": "Kim Kardashian with her daughter North celebrating her 12th birthday"
+        }
+      ],
+      "timestamp": "2024-06-15T10:00:00",
+      "url": null,
+      "likes": 1200000,
+      "shares": 35000,
+      "comments": 18000,
+      "views": 12000000,
+      "platform_data": {
+        "engagement_total": 1253000,
+        "scraped_at": "2025-07-16 21:04:31"
+      },
+      "scraped_at": "2025-07-17T10:45:16.799251",
+      "processed_at": null,
+      "engagement_total": 1253000
+    },
+    {
+      "id": "closet_pics",
+      "platform": "instagram",
+      "username": "kimkardashian",
+      "user_display_name": "Kim Kardashian",
+      "content": "Love finding closet pics in my phone",
+      "content_type": "image",
+      "media_items": [
+        {
+          "type": "image",
+          "url": "kk3.png",
+          "alt_text": "Kim Kardashian finding old closet pictures in her phone"
+        }
+      ],
+      "timestamp": "2024-06-12T14:30:00",
+      "url": null,
+      "likes": 750000,
+      "shares": 28000,
+      "comments": 9500,
+      "views": 7000000,
+      "platform_data": {
+        "engagement_total": 787500,
+        "scraped_at": "2025-07-16 21:04:31"
+      },
+      "scraped_at": "2025-07-17T10:45:16.799255",
+      "processed_at": null,
+      "engagement_total": 787500
+    },
+    {
+      "id": "law_graduation",
+      "platform": "instagram",
+      "username": "kimkardashian",
+      "user_display_name": "Kim Kardashian",
+      "content": "Six years ago, I embarked on an unconventional path to pursue my dream of becoming a lawyer. It wasn't easy, and it took longer than planned, but I never gave up. Each course brought moments of doubt, tears, and triumph - especially when I conquered subjects I initially feared.\n\nThat's the beauty of life: you step into the unknown, push through, and emerge with knowledge and strength no one can take away.\n\nI chose a rigorous program registered with the California State Bar, building on 75 college credits to complete a four-year curriculum that stretched to six. The journey was real, and so is the accomplishment.\n\nHaving Chris Young, Michelle West, and Dawn Jackson, whom my team and I championed for their release from prison, speak at my graduation meant the world to me. Their deeply personal stories of perseverance through adversity and injustice profoundly inspires me and form the heart of my \"why.\"\n\nI'm deeply grateful to Van Jones, who introduced me to this path, and to my mentors, Jessica Jackson and Erin Haney, whose guidance was invaluable.\n\nSpecial thanks to Sam Farkas and Chuck Shonholtz, who dedicated countless hours to help me succeed.\n\nThis experience has shaped me profoundly, and I'll carry its lessons with me forever. Here's to celebrating resilience and new beginnings! ⚖️🎓",
+      "content_type": "image",
+      "media_items": [
+        {
+          "type": "image",
+          "url": "kk4.png",
+          "alt_text": "Kim Kardashian at her law school graduation ceremony"
+        }
+      ],
+      "timestamp": "2024-05-29T16:00:00",
+      "url": null,
+      "likes": 2100000,
+      "shares": 85000,
+      "comments": 25000,
+      "views": 20000000,
+      "platform_data": {
+        "engagement_total": 2215000,
+        "scraped_at": "2025-07-16 21:04:31"
+      },
+      "scraped_at": "2025-07-17T10:45:16.799260",
+      "processed_at": null,
+      "engagement_total": 2215000
+    },
+    {
+      "id": "north_face_skims",
+      "platform": "instagram",
+      "username": "kimkardashian",
+      "user_display_name": "Kim Kardashian",
+      "content": "The North Face x SKIMS is now available.\nShop for a limited time on SKIMS.com, in SKIMS stores, and in select The North Face stores.",
+      "content_type": "image",
+      "media_items": [
+        {
+          "type": "image",
+          "url": "kk5.png",
+          "alt_text": "Kim Kardashian promoting The North Face x SKIMS collaboration"
+        }
+      ],
+      "timestamp": "2024-12-19T12:00:00",
+      "url": null,
+      "likes": 680000,
+      "shares": 32000,
+      "comments": 8800,
+      "views": 6500000,
+      "platform_data": {
+        "engagement_total": 720800,
+        "scraped_at": "2025-07-16 21:04:31"
+      },
+      "scraped_at": "2025-07-17T10:45:16.799265",
+      "processed_at": null,
+      "engagement_total": 720800
+    }
+  ]
+} 

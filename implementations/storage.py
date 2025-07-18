@@ -164,10 +164,23 @@ class JSONStorage(BaseStorage):
             
         try:
             users = []
-            for filename in os.listdir(platform_dir):
-                if filename.endswith('_posts.json'):
-                    username = filename.replace('_posts.json', '')
-                    users.append(username)
+            
+            if platform == Platform.INSTAGRAM:
+                # Instagram structure: data/posts/instagram/{Username}/
+                for item_name in os.listdir(platform_dir):
+                    item_path = os.path.join(platform_dir, item_name)
+                    if os.path.isdir(item_path):
+                        # Check if there's a posts file in the directory
+                        posts_file = f"{item_name}_instagram_posts.json"
+                        posts_path = os.path.join(item_path, posts_file)
+                        if os.path.exists(posts_path):
+                            users.append(item_name)
+            else:
+                # Twitter and other platforms: data/posts/twitter/{Username}_posts.json
+                for filename in os.listdir(platform_dir):
+                    if filename.endswith('_posts.json'):
+                        username = filename.replace('_posts.json', '')
+                        users.append(username)
                     
             return sorted(users)
             

@@ -1,0 +1,148 @@
+{
+  "platform": "instagram",
+  "username": "potus",
+  "total_posts": 5,
+  "last_updated": "2025-07-17T11:04:37.944929",
+  "posts": [
+    {
+      "id": "congratulations_world_peace",
+      "platform": "instagram",
+      "username": "potus",
+      "user_display_name": "President Donald J. Trump",
+      "content": "\"CONGRATULATIONS WORLD, IT'S TIME FOR PEACE!\" –President Donald J. Trump",
+      "content_type": "image",
+      "media_items": [
+        {
+          "type": "image",
+          "url": "p1.png",
+          "alt_text": "President Donald J. Trump announcing world peace"
+        }
+      ],
+      "timestamp": "2024-07-14T20:00:00",
+      "url": null,
+      "likes": 180000,
+      "shares": 25000,
+      "comments": 8500,
+      "views": 3500000,
+      "platform_data": {
+        "engagement_total": 213500,
+        "scraped_at": "2025-07-16 21:04:31"
+      },
+      "scraped_at": "2025-07-17T10:45:16.799244",
+      "processed_at": null,
+      "engagement_total": 213500
+    },
+    {
+      "id": "new_citizens_welcome",
+      "platform": "instagram",
+      "username": "potus",
+      "user_display_name": "President Donald J. Trump",
+      "content": "PRESIDENT DONALD J. TRUMP WELCOMES AMERICA'S NEWEST CITIZENS 🇺🇸🦅\n\n\"Today, you receive one of the most priceless gifts ever granted by human hands. You become a citizen of the United States of America... I welcome you into our national family.\"",
+      "content_type": "image",
+      "media_items": [
+        {
+          "type": "image",
+          "url": "p2.png",
+          "alt_text": "President Donald J. Trump welcoming new American citizens"
+        }
+      ],
+      "timestamp": "2024-07-12T15:30:00",
+      "url": null,
+      "likes": 220000,
+      "shares": 18000,
+      "comments": 7200,
+      "views": 4200000,
+      "platform_data": {
+        "engagement_total": 245200,
+        "scraped_at": "2025-07-16 21:04:31"
+      },
+      "scraped_at": "2025-07-17T10:45:16.799251",
+      "processed_at": null,
+      "engagement_total": 245200
+    },
+    {
+      "id": "halt_fentanyl_act",
+      "platform": "instagram",
+      "username": "potus",
+      "user_display_name": "President Donald J. Trump",
+      "content": "PRESIDENT DONALD J. TRUMP SIGNS THE HALT FENTANYL ACT INTO LAW!🇺🇸\n\n\"We renew our vow to liberate America from this horrible plague, and we'll be getting the drug dealers, pushers, and peddlers off our streets, AND WE WILL NOT REST UNTIL WE HAVE ENDED THE DRUG OVERDOSE EPIDEMIC.\"",
+      "content_type": "image",
+      "media_items": [
+        {
+          "type": "image",
+          "url": "p3.png",
+          "alt_text": "President Donald J. Trump signing the HALT Fentanyl Act into law"
+        }
+      ],
+      "timestamp": "2024-07-16T09:00:00",
+      "url": null,
+      "likes": 150000,
+      "shares": 22000,
+      "comments": 6800,
+      "views": 2800000,
+      "platform_data": {
+        "engagement_total": 178800,
+        "scraped_at": "2025-07-16 21:04:31"
+      },
+      "scraped_at": "2025-07-17T10:45:16.799255",
+      "processed_at": null,
+      "engagement_total": 178800
+    },
+    {
+      "id": "nato_meeting_rutte",
+      "platform": "instagram",
+      "username": "potus",
+      "user_display_name": "President Donald J. Trump",
+      "content": "President Donald J. Trump hosts a meeting with NATO Secretary General Mark Rutte in the Oval Office. 🇺🇸",
+      "content_type": "image",
+      "media_items": [
+        {
+          "type": "image",
+          "url": "p4.png",
+          "alt_text": "President Donald J. Trump meeting with NATO Secretary General Mark Rutte in the Oval Office"
+        }
+      ],
+      "timestamp": "2024-07-15T14:00:00",
+      "url": null,
+      "likes": 95000,
+      "shares": 12000,
+      "comments": 4200,
+      "views": 1800000,
+      "platform_data": {
+        "engagement_total": 111200,
+        "scraped_at": "2025-07-16 21:04:31"
+      },
+      "scraped_at": "2025-07-17T10:45:16.799260",
+      "processed_at": null,
+      "engagement_total": 111200
+    },
+    {
+      "id": "fifa_club_world_cup",
+      "platform": "instagram",
+      "username": "potus",
+      "user_display_name": "President Donald J. Trump",
+      "content": "President Donald J. Trump and First Lady Melania Trump joined FIFA President Gianni Infantino at MetLife Stadium for the FIFA Club World Cup Final! 🇺🇸⚽️ #FIFACWC",
+      "content_type": "image",
+      "media_items": [
+        {
+          "type": "image",
+          "url": "p5.png",
+          "alt_text": "President Donald J. Trump and First Lady Melania Trump at FIFA Club World Cup Final with Gianni Infantino"
+        }
+      ],
+      "timestamp": "2024-07-15T19:30:00",
+      "url": null,
+      "likes": 120000,
+      "shares": 15000,
+      "comments": 5500,
+      "views": 2200000,
+      "platform_data": {
+        "engagement_total": 140500,
+        "scraped_at": "2025-07-16 21:04:31"
+      },
+      "scraped_at": "2025-07-17T10:45:16.799265",
+      "processed_at": null,
+      "engagement_total": 140500
+    }
+  ]
+} 
