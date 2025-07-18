@@ -60,9 +60,9 @@ class TTSVoiceSynthesizer(BaseVoiceSynthesizer):
                 # Don't fail initialization, just load on demand
                 pass
         
-    def _get_cache_key(self, text: str, voice_name: str) -> str:
-        """Generate a cache key for the given text and voice."""
-        content = f"{text}:{voice_name}"
+    def _get_cache_key(self, text: str, voice_name: str, language: str = "en") -> str:
+        """Generate a cache key for the given text, voice, and language."""
+        content = f"{text}:{voice_name}:{language}"
         return hashlib.sha256(content.encode('utf-8')).hexdigest()[:16]
         
     def _get_tts(self):
@@ -108,7 +108,7 @@ class TTSVoiceSynthesizer(BaseVoiceSynthesizer):
                 
         return self.tts
         
-    def synthesize(self, text: str, voice_name: str) -> str:
+    def synthesize(self, text: str, voice_name: str, language: str = "en") -> str:
         """
         Synthesize voice from text and return the audio file path.
         OPTIMIZED FOR SPEED while maintaining quality.
@@ -116,6 +116,7 @@ class TTSVoiceSynthesizer(BaseVoiceSynthesizer):
         Args:
             text: Text to synthesize
             voice_name: Name of the voice to use
+            language: Language code (e.g., "en", "it", "es", etc.) - internal parameter
             
         Returns:
             Path to the generated audio file
@@ -138,12 +139,12 @@ class TTSVoiceSynthesizer(BaseVoiceSynthesizer):
                 print(f"📝 Truncated text to {len(text)} characters for faster TTS")
             
             # Check cache first
-            cache_key = self._get_cache_key(text, voice_name)
+            cache_key = self._get_cache_key(text, voice_name, language)
             if cache_key in self._audio_cache:
-                print(f"🚀 Using cached audio for {voice_name}")
+                print(f"🚀 Using cached audio for {voice_name} in {language}")
                 return self._audio_cache[cache_key].audio_path
             
-            print(f"🔊 Generating new audio for {voice_name}...")
+            print(f"🔊 Generating new audio for {voice_name} in {language}...")
             
             # Clean text (optimized)
             cleaned_text = self._clean_text_for_tts(text)
@@ -156,7 +157,7 @@ class TTSVoiceSynthesizer(BaseVoiceSynthesizer):
                 
             # Generate output filename
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            output_filename = f"synthesis_{voice_name}_{timestamp}.wav"
+            output_filename = f"synthesis_{voice_name}_{language}_{timestamp}.wav"
             output_path = os.path.join("outputs", output_filename)
             
             # Ensure output directory exists
@@ -172,7 +173,7 @@ class TTSVoiceSynthesizer(BaseVoiceSynthesizer):
             tts.tts_to_file(
                 text=text_chunks[0],
                 speaker_wav=voice_ref_path,
-                language="en",
+                language=language,
                 file_path=output_path,
                 split_sentences=False,  # Disable sentence splitting for speed
                 speed=1.2,  # Increased from 1.1 for faster speech and quicker generation

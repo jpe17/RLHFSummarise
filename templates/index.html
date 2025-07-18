@@ -104,6 +104,56 @@
         .nav-input::placeholder {
             color: #8899a6;
         }
+
+        /* Search dropdown styles */
+        .search-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .search-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #192734;
+            border: 1px solid #38444d;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .search-dropdown.show {
+            display: block;
+        }
+
+        .search-item {
+            padding: 10px 14px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .search-item:hover {
+            background: #273949;
+        }
+
+        .search-item.selected {
+            background: #1da1f2;
+            color: white;
+        }
+
+        .search-item .username {
+            font-weight: 600;
+        }
+
+        .search-item .post-count {
+            font-size: 12px;
+            color: #8899a6;
+            margin-left: 8px;
+        }
         
         .btn {
             border: none;
@@ -576,8 +626,14 @@
         <div class="header-content">
             <div class="logo">🚀 SocialAI</div>
             <div class="nav-controls">
-                <input type="text" class="nav-input" id="twitterHandle" placeholder="@twitter_handle">
-                <input type="text" class="nav-input" id="instagramHandle" placeholder="@instagram_handle">
+                <div class="search-container">
+                    <input type="text" class="nav-input" id="twitterHandle" placeholder="Search Twitter users..." autocomplete="off">
+                    <div class="search-dropdown" id="twitterDropdown"></div>
+                </div>
+                <div class="search-container">
+                    <input type="text" class="nav-input" id="instagramHandle" placeholder="Search Instagram users..." autocomplete="off">
+                    <div class="search-dropdown" id="instagramDropdown"></div>
+                </div>
                 <input type="number" class="nav-input" id="postCount" value="5" min="1" max="50" style="width: 100px;">
 
                 <select class="nav-select" id="filterSelect">
@@ -651,6 +707,9 @@
         let socket = io();
         let currentJobId = null;
         let pipelineInitialized = false;
+        let availableUsers = [];
+        let availableInstagramUsers = [];
+        let selectedUserIndex = -1;
 
         // Socket event listeners
         socket.on('progress_update', function(data) {
@@ -710,6 +769,8 @@
                     pipelineInitialized = true;
                     setTimeout(() => {
                         loadVoices();
+                        loadAvailableUsers();
+                        loadAvailableInstagramUsers();
                     }, 100);
                     setTimeout(() => showSuccess(data.message), 200);
                 } else {
@@ -723,6 +784,148 @@
                 button.disabled = false;
                 button.innerHTML = '🚀 Initialize Pipeline';
             });
+        }
+
+        function loadAvailableUsers() {
+            console.log('Loading Twitter users...');
+            fetch('/api/users/twitter')
+            .then(response => {
+                console.log('Twitter API response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Twitter API response data:', data);
+                if (data.success) {
+                    availableUsers = data.users;
+                    console.log('Available Twitter users:', availableUsers);
+                    console.log('BernieSanders in list:', availableUsers.includes('BernieSanders'));
+                    console.log('KimKardashian in list:', availableUsers.includes('KimKardashian'));
+                    console.log('Total users loaded:', availableUsers.length);
+                } else {
+                    console.error('Twitter API failed:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Failed to load Twitter users:', error);
+            });
+        }
+
+        function loadAvailableInstagramUsers() {
+            console.log('Loading Instagram users...');
+            fetch('/api/users/instagram')
+            .then(response => {
+                console.log('Instagram API response status:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Instagram API response data:', data);
+                if (data.success) {
+                    availableInstagramUsers = data.users;
+                    console.log('Available Instagram users:', availableInstagramUsers);
+                    console.log('berniesanders in list:', availableInstagramUsers.includes('berniesanders'));
+                    console.log('kimkardashian in list:', availableInstagramUsers.includes('kimkardashian'));
+                    console.log('Total Instagram users loaded:', availableInstagramUsers.length);
+                } else {
+                    console.error('Instagram API failed:', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Failed to load Instagram users:', error);
+            });
+        }
+
+        function searchUsers(query, platform = 'twitter') {
+            const dropdownId = platform === 'twitter' ? 'twitterDropdown' : 'instagramDropdown';
+            const dropdown = document.getElementById(dropdownId);
+            const users = platform === 'twitter' ? availableUsers : availableInstagramUsers;
+            
+            console.log(`Searching ${platform} users for: "${query}"`);
+            console.log(`Available ${platform} users:`, users);
+            
+            if (!query.trim()) {
+                dropdown.classList.remove('show');
+                return;
+            }
+
+            const filteredUsers = users.filter(user => 
+                user.toLowerCase().includes(query.toLowerCase())
+            );
+
+            console.log(`Filtered ${platform} users:`, filteredUsers);
+
+            if (filteredUsers.length === 0) {
+                dropdown.classList.remove('show');
+                return;
+            }
+
+            dropdown.innerHTML = '';
+            filteredUsers.forEach((user, index) => {
+                const item = document.createElement('div');
+                item.className = 'search-item';
+                item.innerHTML = `
+                    <span class="username">@${user}</span>
+                    <span class="post-count">• Available</span>
+                `;
+                item.addEventListener('click', () => selectUser(user, platform));
+                item.addEventListener('mouseenter', () => {
+                    selectedUserIndex = index;
+                    updateSelectedItem(dropdown);
+                });
+                dropdown.appendChild(item);
+            });
+
+            selectedUserIndex = -1;
+            dropdown.classList.add('show');
+        }
+
+        function selectUser(username, platform = 'twitter') {
+            const inputId = platform === 'twitter' ? 'twitterHandle' : 'instagramHandle';
+            const dropdownId = platform === 'twitter' ? 'twitterDropdown' : 'instagramDropdown';
+            
+            document.getElementById(inputId).value = username;
+            document.getElementById(dropdownId).classList.remove('show');
+            selectedUserIndex = -1;
+            checkForm();
+        }
+
+        function updateSelectedItem(dropdown) {
+            const items = dropdown.querySelectorAll('.search-item');
+            items.forEach((item, index) => {
+                item.classList.toggle('selected', index === selectedUserIndex);
+            });
+        }
+
+        function handleSearchKeydown(event, platform = 'twitter') {
+            const dropdownId = platform === 'twitter' ? 'twitterDropdown' : 'instagramDropdown';
+            const dropdown = document.getElementById(dropdownId);
+            const items = dropdown.querySelectorAll('.search-item');
+            
+            if (!dropdown.classList.contains('show') || items.length === 0) return;
+
+            switch(event.key) {
+                case 'ArrowDown':
+                    event.preventDefault();
+                    selectedUserIndex = Math.min(selectedUserIndex + 1, items.length - 1);
+                    updateSelectedItem(dropdown);
+                    break;
+                case 'ArrowUp':
+                    event.preventDefault();
+                    selectedUserIndex = Math.max(selectedUserIndex - 1, -1);
+                    updateSelectedItem(dropdown);
+                    break;
+                case 'Enter':
+                    event.preventDefault();
+                    if (selectedUserIndex >= 0) {
+                        const selectedItem = items[selectedUserIndex];
+                        const username = selectedItem.querySelector('.username').textContent.replace('@', '');
+                        selectUser(username, platform);
+                    }
+                    break;
+                case 'Escape':
+                    dropdown.classList.remove('show');
+                    selectedUserIndex = -1;
+                    break;
+            }
         }
 
         function loadVoices() {
@@ -1042,8 +1245,52 @@
             processBtn.disabled = !(hasHandle && voiceName && pipelineInitialized);
         }
 
-        document.getElementById('twitterHandle').addEventListener('input', checkForm);
-        document.getElementById('instagramHandle').addEventListener('input', checkForm);
+        // Twitter search functionality
+        const twitterHandle = document.getElementById('twitterHandle');
+        twitterHandle.addEventListener('input', function() {
+            checkForm();
+            searchUsers(this.value, 'twitter');
+        });
+        twitterHandle.addEventListener('keydown', function(event) {
+            handleSearchKeydown(event, 'twitter');
+        });
+        twitterHandle.addEventListener('focus', function() {
+            if (this.value.trim()) {
+                searchUsers(this.value, 'twitter');
+            }
+        });
+
+        // Instagram search functionality
+        const instagramHandle = document.getElementById('instagramHandle');
+        instagramHandle.addEventListener('input', function() {
+            checkForm();
+            searchUsers(this.value, 'instagram');
+        });
+        instagramHandle.addEventListener('keydown', function(event) {
+            handleSearchKeydown(event, 'instagram');
+        });
+        instagramHandle.addEventListener('focus', function() {
+            if (this.value.trim()) {
+                searchUsers(this.value, 'instagram');
+            }
+        });
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            const searchContainers = document.querySelectorAll('.search-container');
+            let clickedInside = false;
+            searchContainers.forEach(container => {
+                if (container.contains(event.target)) {
+                    clickedInside = true;
+                }
+            });
+            
+            if (!clickedInside) {
+                document.getElementById('twitterDropdown').classList.remove('show');
+                document.getElementById('instagramDropdown').classList.remove('show');
+                selectedUserIndex = -1;
+            }
+        });
         document.getElementById('postCount').addEventListener('input', checkForm);
 
         document.getElementById('filterSelect').addEventListener('change', checkForm);

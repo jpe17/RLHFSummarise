@@ -1,0 +1,148 @@
+{
+  "platform": "instagram",
+  "username": "berniesanders",
+  "total_posts": 5,
+  "last_updated": "2025-07-17T11:04:37.944929",
+  "posts": [
+    {
+      "id": "zohran_meeting",
+      "platform": "instagram",
+      "username": "berniesanders",
+      "user_display_name": "Bernie Sanders",
+      "content": "Had a great meeting with @zohrankmamdani and am deeply impressed by the grassroots campaign he is running.\n\nThe Oligarchs are prepared to undermine democracy & spend tens of millions to buy the election for his opponents.\n\nWe will not allow that to happen. Stand with Zohran.",
+      "content_type": "image",
+      "media_items": [
+        {
+          "type": "image",
+          "url": "bs1.png",
+          "alt_text": "Bernie Sanders meeting with Zohran Mamdani discussing grassroots campaign"
+        }
+      ],
+      "timestamp": "2024-07-16T15:00:00",
+      "url": null,
+      "likes": 45000,
+      "shares": 8000,
+      "comments": 2200,
+      "views": 1200000,
+      "platform_data": {
+        "engagement_total": 55200,
+        "scraped_at": "2025-07-16 21:04:31"
+      },
+      "scraped_at": "2025-07-17T10:45:16.799244",
+      "processed_at": null,
+      "engagement_total": 55200
+    },
+    {
+      "id": "vermont_community",
+      "platform": "instagram",
+      "username": "berniesanders",
+      "user_display_name": "Bernie Sanders",
+      "content": "In Vermont and across the country we've got to rebuild our sense of community and bring people together.\n\nYesterday, in Marshfield, we held our 12th Vermont foul shooting contest for kids of all ages and gave out 90 free basketballs.\n\nEveryone had a great time – especially me.",
+      "content_type": "image",
+      "media_items": [
+        {
+          "type": "image",
+          "url": "bs2.png",
+          "alt_text": "Bernie Sanders at Vermont foul shooting contest with kids and basketballs"
+        }
+      ],
+      "timestamp": "2024-07-14T12:00:00",
+      "url": null,
+      "likes": 38000,
+      "shares": 6000,
+      "comments": 1800,
+      "views": 950000,
+      "platform_data": {
+        "engagement_total": 45800,
+        "scraped_at": "2025-07-16 21:04:31"
+      },
+      "scraped_at": "2025-07-17T10:45:16.799251",
+      "processed_at": null,
+      "engagement_total": 45800
+    },
+    {
+      "id": "zohran_victory",
+      "platform": "instagram",
+      "username": "berniesanders",
+      "user_display_name": "Bernie Sanders",
+      "content": "You don't get a @zohrankmamdani victory without the extraordinary grassroots movement that rallied around him. And you don't get that movement without an economic agenda that speaks to the needs of working people.\n\nRead my op-ed on Zohran's victory at the link in my story.",
+      "content_type": "image",
+      "media_items": [
+        {
+          "type": "image",
+          "url": "bs3.png",
+          "alt_text": "Bernie Sanders celebrating Zohran Mamdani's victory with grassroots supporters"
+        }
+      ],
+      "timestamp": "2024-06-26T10:30:00",
+      "url": null,
+      "likes": 52000,
+      "shares": 9500,
+      "comments": 2800,
+      "views": 1400000,
+      "platform_data": {
+        "engagement_total": 64300,
+        "scraped_at": "2025-07-16 21:04:31"
+      },
+      "scraped_at": "2025-07-17T10:45:16.799255",
+      "processed_at": null,
+      "engagement_total": 64300
+    },
+    {
+      "id": "fighting_oligarchy_tour",
+      "platform": "instagram",
+      "username": "berniesanders",
+      "user_display_name": "Bernie Sanders",
+      "content": "The Fighting Oligarchy Tour continues.\n\nThis weekend I'm heading to Texas, Louisiana, and Oklahoma.\n\nRed state or blue state, we must fight back against oligarchy, authoritarianism and a rigged economy.\n\nI hope you'll join us.",
+      "content_type": "image",
+      "media_items": [
+        {
+          "type": "image",
+          "url": "bs4.png",
+          "alt_text": "Bernie Sanders on the Fighting Oligarchy Tour in Texas, Louisiana, and Oklahoma"
+        }
+      ],
+      "timestamp": "2024-06-19T14:00:00",
+      "url": null,
+      "likes": 41000,
+      "shares": 7200,
+      "comments": 2100,
+      "views": 1100000,
+      "platform_data": {
+        "engagement_total": 50300,
+        "scraped_at": "2025-07-16 21:04:31"
+      },
+      "scraped_at": "2025-07-17T10:45:16.799260",
+      "processed_at": null,
+      "engagement_total": 50300
+    },
+    {
+      "id": "trump_tax_bill",
+      "platform": "instagram",
+      "username": "berniesanders",
+      "user_display_name": "Bernie Sanders",
+      "content": "Under Trump's \"big, beautiful bill\", the top 0.1% will see their income increase by nearly $400,000 next year, while Americans making less than $51,000 will see their incomes GO DOWN.\n\nOligarchs are waging a war on the working class, and they are intent on winning.",
+      "content_type": "image",
+      "media_items": [
+        {
+          "type": "image",
+          "url": "bs5.png",
+          "alt_text": "Bernie Sanders speaking about Trump's tax bill and income inequality"
+        }
+      ],
+      "timestamp": "2024-05-29T16:30:00",
+      "url": null,
+      "likes": 67000,
+      "shares": 12000,
+      "comments": 3500,
+      "views": 1800000,
+      "platform_data": {
+        "engagement_total": 82500,
+        "scraped_at": "2025-07-16 21:04:31"
+      },
+      "scraped_at": "2025-07-17T10:45:16.799265",
+      "processed_at": null,
+      "engagement_total": 82500
+    }
+  ]
+} 
