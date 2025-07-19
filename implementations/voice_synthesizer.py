@@ -195,14 +195,30 @@ class TTSVoiceSynthesizer(BaseVoiceSynthesizer):
             print(f"⏱️ Starting TTS generation...")
             start_time = time.time()
             
-            tts.tts_to_file(
-                text=cleaned_text,
-                speaker_wav=voice_ref_path,
-                language=language,
-                file_path=output_path,
-                split_sentences=False,  # Disable for speed
-                speed=1.2,  # Faster speech for speed
-            )
+            # Check if model supports multi-language
+            try:
+                # Try with language parameter first (for XTTS models)
+                tts.tts_to_file(
+                    text=cleaned_text,
+                    speaker_wav=voice_ref_path,
+                    language=language,
+                    file_path=output_path,
+                    split_sentences=False,  # Disable for speed
+                    speed=1.2,  # Faster speech for speed
+                )
+            except Exception as lang_error:
+                if "not multi-lingual" in str(lang_error):
+                    print(f"🔧 Model doesn't support language parameter, using default...")
+                    # Fallback to no language parameter (for Tacotron2, etc.)
+                    tts.tts_to_file(
+                        text=cleaned_text,
+                        speaker_wav=voice_ref_path,
+                        file_path=output_path,
+                        split_sentences=False,  # Disable for speed
+                        speed=1.2,  # Faster speech for speed
+                    )
+                else:
+                    raise lang_error
             
             generation_time = time.time() - start_time
             print(f"⏱️ TTS generation took {generation_time:.2f} seconds")

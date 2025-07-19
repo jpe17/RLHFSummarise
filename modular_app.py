@@ -40,6 +40,7 @@ except Exception as e:
 # ------------------------------------
 
 processing_status = {}
+youtube_processing_status = {}
 
 @app.route('/')
 def index():
@@ -348,7 +349,7 @@ def get_config():
 @app.route('/api/process-youtube', methods=['POST'])
 def process_youtube():
     """Process YouTube video and generate summary."""
-    global pipeline, processing_status
+    global pipeline, youtube_processing_status
     
     data = request.json
     youtube_url = data.get('youtube_url')
@@ -361,7 +362,7 @@ def process_youtube():
         return jsonify({'success': False, 'message': 'YouTube URL is required'})
 
     job_id = f"youtube_{int(time.time())}"
-    processing_status[job_id] = {'status': 'starting', 'progress': 0, 'message': 'Starting YouTube processing...'}
+    youtube_processing_status[job_id] = {'status': 'starting', 'progress': 0, 'message': 'Starting YouTube processing...'}
 
     def process_in_background():
         try:
@@ -389,7 +390,7 @@ def process_youtube():
                 pipeline._update_progress(progress, message)
                 # Emit streaming updates for summary generation
                 if "Generating summary" in message:
-                    socketio.emit('summary_stream', {
+                    socketio.emit('youtube_summary_stream', {
                         'job_id': job_id, 
                         'progress': progress, 
                         'message': message
@@ -432,7 +433,7 @@ def process_youtube():
             summary_data = result.to_dict()
             print(f"🔍 Debug: Emitting YouTube summary data with keys: {list(summary_data.keys())}")
             print(f"🔍 Debug: Summary content: {summary_data.get('summary', {}).get('content', 'NO SUMMARY')[:100]}...")
-            socketio.emit('summary_ready', {'job_id': job_id, 'result': summary_data})
+            socketio.emit('youtube_summary_ready', {'job_id': job_id, 'result': summary_data})
 
             # Step 2: Synthesize audio if voice is selected
             if voice_name:
@@ -456,28 +457,28 @@ def process_youtube():
                         'audio_path': voice_output.audio_path,
                         'voice_name': voice_name
                     }
-                    socketio.emit('audio_ready', audio_data)
+                    socketio.emit('youtube_audio_ready', audio_data)
 
                 except Exception as e:
                     error_message = f'❌ Error synthesizing voice: {str(e)}'
                     print(f"YouTube voice synthesis error details: {e}")
                     pipeline._update_progress(100, error_message)
-                    socketio.emit('processing_error', {'job_id': job_id, 'message': error_message})
+                    socketio.emit('youtube_processing_error', {'job_id': job_id, 'message': error_message})
                     return
             else:
                 pipeline._update_progress(100, '✅ Processing complete!')
 
             # Final completion update
-            processing_status[job_id] = {'status': 'complete', 'result': result.to_dict()}
-            socketio.emit('processing_complete', {'job_id': job_id, 'status': 'complete'})
+            youtube_processing_status[job_id] = {'status': 'complete', 'result': result.to_dict()}
+            socketio.emit('youtube_processing_complete', {'job_id': job_id, 'status': 'complete'})
 
         except Exception as e:
             error_message = f'YouTube processing error: {str(e)}'
             print(f"YouTube processing error details: {e}")
             import traceback
             traceback.print_exc()
-            processing_status[job_id] = {'status': 'error', 'message': error_message}
-            socketio.emit('processing_complete', {'job_id': job_id, 'status': 'error', 'message': error_message})
+            youtube_processing_status[job_id] = {'status': 'error', 'message': error_message}
+            socketio.emit('youtube_processing_complete', {'job_id': job_id, 'status': 'error', 'message': error_message})
 
     socketio.start_background_task(target=process_in_background)
     

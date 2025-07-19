@@ -297,6 +297,246 @@
             background: linear-gradient(135deg, #ff0000, #cc0000);
         }
 
+        /* Social Media Post Styles */
+        .post-card {
+            background: #192734;
+            border: 1px solid #38444d;
+            border-radius: 16px;
+            padding: 0;
+            margin-bottom: 16px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .post-card:hover {
+            border-color: #1da1f2;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(29, 161, 242, 0.1);
+        }
+
+        .post-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #1da1f2, #ff6b6b);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .post-card:hover::before {
+            opacity: 1;
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px 12px 20px;
+            border-bottom: 1px solid rgba(56, 68, 77, 0.3);
+        }
+
+        .post-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1da1f2, #ff6b6b);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            margin-right: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .post-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .post-username {
+            font-weight: 700;
+            font-size: 16px;
+            color: #fff;
+            margin-bottom: 2px;
+        }
+
+        .post-handle {
+            color: #8899a6;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .platform-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .platform-twitter {
+            background: rgba(29, 161, 242, 0.2);
+            color: #1da1f2;
+        }
+
+        .platform-instagram {
+            background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+            color: white;
+        }
+
+        .post-content {
+            padding: 16px 20px;
+            font-size: 15px;
+            line-height: 1.6;
+            color: #fff;
+        }
+
+        .post-image {
+            width: 100%;
+            height: auto;
+            max-height: 400px;
+            object-fit: cover;
+            margin: 0;
+            border-radius: 0;
+        }
+
+        .post-engagement {
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 20px 16px 20px;
+            border-top: 1px solid rgba(56, 68, 77, 0.3);
+        }
+
+        .engagement-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            color: #8899a6;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .engagement-item:hover {
+            background: rgba(29, 161, 242, 0.1);
+            color: #1da1f2;
+            transform: scale(1.05);
+        }
+
+        .engagement-item span:first-child {
+            font-size: 16px;
+        }
+
+        .post-timestamp {
+            font-size: 12px;
+            color: #8899a6;
+            margin-left: auto;
+        }
+
+        .hashtag {
+            color: #1da1f2;
+            text-decoration: none;
+        }
+
+        .hashtag:hover {
+            text-decoration: underline;
+        }
+
+        .mention {
+            color: #1da1f2;
+            text-decoration: none;
+        }
+
+        .mention:hover {
+            text-decoration: underline;
+        }
+
+        .verified-badge {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            margin-left: 4px;
+            background: #1da1f2;
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .verified-badge::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .post-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 8px 0;
+        }
+
+        .post-content a {
+            color: #1da1f2;
+            text-decoration: none;
+        }
+
+        .post-content a:hover {
+            text-decoration: underline;
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            .post-card {
+                margin-bottom: 12px;
+                border-radius: 12px;
+            }
+
+            .post-header {
+                padding: 12px 16px 8px 16px;
+            }
+
+            .post-avatar {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+
+            .post-content {
+                padding: 12px 16px;
+                font-size: 14px;
+            }
+
+            .post-engagement {
+                padding: 8px 16px 12px 16px;
+            }
+
+            .engagement-item {
+                gap: 6px;
+                padding: 6px 8px;
+                font-size: 13px;
+            }
+
+            .platform-badge {
+                font-size: 10px;
+                padding: 1px 4px;
+            }
+        }
+
         .feed-content {
             padding: 20px;
             height: calc(100vh - 200px);
@@ -742,41 +982,47 @@
             }
         });
 
+        // Social Media Events
         socket.on('summary_ready', function(data) {
-            if (data.job_id === currentJobId) {
-                console.log('🔍 Debug: Received summary_ready event:', data);
-                console.log('🔍 Debug: isYouTubeMode:', isYouTubeMode);
-                console.log('🔍 Debug: data.result:', data.result);
-                if (isYouTubeMode) {
-                    console.log('🔍 Debug: Calling showYouTubeSummary');
-                    showYouTubeSummary(data.result);
-                } else {
-                    console.log('🔍 Debug: Calling showSummary for social media');
-                    showSummary(data.result);
-                }
-            } else {
-                console.log('🔍 Debug: Job ID mismatch. Current:', currentJobId, 'Received:', data.job_id);
-            }
-        });
-        
-        socket.on('summary_stream', function(data) {
-            if (data.job_id === currentJobId) {
-                console.log('🔍 Debug: Received summary_stream event:', data);
-                if (isYouTubeMode) {
-                    updateYouTubeSummaryStream(data);
-                }
+            if (data.job_id === currentJobId && !isYouTubeMode) {
+                console.log('🔍 Debug: Received social summary_ready event:', data);
+                showSummary(data.result);
             }
         });
 
+        // YouTube Events
+        socket.on('youtube_summary_ready', function(data) {
+            if (data.job_id === currentJobId && isYouTubeMode) {
+                console.log('🔍 Debug: Received youtube_summary_ready event:', data);
+                showYouTubeSummary(data.result);
+            }
+        });
+        
+        socket.on('youtube_summary_stream', function(data) {
+            if (data.job_id === currentJobId && isYouTubeMode) {
+                console.log('🔍 Debug: Received youtube_summary_stream event:', data);
+                updateYouTubeSummaryStream(data);
+            }
+        });
+
+        // Social Media Audio
         socket.on('audio_ready', function(data) {
-            if (data.job_id === currentJobId) {
+            if (data.job_id === currentJobId && !isYouTubeMode) {
                 showAudioPlayer(data.audio_path, data.voice_name);
             }
         });
 
+        // YouTube Audio
+        socket.on('youtube_audio_ready', function(data) {
+            if (data.job_id === currentJobId && isYouTubeMode) {
+                showAudioPlayer(data.audio_path, data.voice_name);
+            }
+        });
+
+        // Social Media Completion
         socket.on('processing_complete', function(data) {
-            if (data.job_id === currentJobId) {
-                console.log('🔍 Debug: Received processing_complete event:', data);
+            if (data.job_id === currentJobId && !isYouTubeMode) {
+                console.log('🔍 Debug: Received social processing_complete event:', data);
                 if (data.status === 'complete') {
                     hideProgress();
                     showSuccess('✅ Processing complete!');
@@ -788,8 +1034,30 @@
         });
 
         socket.on('processing_error', function(data) {
-            if (data.job_id === currentJobId) {
-                console.log('🔍 Debug: Received processing_error event:', data);
+            if (data.job_id === currentJobId && !isYouTubeMode) {
+                console.log('🔍 Debug: Received social processing_error event:', data);
+                showError(data.message || 'An unknown error occurred.');
+                hideProgress();
+            }
+        });
+
+        // YouTube Completion
+        socket.on('youtube_processing_complete', function(data) {
+            if (data.job_id === currentJobId && isYouTubeMode) {
+                console.log('🔍 Debug: Received youtube_processing_complete event:', data);
+                if (data.status === 'complete') {
+                    hideProgress();
+                    showSuccess('✅ YouTube processing complete!');
+                } else {
+                    showError(data.message || 'An unknown error occurred.');
+                    hideProgress();
+                }
+            }
+        });
+
+        socket.on('youtube_processing_error', function(data) {
+            if (data.job_id === currentJobId && isYouTubeMode) {
+                console.log('🔍 Debug: Received youtube_processing_error event:', data);
                 showError(data.message || 'An unknown error occurred.');
                 hideProgress();
             }
@@ -941,7 +1209,6 @@
                     <h4>🎵 AI Generated Audio</h4>
                     <div class="loading-state" id="youtubeAudioLoading">
                         <div class="spinner"></div>
-                        <p style="color: #8899a6; margin-top: 10px;">Generating audio...</p>
                     </div>
                 </div>
             `;
@@ -1108,7 +1375,6 @@
                     <h4>🎵 AI Generated Audio</h4>
                     <div class="loading-state" id="audioLoading">
                         <div class="spinner"></div>
-                        <p style="color: #8899a6; margin-top: 10px;">Generating audio...</p>
                     </div>
                 </div>
             `;
@@ -1401,30 +1667,48 @@
         function createPostElement(post) {
             const postDiv = document.createElement('div');
             postDiv.className = 'post-card';
-            const postDate = new Date(post.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            const postDate = new Date(post.timestamp).toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            // Process content for hashtags and mentions
+            const processedContent = post.content
+                .replace(/\n/g, '<br>')
+                .replace(/#(\w+)/g, '<span class="hashtag">#$1</span>')
+                .replace(/@(\w+)/g, '<span class="mention">@$1</span>');
             
             postDiv.innerHTML = `
                 <div class="post-header">
                     <div class="post-avatar">${post.username.charAt(0).toUpperCase()}</div>
                     <div class="post-info">
-                        <div class="post-username">${post.user_display_name || post.username}</div>
-                        <div class="post-handle">@${post.username} • ${postDate}</div>
+                        <div class="post-username">
+                            ${post.user_display_name || post.username}
+                            ${getVerifiedBadge(post.username)}
+                            ${post.platform === 'twitter' ? '<span class="platform-badge platform-twitter">Twitter</span>' : ''}
+                        </div>
+                        <div class="post-handle">
+                            @${post.username} • ${postDate}
+                        </div>
                     </div>
                 </div>
-                <div class="post-content">${post.content.replace(/\n/g, '<br>')}</div>
+                <div class="post-content">${processedContent}</div>
                 <div class="post-engagement">
-                    <div class="engagement-item">
+                    <div class="engagement-item" title="Replies">
                         <span>💬</span>
                         <span>${formatNumber(post.comments)}</span>
                     </div>
-                    <div class="engagement-item">
+                    <div class="engagement-item" title="Retweets">
                         <span>🔄</span>
                         <span>${formatNumber(post.shares)}</span>
                     </div>
-                    <div class="engagement-item">
+                    <div class="engagement-item" title="Likes">
                         <span>❤️</span>
                         <span>${formatNumber(post.likes)}</span>
                     </div>
+                    ${post.views ? `<div class="engagement-item" title="Views"><span>👁️</span><span>${formatNumber(post.views)}</span></div>` : ''}
                 </div>
             `;
             return postDiv;
@@ -1433,40 +1717,77 @@
         function createImageElement(post) {
             const imageDiv = document.createElement('div');
             imageDiv.className = 'post-card';
-            const postDate = new Date(post.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            const postDate = new Date(post.timestamp).toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
             const mediaItem = post.media_items[0];
             const imagePath = mediaItem ? `data/posts/instagram/${post.username}/${mediaItem.url}` : '';
+
+            // Process content for hashtags and mentions
+            const processedContent = post.content
+                .replace(/\n/g, '<br>')
+                .replace(/#(\w+)/g, '<span class="hashtag">#$1</span>')
+                .replace(/@(\w+)/g, '<span class="mention">@$1</span>');
 
             imageDiv.innerHTML = `
                 <div class="post-header">
                     <div class="post-avatar">${post.username.charAt(0).toUpperCase()}</div>
                     <div class="post-info">
-                        <div class="post-username">${post.user_display_name || post.username}</div>
-                        <div class="post-handle">@${post.username} • ${postDate}</div>
+                        <div class="post-username">
+                            ${post.user_display_name || post.username}
+                            ${getVerifiedBadge(post.username)}
+                            <span class="platform-badge platform-instagram">Instagram</span>
+                        </div>
+                        <div class="post-handle">
+                            @${post.username} • ${postDate}
+                        </div>
                     </div>
                 </div>
-                ${mediaItem ? `<img src="${imagePath}" alt="${mediaItem.alt_text || 'Instagram Post'}" class="post-image">` : ''}
-                <div class="post-content" style="margin-top: 12px;">${post.content.replace(/\n/g, '<br>')}</div>
+                ${mediaItem ? `<img src="${imagePath}" alt="${mediaItem.alt_text || 'Instagram Post'}" class="post-image" loading="lazy">` : ''}
+                ${post.content ? `<div class="post-content">${processedContent}</div>` : ''}
                 <div class="post-engagement">
-                    <div class="engagement-item">
+                    <div class="engagement-item" title="Comments">
                         <span>💬</span>
                         <span>${formatNumber(post.comments)}</span>
                     </div>
-                    <div class="engagement-item">
+                    <div class="engagement-item" title="Likes">
                         <span>❤️</span>
                         <span>${formatNumber(post.likes)}</span>
                     </div>
-                    ${post.views ? `<div class="engagement-item"><span>👁️</span><span>${formatNumber(post.views)}</span></div>` : ''}
+                    <div class="engagement-item" title="Shares">
+                        <span>📤</span>
+                        <span>${formatNumber(post.shares || 0)}</span>
+                    </div>
+                    ${post.views ? `<div class="engagement-item" title="Views"><span>👁️</span><span>${formatNumber(post.views)}</span></div>` : ''}
                 </div>
             `;
             return imageDiv;
         }
 
         function formatNumber(num) {
-            if (!num) return 0;
-            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
-            return num.toString();
+            if (!num || num === 0) return '0';
+            if (num >= 1000000) {
+                const millions = (num / 1000000);
+                return millions % 1 === 0 ? millions.toFixed(0) + 'M' : millions.toFixed(1) + 'M';
+            }
+            if (num >= 1000) {
+                const thousands = (num / 1000);
+                return thousands % 1 === 0 ? thousands.toFixed(0) + 'K' : thousands.toFixed(1) + 'K';
+            }
+            return num.toLocaleString();
+        }
+
+        function getVerifiedBadge(username) {
+            // List of verified/notable accounts
+            const verifiedUsers = [
+                'BarackObama', 'realDonaldTrump', 'elonmusk', 'sama', 'BernieSanders',
+                'KimKardashian', 'kimkardashian', 'berniesanders', 'potus', 'POTUS'
+            ];
+            
+            return verifiedUsers.includes(username) ? '<span class="verified-badge" title="Verified account"></span>' : '';
         }
 
         function processUser() {
@@ -1517,7 +1838,7 @@
                 if (data.success) {
                     currentJobId = data.job_id;
                     console.log('🔍 Debug: Set currentJobId to:', currentJobId);
-                    updateProgress(0, 'Starting processing...');
+                    updateProgress(0, '');
                 } else {
                     showError(data.message);
                     hideProgress();

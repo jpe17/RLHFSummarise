@@ -219,7 +219,7 @@
         }
 
         .feed-content {
-            padding: 20px;
+            padding: 24px;
             height: calc(100vh - 200px);
             overflow-y: auto;
         }
@@ -245,8 +245,8 @@
             background: #192734;
             border: 1px solid #38444d;
             border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
@@ -310,9 +310,10 @@
 
         .post-content {
             font-size: 15px;
-            line-height: 1.5;
+            line-height: 1.6;
             color: #fff;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
+            padding: 4px 0;
         }
 
         .post-engagement {
@@ -340,7 +341,8 @@
             width: 100%;
             height: auto;
             border-radius: 12px;
-            margin-top: 12px;
+            margin: 16px 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
 
         .image-card {
@@ -348,9 +350,10 @@
             border: 1px solid #38444d;
             border-radius: 12px;
             overflow: hidden;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
             transition: all 0.3s ease;
             position: relative;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
 
         .image-card:hover {
@@ -377,8 +380,9 @@
 
         .image-container {
             position: relative;
-            height: 200px;
+            height: 220px;
             overflow: hidden;
+            margin-bottom: 12px;
         }
 
         .image-placeholder {
@@ -403,8 +407,8 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
-            padding: 16px;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
+            padding: 20px;
             color: white;
         }
 
@@ -1113,7 +1117,7 @@
             .then(data => {
                 if (data.success) {
                     currentJobId = data.job_id;
-                    updateProgress(0, 'Starting processing...');
+                    updateProgress(0, '');
                 } else {
                     showError(data.message);
                     hideProgress();
@@ -1180,7 +1184,6 @@
                     <h4>🎵 AI Generated Audio</h4>
                     <div class="loading-state" id="audioLoading">
                         <div class="spinner"></div>
-                        <p style="color: #8899a6; margin-top: 10px;">Generating audio...</p>
                     </div>
                 </div>
             `;
